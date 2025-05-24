@@ -232,13 +232,7 @@ Settings and state are persisted using:
 
 ## Deployment
 
-The application is deployed as a static website, accessible at:
-https://bzhgsift.manus.space
 
-This deployment provides:
-- Permanent access to the application
-- No server-side dependencies
-- Fast loading and execution
 
 ## Conclusion
 
