@@ -41,7 +41,16 @@ digital_echoplex/
 3. **Control Modes**
    - SWITCH/TOGGLE modes for buttons
    - Function button as modifier
-   - Multiple interface modes (Loop, Stutter, Delay, Expert)
+- Multiple interface modes (Loop, Stutter, Delay, Expert)
+
+### Interface Modes
+
+| Mode | Behavior |
+|------|----------|
+| **LOOP** | Standard looping. |
+| **STUTTER** | Rapid retrigger using `stutterLength`. |
+| **DELAY** | Adds delay with `delayTime`. |
+| **EXPERT** | Enables both stutter and delay. |
 
 4. **Parameters and Settings**
    - Feedback control (default: maximum for true looper functionality)

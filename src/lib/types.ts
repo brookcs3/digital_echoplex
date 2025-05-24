@@ -15,6 +15,8 @@ export interface LoopSettings {
    */
   micMonitor: 'RECORDING_ONLY' | 'ALWAYS_ON';
   feedback: number;
+  delayTime: number;
+  stutterLength: number;
   inputGain: number;
   outputGain: number;
   mix: number;

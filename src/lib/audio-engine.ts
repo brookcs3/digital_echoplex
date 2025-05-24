@@ -44,6 +44,20 @@ export class EchoplexAudioEngine {
     
     // Initialize state
     this.state = this.getInitialState();
+
+    // Load persisted settings if available
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('echoplex-settings');
+      if (saved) {
+        try {
+          const loaded = JSON.parse(saved);
+          this.state.settings = { ...this.state.settings, ...loaded };
+          this.applySettingsToNodes(this.state.settings);
+        } catch (err) {
+          console.warn('Failed to parse saved settings', err);
+        }
+      }
+    }
   }
 
   /**
@@ -97,6 +111,8 @@ export class EchoplexAudioEngine {
       tempo: 120,
       micMonitor: 'RECORDING_ONLY',
       feedback: 0.5,
+      delayTime: 0.25,
+      stutterLength: 0.1,
       inputGain: 0.8,
       outputGain: 0.8,
       mix: 0.5
@@ -165,7 +181,12 @@ export class EchoplexAudioEngine {
     currentLoop.endPoint = buffer.duration;
     
     // Create a player for the loop
-    this.player = new Tone.Player(buffer).connect(this.mixer.b);
+    this.player = new Tone.Player(buffer);
+    this.player.connect(this.mixer.b);
+    if (this.state.settings.interfaceMode === 'DELAY' ||
+        this.state.settings.interfaceMode === 'EXPERT') {
+      this.player.connect(this.feedback);
+    }
     
     // Update state
     this.state.isRecording = false;
@@ -182,9 +203,10 @@ export class EchoplexAudioEngine {
    */
   startLoopPlayback(): void {
     if (!this.state.loops[this.state.currentLoopIndex].buffer) return;
-    
+
     const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const { interfaceMode, stutterLength } = this.state.settings;
+
     // Clear any existing scheduled events
     this.clearScheduledEvents();
     
@@ -199,11 +221,13 @@ export class EchoplexAudioEngine {
       
       // Schedule the loop to play repeatedly
       this.player.start('+0.1', start);
-      this.playbackStartTime = this.context.currentTime + 0.1;
-      
+
       // Calculate loop duration
-      const loopDuration = end - start;
-      
+      let loopDuration = end - start;
+      if (interfaceMode === 'STUTTER' || interfaceMode === 'EXPERT') {
+        loopDuration = stutterLength;
+      }
+
       // Schedule the loop to restart at the end
       this.loopInterval = window.setInterval(() => {
         if (this.player && this.state.isPlaying && !currentLoop.isMuted) {
@@ -682,7 +706,12 @@ export class EchoplexAudioEngine {
       const buffer = new Tone.Buffer().fromArray(
         this.state.loops[this.state.currentLoopIndex].buffer!.getChannelData(0)
       );
-      this.player = new Tone.Player(buffer).connect(this.mixer.b);
+      this.player = new Tone.Player(buffer);
+      this.player.connect(this.mixer.b);
+      if (this.state.settings.interfaceMode === 'DELAY' ||
+          this.state.settings.interfaceMode === 'EXPERT') {
+        this.player.connect(this.feedback);
+      }
       
       // Start playback
       this.startLoopPlayback();
@@ -710,7 +739,12 @@ export class EchoplexAudioEngine {
       const buffer = new Tone.Buffer().fromArray(
         this.state.loops[this.state.currentLoopIndex].buffer!.getChannelData(0)
       );
-      this.player = new Tone.Player(buffer).connect(this.mixer.b);
+      this.player = new Tone.Player(buffer);
+      this.player.connect(this.mixer.b);
+      if (this.state.settings.interfaceMode === 'DELAY' ||
+          this.state.settings.interfaceMode === 'EXPERT') {
+        this.player.connect(this.feedback);
+      }
       
       // Start playback
       this.startLoopPlayback();
@@ -824,31 +858,23 @@ export class EchoplexAudioEngine {
    */
   updateSettings(settings: Partial<LoopSettings>): void {
     this.state.settings = { ...this.state.settings, ...settings };
-    
-    // Apply settings to audio nodes
-    if (settings.feedback !== undefined) {
-      this.feedback.feedback.value = settings.feedback;
-    }
-    
-    if (settings.inputGain !== undefined) {
-      this.inputGain.gain.value = settings.inputGain;
-    }
-    
-    if (settings.outputGain !== undefined) {
-      this.outputGain.gain.value = settings.outputGain;
-    }
-    
-    if (settings.mix !== undefined) {
-      this.mixer.fade.value = settings.mix;
+
+    this.applySettingsToNodes(this.state.settings);
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('echoplex-settings', JSON.stringify(this.state.settings));
     }
 
-    // Future implementation could route microphone monitoring
-    if (settings.micMonitor !== undefined) {
-      // Currently we simply store the value in state
-      this.state.settings.micMonitor = settings.micMonitor;
-    }
-    
     console.log('Settings updated:', settings);
+  }
+
+  /** Apply settings values to audio nodes */
+  private applySettingsToNodes(settings: LoopSettings): void {
+    this.feedback.delayTime.value = settings.delayTime;
+    this.feedback.feedback.value = settings.feedback;
+    this.inputGain.gain.value = settings.inputGain;
+    this.outputGain.gain.value = settings.outputGain;
+    this.mixer.fade.value = settings.mix;
   }
 
   /**

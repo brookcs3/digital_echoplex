@@ -81,6 +81,16 @@
         <option value="FLIP">Flip</option>
       </select>
     </div>
+
+    <div class="parameter-group mode-stutter mode-expert hidden">
+      <label for="stutter-length-input" class="control-label">Stutter Length (s)</label>
+      <input type="number" id="stutter-length-input" class="control-input" min="0.05" max="1" step="0.01" value="0.1">
+    </div>
+
+    <div class="parameter-group mode-delay mode-expert hidden">
+      <label for="delay-time-input" class="control-label">Delay Time (s)</label>
+      <input type="number" id="delay-time-input" class="control-input" min="0.1" max="1" step="0.01" value="0.25">
+    </div>
     
     <div class="parameter-group">
       <label for="sampler-style-select" class="control-label">Sampler Style</label>
@@ -163,6 +173,10 @@
     color: #e0e0e0;
     border: 1px solid #00ff00;
     border-radius: 4px;
+  }
+
+  .hidden {
+    display: none;
   }
   
   @media (max-width: 768px) {
