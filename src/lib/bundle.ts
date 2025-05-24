@@ -7,6 +7,7 @@
 import { EchoplexAudioEngine } from './audio-engine';
 import { AdvancedLooperFunctions } from './advanced-functions';
 import { PresetManager } from './preset-manager';
+import { EchoplexTester } from './tester';
 import { EchoplexState, Loop, LoopSettings } from './types';
 
 // Export all modules to global scope for browser access
@@ -15,6 +16,7 @@ declare global {
     EchoplexAudioEngine: typeof EchoplexAudioEngine;
     AdvancedLooperFunctions: typeof AdvancedLooperFunctions;
     PresetManager: typeof PresetManager;
+    EchoplexTester: typeof EchoplexTester;
     echoplexEngine: EchoplexAudioEngine | null;
   }
 }
@@ -23,6 +25,7 @@ declare global {
 window.EchoplexAudioEngine = EchoplexAudioEngine;
 window.AdvancedLooperFunctions = AdvancedLooperFunctions;
 window.PresetManager = PresetManager;
+window.EchoplexTester = EchoplexTester;
 window.echoplexEngine = null;
 
 // Export for module usage
@@ -30,6 +33,7 @@ export {
   EchoplexAudioEngine,
   AdvancedLooperFunctions,
   PresetManager,
+  EchoplexTester,
   EchoplexState,
   Loop,
   LoopSettings

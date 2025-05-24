@@ -248,8 +248,24 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Mute button
       document.getElementById('mute-button')?.addEventListener('click', () => {
         if (!echoplexEngine) return;
-        
+
         echoplexEngine.toggleMute();
+        updateUIState();
+      });
+
+      // Insert button
+      document.getElementById('insert-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+
+        await echoplexEngine.insertLoop();
+        updateUIState();
+      });
+
+      // Replace button
+      document.getElementById('replace-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+
+        await echoplexEngine.replaceLoop();
         updateUIState();
       });
     }
@@ -343,6 +359,54 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       });
       document.querySelectorAll('.mode-delay').forEach(el => {
         (el as HTMLElement).classList.toggle('hidden', !(mode === 'DELAY' || mode === 'EXPERT'));
+      });
+
+      // Switch quantize select
+      document.getElementById('switch-quant-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ switchQuant: value });
+      });
+
+      // Insert mode select
+      document.getElementById('insert-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ insertMode: value });
+      });
+
+      // Overdub mode select
+      document.getElementById('overdub-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ overdubMode: value });
+      });
+
+      // Sampler style select
+      document.getElementById('sampler-style-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ samplerStyle: value });
+      });
+
+      // Tempo input
+      document.getElementById('tempo-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ tempo: value });
+      });
+
+      // Cycle beats input
+      document.getElementById('cycle-beats-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = parseInt((e.target as HTMLInputElement).value, 10);
+        echoplexEngine.updateSettings({ cycleBeats: value });
       });
     }
 
@@ -457,6 +521,18 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       if (muteButton) {
         const currentLoop = state.loops[state.currentLoopIndex];
         muteButton.classList.toggle('active', currentLoop.isMuted);
+      }
+
+      const insertButton = document.getElementById('insert-button');
+      if (insertButton) {
+        insertButton.classList.toggle('active', state.isInserting);
+        insertButton.textContent = state.isInserting ? 'Stop Insert' : 'Insert';
+      }
+
+      const replaceButton = document.getElementById('replace-button');
+      if (replaceButton) {
+        replaceButton.classList.toggle('active', state.isReplacing);
+        replaceButton.textContent = state.isReplacing ? 'Stop Replace' : 'Replace';
       }
       
       // Update loop selector
