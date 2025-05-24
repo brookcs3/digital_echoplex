@@ -93,6 +93,7 @@ export class EchoplexAudioEngine {
       samplerStyle: 'PLAY',
       cycleBeats: 8,
       tempo: 120,
+      micMonitor: 'RECORDING_ONLY',
       feedback: 0.5,
       inputGain: 0.8,
       outputGain: 0.8,
@@ -697,6 +698,12 @@ export class EchoplexAudioEngine {
     
     if (settings.mix !== undefined) {
       this.mixer.fade.value = settings.mix;
+    }
+
+    // Future implementation could route microphone monitoring
+    if (settings.micMonitor !== undefined) {
+      // Currently we simply store the value in state
+      this.state.settings.micMonitor = settings.micMonitor;
     }
     
     console.log('Settings updated:', settings);
