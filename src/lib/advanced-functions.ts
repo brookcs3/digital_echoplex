@@ -186,8 +186,22 @@ export class AdvancedLooperFunctions {
     if (!state.isSUSActive) return;
     
     state.isSUSActive = false;
-    
+
     console.log('SUS command deactivated');
+  }
+
+  /**
+   * Wrapper for insert recording
+   */
+  async insertLoop(): Promise<void> {
+    await this.audioEngine.insertLoop();
+  }
+
+  /**
+   * Wrapper for replace recording
+   */
+  async replaceLoop(): Promise<void> {
+    await this.audioEngine.replaceLoop();
   }
 
   /**

@@ -19,6 +19,8 @@ export class EchoplexAudioEngine {
   private recordStartTime: number = 0;
   private scheduledEvents: number[] = [];
   private loopInterval: number | null = null;
+  private playbackStartTime: number = 0;
+  private insertPosition: number = 0;
 
   constructor() {
     // Initialize Web Audio API context
@@ -196,6 +198,7 @@ export class EchoplexAudioEngine {
       
       // Schedule the loop to play repeatedly
       this.player.start('+0.1', start);
+      this.playbackStartTime = this.context.currentTime + 0.1;
       
       // Calculate loop duration
       const loopDuration = end - start;
@@ -205,6 +208,7 @@ export class EchoplexAudioEngine {
         if (this.player && this.state.isPlaying && !currentLoop.isMuted) {
           this.player.stop();
           this.player.start('+0.01', start);
+          this.playbackStartTime = this.context.currentTime + 0.01;
         }
       }, loopDuration * 1000);
     }
@@ -235,9 +239,22 @@ export class EchoplexAudioEngine {
       clearInterval(this.loopInterval);
       this.loopInterval = null;
     }
-    
+
     this.scheduledEvents.forEach(id => Tone.Transport.clear(id));
     this.scheduledEvents = [];
+  }
+
+  /**
+   * Get the current playback position within the loop
+   */
+  private getPlaybackPosition(): number {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+    const start = currentLoop.windowStart !== null ? currentLoop.windowStart : currentLoop.startPoint;
+    const end = currentLoop.windowEnd !== null ? currentLoop.windowEnd : currentLoop.endPoint;
+    const duration = end - start;
+    const elapsed = this.context.currentTime - this.playbackStartTime;
+    const offset = elapsed % duration;
+    return start + offset;
   }
 
   /**
@@ -328,6 +345,131 @@ export class EchoplexAudioEngine {
     
     this.state.isOverdubbing = false;
     console.log('Overdub stopped and merged');
+  }
+
+  /**
+   * Toggle insert recording at the current playback position
+   */
+  async insertLoop(): Promise<void> {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+    if (!this.state.isPlaying || !currentLoop) return;
+
+    if (!this.state.isInserting) {
+      this.recorder.start();
+      this.insertPosition = this.getPlaybackPosition();
+      this.state.isInserting = true;
+      console.log('Insert recording started');
+      return;
+    }
+
+    const recording = await this.recorder.stop();
+    const url = URL.createObjectURL(recording);
+    const insertBuffer = await Tone.Buffer.fromUrl(url);
+
+    if (!currentLoop.buffer) {
+      currentLoop.buffer = insertBuffer.get();
+      currentLoop.endPoint = insertBuffer.duration;
+    } else {
+      this.addUndoAction({
+        type: 'INSERT',
+        loopId: currentLoop.id,
+        previousState: { buffer: currentLoop.buffer, endPoint: currentLoop.endPoint }
+      });
+
+      const channels = currentLoop.buffer.numberOfChannels;
+      const sampleRate = currentLoop.buffer.sampleRate;
+      const startIndex = Math.floor(this.insertPosition * sampleRate);
+      const newLength = currentLoop.buffer.length + insertBuffer.length;
+      const newBuffer = this.context.createBuffer(channels, newLength, sampleRate);
+
+      for (let ch = 0; ch < channels; ch++) {
+        const data = newBuffer.getChannelData(ch);
+        const oldData = currentLoop.buffer.getChannelData(ch);
+        const insData = insertBuffer.get().getChannelData(ch);
+
+        data.set(oldData.subarray(0, startIndex), 0);
+        data.set(insData, startIndex);
+        data.set(oldData.subarray(startIndex), startIndex + insData.length);
+      }
+
+      currentLoop.buffer = newBuffer;
+      currentLoop.endPoint += insertBuffer.duration;
+    }
+
+    if (this.player) {
+      this.player.buffer.set(currentLoop.buffer!);
+    }
+
+    this.state.isInserting = false;
+    console.log('Insert recording completed');
+
+    if (this.state.isPlaying) {
+      this.stopLoopPlayback();
+      this.startLoopPlayback();
+    }
+  }
+
+  /**
+   * Toggle replace recording over the current playback position
+   */
+  async replaceLoop(): Promise<void> {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+    if (!this.state.isPlaying || !currentLoop) return;
+
+    if (!this.state.isReplacing) {
+      this.recorder.start();
+      this.insertPosition = this.getPlaybackPosition();
+      this.state.isReplacing = true;
+      console.log('Replace recording started');
+      return;
+    }
+
+    const recording = await this.recorder.stop();
+    const url = URL.createObjectURL(recording);
+    const replaceBuffer = await Tone.Buffer.fromUrl(url);
+
+    if (!currentLoop.buffer) {
+      currentLoop.buffer = replaceBuffer.get();
+      currentLoop.endPoint = replaceBuffer.duration;
+    } else {
+      this.addUndoAction({
+        type: 'REPLACE',
+        loopId: currentLoop.id,
+        previousState: { buffer: currentLoop.buffer }
+      });
+
+      const channels = currentLoop.buffer.numberOfChannels;
+      const sampleRate = currentLoop.buffer.sampleRate;
+      const startIndex = Math.floor(this.insertPosition * sampleRate);
+      const endIndex = Math.min(startIndex + replaceBuffer.length, currentLoop.buffer.length);
+      const newBuffer = this.context.createBuffer(channels, currentLoop.buffer.length, sampleRate);
+
+      for (let ch = 0; ch < channels; ch++) {
+        const data = newBuffer.getChannelData(ch);
+        const oldData = currentLoop.buffer.getChannelData(ch);
+        const repData = replaceBuffer.get().getChannelData(ch);
+
+        data.set(oldData.subarray(0, startIndex), 0);
+        data.set(repData.subarray(0, endIndex - startIndex), startIndex);
+        if (endIndex < oldData.length) {
+          data.set(oldData.subarray(endIndex), endIndex);
+        }
+      }
+
+      currentLoop.buffer = newBuffer;
+    }
+
+    if (this.player) {
+      this.player.buffer.set(currentLoop.buffer!);
+    }
+
+    this.state.isReplacing = false;
+    console.log('Replace recording completed');
+
+    if (this.state.isPlaying) {
+      this.stopLoopPlayback();
+      this.startLoopPlayback();
+    }
   }
 
   /**
