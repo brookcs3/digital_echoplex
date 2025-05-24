@@ -1,0 +1,425 @@
+---
+import { EchoplexAudioEngine } from '../lib/audio-engine';
+import WaveformDisplay from '../components/WaveformDisplay.astro';
+import ControlPanel from '../components/ControlPanel.astro';
+import TransportControls from '../components/TransportControls.astro';
+import LoopSelector from '../components/LoopSelector.astro';
+import ParameterPanel from '../components/ParameterPanel.astro';
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Echo Plex</title>
+  <link rel="stylesheet" href="/styles/main.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>Digital Echo Plex</h1>
+    </header>
+    
+    <div id="power-section" class="power-section">
+      <button id="power-button" class="power-button">Power On</button>
+      <div id="power-status" class="power-status">Unit is powered off</div>
+    </div>
+    
+    <main id="main-interface" class="powered-off">
+      <div class="waveform-container">
+        <WaveformDisplay />
+      </div>
+      
+      <div class="controls-container">
+        <div class="top-controls">
+          <TransportControls />
+          <LoopSelector />
+        </div>
+        
+        <div class="main-controls">
+          <ControlPanel />
+        </div>
+        
+        <div class="parameter-panel">
+          <ParameterPanel />
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <p>Digital Echo Plex - Web Implementation</p>
+    </footer>
+  </div>
+
+  <script>
+    // Global variables
+    let echoplexEngine = null;
+    let audioContextStarted = false;
+    
+    // Power button initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      const powerButton = document.getElementById('power-button');
+      const powerStatus = document.getElementById('power-status');
+      const mainInterface = document.getElementById('main-interface');
+      
+      if (powerButton) {
+        powerButton.addEventListener('click', async () => {
+          try {
+            // Change button appearance immediately for feedback
+            powerButton.classList.add('powering');
+            powerButton.textContent = 'Starting...';
+            powerStatus.textContent = 'Initializing audio system...';
+            
+            // Initialize audio context and engine
+            if (!audioContextStarted) {
+              // Create audio context
+              const AudioContext = window.AudioContext || window.webkitAudioContext;
+              const audioContext = new AudioContext();
+              
+              // Resume audio context (needed for some browsers)
+              await audioContext.resume();
+              
+              // Create the engine
+              window.echoplexEngine = new EchoplexAudioEngine();
+              echoplexEngine = window.echoplexEngine;
+              
+              // Request microphone access
+              powerStatus.textContent = 'Requesting microphone access...';
+              try {
+                await echoplexEngine.initMicrophone();
+                audioContextStarted = true;
+                console.log('Audio system initialized successfully');
+              } catch (micError) {
+                powerStatus.textContent = 'Microphone access denied. Please allow microphone access and try again.';
+                powerButton.textContent = 'Power On';
+                powerButton.classList.remove('powering');
+                console.error('Microphone initialization failed:', micError);
+                return;
+              }
+            }
+            
+            // Power on successful
+            powerButton.textContent = 'Power Off';
+            powerButton.classList.remove('powering');
+            powerButton.classList.add('powered-on');
+            powerStatus.textContent = 'Unit is powered on and ready';
+            mainInterface.classList.remove('powered-off');
+            
+            // Initialize UI components
+            initializeUI();
+            
+          } catch (error) {
+            // Handle initialization errors
+            powerButton.textContent = 'Power On';
+            powerButton.classList.remove('powering');
+            powerStatus.textContent = `Error: ${error.message}. Please try again.`;
+            console.error('Initialization error:', error);
+          }
+        });
+      }
+    });
+
+    function initializeUI() {
+      // Set up event listeners for all controls
+      setupTransportControls();
+      setupLoopControls();
+      setupParameterControls();
+      
+      // Start the waveform visualization
+      startWaveformVisualization();
+      
+      console.log('UI initialized');
+    }
+
+    function setupTransportControls() {
+      // Record button
+      document.getElementById('record-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+        
+        const state = echoplexEngine.getState();
+        
+        if (state.isRecording) {
+          await echoplexEngine.stopRecording();
+        } else {
+          await echoplexEngine.startRecording();
+        }
+        
+        updateUIState();
+      });
+      
+      // Play/Stop button
+      document.getElementById('play-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        const state = echoplexEngine.getState();
+        
+        if (state.isPlaying) {
+          echoplexEngine.stopLoopPlayback();
+        } else {
+          echoplexEngine.startLoopPlayback();
+        }
+        
+        updateUIState();
+      });
+      
+      // Overdub button
+      document.getElementById('overdub-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+        
+        const state = echoplexEngine.getState();
+        
+        if (state.isOverdubbing) {
+          await echoplexEngine.stopOverdub();
+        } else {
+          await echoplexEngine.startOverdub();
+        }
+        
+        updateUIState();
+      });
+      
+      // Multiply button
+      document.getElementById('multiply-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+        
+        const state = echoplexEngine.getState();
+        
+        if (state.isMultiplying) {
+          await echoplexEngine.stopMultiply();
+        } else {
+          echoplexEngine.startMultiply();
+        }
+        
+        updateUIState();
+      });
+      
+      // Undo button
+      document.getElementById('undo-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.undo();
+        updateUIState();
+      });
+    }
+
+    function setupLoopControls() {
+      // Next Loop button
+      document.getElementById('next-loop-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.nextLoop();
+        updateUIState();
+      });
+      
+      // Previous Loop button
+      document.getElementById('prev-loop-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.previousLoop();
+        updateUIState();
+      });
+      
+      // Reset button
+      document.getElementById('reset-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.resetLoop();
+        updateUIState();
+      });
+      
+      // Reverse button
+      document.getElementById('reverse-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.reverseLoop();
+        updateUIState();
+      });
+      
+      // Half-Speed button
+      document.getElementById('half-speed-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.toggleHalfSpeed();
+        updateUIState();
+      });
+      
+      // Mute button
+      document.getElementById('mute-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        
+        echoplexEngine.toggleMute();
+        updateUIState();
+      });
+    }
+
+    function setupParameterControls() {
+      // Feedback control
+      document.getElementById('feedback-control')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+        
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ feedback: value });
+      });
+      
+      // Input gain control
+      document.getElementById('input-gain-control')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+        
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ inputGain: value });
+      });
+      
+      // Output gain control
+      document.getElementById('output-gain-control')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+        
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ outputGain: value });
+      });
+      
+      // Mix control
+      document.getElementById('mix-control')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+        
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ mix: value });
+      });
+      
+      // Quantize select
+      document.getElementById('quantize-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+        
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ quantize: value });
+      });
+      
+      // Interface mode select
+      document.getElementById('interface-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+        
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ interfaceMode: value });
+      });
+    }
+
+    function startWaveformVisualization() {
+      if (!echoplexEngine) return;
+      
+      const canvas = document.getElementById('waveform-canvas') as HTMLCanvasElement;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      // Resize canvas to match container
+      function resizeCanvas() {
+        const container = canvas.parentElement;
+        if (container) {
+          canvas.width = container.clientWidth;
+          canvas.height = container.clientHeight;
+        }
+      }
+      
+      // Initial resize
+      resizeCanvas();
+      
+      // Resize on window resize
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Animation loop for waveform visualization
+      function drawWaveform() {
+        if (!ctx || !echoplexEngine) return;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Get waveform data
+        const waveformData = echoplexEngine.getWaveformData();
+        
+        // Draw waveform
+        ctx.beginPath();
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 2;
+        
+        const sliceWidth = canvas.width / waveformData.length;
+        let x = 0;
+        
+        for (let i = 0; i < waveformData.length; i++) {
+          const y = (waveformData[i] * canvas.height / 2) + canvas.height / 2;
+          
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          
+          x += sliceWidth;
+        }
+        
+        ctx.stroke();
+        
+        // Continue animation loop
+        requestAnimationFrame(drawWaveform);
+      }
+      
+      // Start animation loop
+      drawWaveform();
+    }
+
+    function updateUIState() {
+      if (!echoplexEngine) return;
+      
+      const state = echoplexEngine.getState();
+      
+      // Update transport controls
+      const recordButton = document.getElementById('record-button');
+      if (recordButton) {
+        recordButton.classList.toggle('active', state.isRecording);
+        recordButton.textContent = state.isRecording ? 'Stop Recording' : 'Record';
+      }
+      
+      const playButton = document.getElementById('play-button');
+      if (playButton) {
+        playButton.classList.toggle('active', state.isPlaying);
+        playButton.textContent = state.isPlaying ? 'Stop' : 'Play';
+      }
+      
+      const overdubButton = document.getElementById('overdub-button');
+      if (overdubButton) {
+        overdubButton.classList.toggle('active', state.isOverdubbing);
+        overdubButton.textContent = state.isOverdubbing ? 'Stop Overdub' : 'Overdub';
+      }
+      
+      const multiplyButton = document.getElementById('multiply-button');
+      if (multiplyButton) {
+        multiplyButton.classList.toggle('active', state.isMultiplying);
+        multiplyButton.textContent = state.isMultiplying ? 'Stop Multiply' : 'Multiply';
+      }
+      
+      // Update loop controls
+      const reverseButton = document.getElementById('reverse-button');
+      if (reverseButton) {
+        const currentLoop = state.loops[state.currentLoopIndex];
+        reverseButton.classList.toggle('active', currentLoop.isReversed);
+      }
+      
+      const halfSpeedButton = document.getElementById('half-speed-button');
+      if (halfSpeedButton) {
+        const currentLoop = state.loops[state.currentLoopIndex];
+        halfSpeedButton.classList.toggle('active', currentLoop.isHalfSpeed);
+      }
+      
+      const muteButton = document.getElementById('mute-button');
+      if (muteButton) {
+        const currentLoop = state.loops[state.currentLoopIndex];
+        muteButton.classList.toggle('active', currentLoop.isMuted);
+      }
+      
+      // Update loop selector
+      const loopDisplay = document.getElementById('current-loop-display');
+      if (loopDisplay) {
+        loopDisplay.textContent = `Loop ${state.currentLoopIndex + 1}`;
+      }
+    }
+  </script>
+</body>
+</html>

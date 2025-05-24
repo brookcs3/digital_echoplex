@@ -1,0 +1,173 @@
+---
+---
+
+<div class="parameter-panel">
+  <div class="parameter-section">
+    <h3>Audio Controls</h3>
+    <div class="parameter-group">
+      <label for="input-gain-control" class="control-label">Input Gain</label>
+      <input type="range" id="input-gain-control" class="control-slider" min="0" max="1" step="0.01" value="0.8">
+    </div>
+    
+    <div class="parameter-group">
+      <label for="output-gain-control" class="control-label">Output Gain</label>
+      <input type="range" id="output-gain-control" class="control-slider" min="0" max="1" step="0.01" value="0.8">
+    </div>
+    
+    <div class="parameter-group">
+      <label for="feedback-control" class="control-label">Feedback</label>
+      <input type="range" id="feedback-control" class="control-slider" min="0" max="1" step="0.01" value="0.5">
+    </div>
+    
+    <div class="parameter-group">
+      <label for="mix-control" class="control-label">Mix</label>
+      <input type="range" id="mix-control" class="control-slider" min="0" max="1" step="0.01" value="0.5">
+    </div>
+  </div>
+  
+  <div class="parameter-section">
+    <h3>Loop Parameters</h3>
+    <div class="parameter-group">
+      <label for="quantize-select" class="control-label">Quantize</label>
+      <select id="quantize-select" class="control-select">
+        <option value="OFF">Off</option>
+        <option value="LOOP">Loop</option>
+        <option value="8TH">8th</option>
+        <option value="CYC">Cycle</option>
+      </select>
+    </div>
+    
+    <div class="parameter-group">
+      <label for="switch-quant-select" class="control-label">Switch Quantize</label>
+      <select id="switch-quant-select" class="control-select">
+        <option value="OFF">Off</option>
+        <option value="CYCLE">Cycle</option>
+        <option value="LOOP">Loop</option>
+        <option value="CCY">Confirm Cycle</option>
+        <option value="CLP">Confirm Loop</option>
+      </select>
+    </div>
+    
+    <div class="parameter-group">
+      <label for="insert-mode-select" class="control-label">Insert Mode</label>
+      <select id="insert-mode-select" class="control-select">
+        <option value="INS">Insert</option>
+        <option value="SUB">Substitute</option>
+        <option value="SUS">SUS</option>
+      </select>
+    </div>
+    
+    <div class="parameter-group">
+      <label for="overdub-mode-select" class="control-label">Overdub Mode</label>
+      <select id="overdub-mode-select" class="control-select">
+        <option value="OVR">Overdub</option>
+        <option value="REP">Replace</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="parameter-section">
+    <h3>Interface Mode</h3>
+    <div class="parameter-group">
+      <label for="interface-mode-select" class="control-label">Mode</label>
+      <select id="interface-mode-select" class="control-select">
+        <option value="LOOP">Loop</option>
+        <option value="STUTTER">Stutter</option>
+        <option value="DELAY">Delay</option>
+        <option value="EXPERT">Expert</option>
+        <option value="INPUT">Input</option>
+        <option value="OUTPUT">Output</option>
+        <option value="REPLACE">Replace</option>
+        <option value="FLIP">Flip</option>
+      </select>
+    </div>
+    
+    <div class="parameter-group">
+      <label for="sampler-style-select" class="control-label">Sampler Style</label>
+      <select id="sampler-style-select" class="control-select">
+        <option value="PLAY">Play</option>
+        <option value="START">Start</option>
+        <option value="ONCE">Once</option>
+        <option value="ATTACK">Attack</option>
+        <option value="RUN">Run</option>
+      </select>
+    </div>
+    
+    <div class="parameter-group">
+      <label for="tempo-input" class="control-label">Tempo (BPM)</label>
+      <input type="number" id="tempo-input" class="control-input" min="40" max="300" value="120">
+    </div>
+    
+    <div class="parameter-group">
+      <label for="cycle-beats-input" class="control-label">8ths/Cycle</label>
+      <input type="number" id="cycle-beats-input" class="control-input" min="1" max="32" value="8">
+    </div>
+  </div>
+</div>
+
+<style>
+  .parameter-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+  }
+  
+  .parameter-section {
+    background-color: #2a2a2a;
+    border-radius: 5px;
+    padding: 1rem;
+  }
+  
+  .parameter-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #00ff00;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.5rem;
+  }
+  
+  .parameter-group {
+    margin-bottom: 1rem;
+  }
+  
+  .control-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .control-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 10px;
+    border-radius: 5px;
+    background: #333;
+    outline: none;
+  }
+  
+  .control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00ff00;
+    cursor: pointer;
+  }
+  
+  .control-select, .control-input {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #00ff00;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 768px) {
+    .parameter-panel {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,180 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+header {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 2px solid #00ff00;
+}
+
+h1 {
+  margin: 0;
+  color: #00ff00;
+  font-size: 2rem;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.waveform-container {
+  height: 200px;
+  background-color: #2a2a2a;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.top-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.main-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.parameter-panel {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+footer {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid #444;
+}
+
+/* Control styles */
+.control-group {
+  margin-bottom: 1rem;
+}
+
+.control-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #00ff00;
+}
+
+.control-button {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 100px;
+  text-align: center;
+}
+
+.control-button:hover {
+  background-color: #444;
+}
+
+.control-button.active {
+  background-color: #00ff00;
+  color: #000;
+}
+
+.control-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 10px;
+  border-radius: 5px;
+  background: #333;
+  outline: none;
+}
+
+.control-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00ff00;
+  cursor: pointer;
+}
+
+.control-select {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+}
+
+/* Transport controls */
+.transport-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 5px;
+  flex: 1;
+}
+
+/* Loop selector */
+.loop-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 5px;
+  flex: 1;
+}
+
+.loop-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #00ff00;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .top-controls {
+    flex-direction: column;
+  }
+  
+  .main-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Canvas for waveform */
+#waveform-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}

@@ -1,0 +1,55 @@
+---
+---
+
+<div class="transport-controls">
+  <button id="record-button" class="control-button">Record</button>
+  <button id="play-button" class="control-button">Play</button>
+  <button id="overdub-button" class="control-button">Overdub</button>
+  <button id="multiply-button" class="control-button">Multiply</button>
+  <button id="undo-button" class="control-button">Undo</button>
+</div>
+
+<style>
+  .transport-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .control-button {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #00ff00;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 100px;
+    text-align: center;
+  }
+  
+  .control-button:hover {
+    background-color: #444;
+  }
+  
+  .control-button.active {
+    background-color: #00ff00;
+    color: #000;
+  }
+  
+  #record-button.active {
+    background-color: #ff0000;
+    border-color: #ff0000;
+  }
+  
+  #overdub-button.active {
+    background-color: #ff9900;
+    border-color: #ff9900;
+  }
+  
+  #multiply-button.active {
+    background-color: #0099ff;
+    border-color: #0099ff;
+  }
+</style>

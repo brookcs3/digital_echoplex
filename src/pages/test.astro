@@ -1,0 +1,34 @@
+---
+import TestPanel from '../components/TestPanel.astro';
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Echo Plex - Test Mode</title>
+  <link rel="stylesheet" href="/styles/main.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>Digital Echo Plex - Test Mode</h1>
+    </header>
+    
+    <main>
+      <TestPanel />
+    </main>
+    
+    <footer>
+      <p>Digital Echo Plex - Web Implementation</p>
+    </footer>
+  </div>
+
+  <script>
+    // Initialize test mode
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Test mode initialized');
+    });
+  </script>
+</body>
+</html>
