@@ -78,79 +78,42 @@
 </style>
 
 <script>
-  // This would be connected to the actual tester in a real implementation
   document.getElementById('run-tests-button')?.addEventListener('click', async () => {
     const resultsElement = document.getElementById('test-results');
     const progressFill = document.getElementById('progress-fill');
-    
+
     if (!resultsElement || !progressFill) return;
-    
-    // Clear previous results
+
     resultsElement.innerHTML = '<p>Running tests...</p>';
-    
-    // Simulate test progress
-    const tests = [
-      { feature: 'Record and Playback', passed: true, notes: 'Successfully recorded and created loop' },
-      { feature: 'Overdub', passed: true, notes: 'Overdub test completed' },
-      { feature: 'Multiply', passed: true, notes: 'Successfully multiplied loop' },
-      { feature: 'Reverse', passed: true, notes: 'Successfully reversed loop' },
-      { feature: 'Half-Speed', passed: true, notes: 'Successfully set half-speed' },
-      { feature: 'Mute', passed: true, notes: 'Successfully muted loop' },
-      { feature: 'Undo', passed: true, notes: 'Successfully undid action' },
-      { feature: 'Next/Previous Loop', passed: true, notes: 'Successfully navigated loops' },
-      { feature: 'Loop Windowing', passed: true, notes: 'Successfully set loop window' },
-      { feature: 'Substitute', passed: true, notes: 'Substitute functions exist' },
-      { feature: 'SUS Commands', passed: true, notes: 'SUS command functions exist' },
-      { feature: 'MultiIncrease', passed: true, notes: 'MultiIncrease function exists' },
-      { feature: 'LoopDivide', passed: true, notes: 'LoopDivide function exists' },
-      { feature: 'Quantization', passed: true, notes: 'Quantization features work correctly' },
-      { feature: 'Sync Features', passed: true, notes: 'Sync features exist' },
-      { feature: 'Interface Modes', passed: true, notes: 'All interface modes work correctly' },
-      { feature: 'Sampler Styles', passed: true, notes: 'All sampler styles work correctly' },
-      { feature: 'Preset Save/Load', passed: true, notes: 'Preset save/load works correctly' },
-      { feature: 'Session Save/Load', passed: true, notes: 'Session functions exist' },
-      { feature: 'Audio Export/Import', passed: true, notes: 'Audio export/import functions exist' }
-    ];
-    
-    // Run each test with a delay to simulate processing
+    progressFill.style.width = '0%';
+
+    const tester = new window.EchoplexTester();
+    await tester.runAllTests();
+
+    const tests = tester.getResults();
     let html = '';
     let passCount = 0;
     let failCount = 0;
-    
+
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
-      
-      // Update progress
-      progressFill.style.width = `${(i / tests.length) * 100}%`;
-      
-      // Simulate test running
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Add result to output
-      html += `<div class="${test.passed ? 'test-pass' : 'test-fail'}">
-        ${test.passed ? '✅' : '❌'} ${test.feature}: ${test.notes}
-      </div>`;
-      
+      html += `<div class="${test.passed ? 'test-pass' : 'test-fail'}">` +
+        `${test.passed ? '✅' : '❌'} ${test.feature}: ${test.notes}` +
+        `</div>`;
       if (test.passed) {
         passCount++;
       } else {
         failCount++;
       }
-      
-      // Update display
-      resultsElement.innerHTML = html;
-      resultsElement.scrollTop = resultsElement.scrollHeight;
     }
-    
-    // Complete progress bar
+
     progressFill.style.width = '100%';
-    
-    // Add summary
-    html += `<div class="test-summary">
-      Summary: ${passCount} passed, ${failCount} failed<br>
-      Overall: ${failCount === 0 ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}
-    </div>`;
-    
+
+    html += `<div class="test-summary">` +
+      `Summary: ${passCount} passed, ${failCount} failed<br>` +
+      `Overall: ${failCount === 0 ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}` +
+      `</div>`;
+
     resultsElement.innerHTML = html;
   });
 </script>

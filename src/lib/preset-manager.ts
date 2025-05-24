@@ -96,8 +96,19 @@ export class PresetManager {
   private validateSettings(settings: any): boolean {
     // Check for required properties
     const requiredProps = [
-      'quantize', 'switchQuant', 'insertMode', 'overdubMode', 
-      'interfaceMode', 'samplerStyle', 'cycleBeats', 'tempo'
+      'quantize',
+      'switchQuant',
+      'insertMode',
+      'overdubMode',
+      'interfaceMode',
+      'samplerStyle',
+      'cycleBeats',
+      'tempo',
+      'micMonitor',
+      'feedback',
+      'inputGain',
+      'outputGain',
+      'mix'
     ];
     
     for (const prop of requiredProps) {

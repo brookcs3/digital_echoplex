@@ -7,11 +7,16 @@
     "start": "serve dist -p $PORT",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "jest"
   },
   "dependencies": {
     "astro": "^5.7.14",
     "serve": "^14.2.1",
     "tone": "^14.7.77"
+  },
+  "devDependencies": {
+    "jest": "^29.6.0",
+    "ts-jest": "^29.1.1"
   }
 }

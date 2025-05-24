@@ -39,12 +39,16 @@ export class EchoplexTester {
     
     // Advanced functionality tests
     await this.testLoopWindowing();
+    await this.testMoveLoopWindow();
     await this.testSubstitute();
     await this.testSUSCommands();
     await this.testMultiIncrease();
     await this.testLoopDivide();
     await this.testQuantization();
     await this.testSyncFeatures();
+    await this.testSetTempo();
+    await this.testExternalSync();
+    await this.testReAlign();
     
     // Parameter tests
     await this.testInterfaceModes();
@@ -332,11 +336,44 @@ export class EchoplexTester {
       // Reset window
       this.audioEngine.setLoopWindow(null, null);
       
-      this.recordTestResult('Loop Windowing', windowSet, 
-        windowSet ? 'Successfully set loop window' : 'Failed to set loop window');
-      
+    this.recordTestResult('Loop Windowing', windowSet,
+      windowSet ? 'Successfully set loop window' : 'Failed to set loop window');
+
+  } catch (error) {
+    this.recordTestResult('Loop Windowing', false,
+      `Error: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+  /**
+   * Test moving the loop window
+   */
+  private async testMoveLoopWindow(): Promise<void> {
+    console.log('Testing move loop window...');
+
+    try {
+      const state = this.audioEngine.getState();
+      if (!state.loops[state.currentLoopIndex].buffer) {
+        throw new Error('No loop available for move window test');
+      }
+
+      const loopLength = state.loops[state.currentLoopIndex].endPoint;
+      const windowStart = loopLength * 0.1;
+      const windowEnd = loopLength * 0.4;
+
+      this.audioEngine.setLoopWindow(windowStart, windowEnd);
+
+      this.advancedFunctions.moveLoopWindow('forward', loopLength * 0.1);
+      const movedLoop = this.audioEngine.getState().loops[state.currentLoopIndex];
+      const moved = movedLoop.windowStart !== null && movedLoop.windowStart > windowStart;
+
+      this.audioEngine.setLoopWindow(null, null);
+
+      this.recordTestResult('Move Loop Window', moved,
+        moved ? 'Successfully moved loop window' : 'Failed to move loop window');
+
     } catch (error) {
-      this.recordTestResult('Loop Windowing', false, 
+      this.recordTestResult('Move Loop Window', false,
         `Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -430,22 +467,22 @@ export class EchoplexTester {
       // Test setting different quantize values
       this.audioEngine.updateSettings({ quantize: 'LOOP' });
       const loopQuantize = this.audioEngine.getState().settings.quantize === 'LOOP';
-      
+
       this.audioEngine.updateSettings({ quantize: '8TH' });
       const eighthQuantize = this.audioEngine.getState().settings.quantize === '8TH';
-      
+
       this.audioEngine.updateSettings({ quantize: 'CYC' });
       const cycleQuantize = this.audioEngine.getState().settings.quantize === 'CYC';
-      
+
+      // Run quantized record/stop to ensure they execute
+      await this.advancedFunctions.startQuantizedRecording();
+      await this.advancedFunctions.stopQuantizedRecording();
+
       this.audioEngine.updateSettings({ quantize: 'OFF' });
-      
-      // Verify quantized recording functions exist
-      const hasQuantizedRecording = typeof this.advancedFunctions.startQuantizedRecording === 'function' && 
-                                   typeof this.advancedFunctions.stopQuantizedRecording === 'function';
-      
-      const quantizeWorks = loopQuantize && eighthQuantize && cycleQuantize && hasQuantizedRecording;
-      
-      this.recordTestResult('Quantization', quantizeWorks, 
+
+      const quantizeWorks = loopQuantize && eighthQuantize && cycleQuantize;
+
+      this.recordTestResult('Quantization', quantizeWorks,
         quantizeWorks ? 'Quantization features work correctly' : 'Issues with quantization features');
       
     } catch (error) {
@@ -472,8 +509,71 @@ export class EchoplexTester {
         syncFeaturesExist ? 'Sync features exist' : 'Some sync features are missing');
       
     } catch (error) {
-      this.recordTestResult('Sync Features', false, 
+      this.recordTestResult('Sync Features', false,
         `Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Test tempo setting
+   */
+  private async testSetTempo(): Promise<void> {
+    console.log('Testing set tempo...');
+
+    try {
+      const newTempo = 130;
+      this.advancedFunctions.setTempo(newTempo);
+      const tempoSet = this.audioEngine.getState().settings.tempo === newTempo;
+
+      this.recordTestResult('Set Tempo', tempoSet,
+        tempoSet ? 'Tempo set correctly' : 'Failed to set tempo');
+
+    } catch (error) {
+      this.recordTestResult('Set Tempo', false,
+        `Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Test external clock sync
+   */
+  private async testExternalSync(): Promise<void> {
+    console.log('Testing external clock sync...');
+
+    try {
+      this.advancedFunctions.syncToExternalClock(true);
+      const enabled = (Tone.Transport as any).syncSource === 'midi';
+
+      this.advancedFunctions.syncToExternalClock(false);
+      const disabled = (Tone.Transport as any).syncSource !== 'midi';
+
+      this.recordTestResult('External Sync', enabled && disabled,
+        enabled && disabled ? 'External sync toggled' : 'Failed to toggle sync');
+
+    } catch (error) {
+      this.recordTestResult('External Sync', false,
+        `Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Test re-align functionality
+   */
+  private async testReAlign(): Promise<void> {
+    console.log('Testing re-align...');
+
+    try {
+      // Start playback if possible
+      this.audioEngine.startLoopPlayback();
+      this.advancedFunctions.reAlign();
+
+      this.recordTestResult('ReAlign', true, 'ReAlign executed');
+
+    } catch (error) {
+      this.recordTestResult('ReAlign', false,
+        `Error: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      this.audioEngine.stopLoopPlayback();
     }
   }
 
@@ -653,6 +753,13 @@ export class EchoplexTester {
     
     console.log(`\nSummary: ${passCount} passed, ${failCount} failed`);
     console.log(`Overall: ${failCount === 0 ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}`);
+  }
+
+  /**
+   * Retrieve test results
+   */
+  getResults(): { feature: string; passed: boolean; notes: string }[] {
+    return this.testResults;
   }
 
   /**

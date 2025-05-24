@@ -8,7 +8,15 @@ export interface LoopSettings {
   samplerStyle: 'PLAY' | 'START' | 'ONCE' | 'ATTACK' | 'RUN';
   cycleBeats: number;
   tempo: number;
+  /**
+   * Microphone monitoring mode. "RECORDING_ONLY" mirrors the classic hardware
+   * behaviour where monitoring is only active while recording or overdubbing.
+   * "ALWAYS_ON" keeps the microphone routed to the output at all times.
+   */
+  micMonitor: 'RECORDING_ONLY' | 'ALWAYS_ON';
   feedback: number;
+  delayTime: number;
+  stutterLength: number;
   inputGain: number;
   outputGain: number;
   mix: number;

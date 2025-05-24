@@ -41,7 +41,20 @@ digital_echoplex/
 3. **Control Modes**
    - SWITCH/TOGGLE modes for buttons
    - Function button as modifier
-   - Multiple interface modes (Loop, Stutter, Delay, Expert)
+- Multiple interface modes (Loop, Stutter, Delay, Expert)
+
+### Interface Modes
+
+The **interfaceMode** setting controls how the looper behaves and which UI elements are visible.
+
+| Mode | Behavior |
+|------|----------|
+| **LOOP** | Standard loop playback with cross‑fade mixing. |
+| **STUTTER** | Repeats a short segment defined by `stutterLength`. |
+| **DELAY** | Routes the loop through the feedback delay using `delayTime`. |
+| **EXPERT** | Combines stutter and delay behaviors. |
+
+These modes are persisted in LocalStorage so the application restores the last used mode on reload.
 
 4. **Parameters and Settings**
    - Feedback control (default: maximum for true looper functionality)
