@@ -9,6 +9,8 @@ export interface LoopSettings {
   cycleBeats: number;
   tempo: number;
   feedback: number;
+  delayTime: number;
+  stutterLength: number;
   inputGain: number;
   outputGain: number;
   mix: number;

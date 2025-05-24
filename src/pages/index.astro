@@ -124,10 +124,13 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       setupTransportControls();
       setupLoopControls();
       setupParameterControls();
-      
+
+      loadSettingsToUI();
+      updateUIState();
+
       // Start the waveform visualization
       startWaveformVisualization();
-      
+
       console.log('UI initialized');
     }
 
@@ -295,9 +298,51 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Interface mode select
       document.getElementById('interface-mode-select')?.addEventListener('change', (e) => {
         if (!echoplexEngine) return;
-        
+
         const value = (e.target as HTMLSelectElement).value as any;
         echoplexEngine.updateSettings({ interfaceMode: value });
+        updateConditionalLayouts();
+      });
+
+      document.getElementById('stutter-length-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ stutterLength: value });
+      });
+
+      document.getElementById('delay-time-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ delayTime: value });
+      });
+    }
+
+    function loadSettingsToUI() {
+      if (!echoplexEngine) return;
+      const settings = echoplexEngine.getState().settings;
+      (document.getElementById('interface-mode-select') as HTMLSelectElement).value = settings.interfaceMode;
+      (document.getElementById('stutter-length-input') as HTMLInputElement).value = settings.stutterLength.toString();
+      (document.getElementById('delay-time-input') as HTMLInputElement).value = settings.delayTime.toString();
+      (document.getElementById('feedback-control') as HTMLInputElement).value = settings.feedback.toString();
+      (document.getElementById('input-gain-control') as HTMLInputElement).value = settings.inputGain.toString();
+      (document.getElementById('output-gain-control') as HTMLInputElement).value = settings.outputGain.toString();
+      (document.getElementById('mix-control') as HTMLInputElement).value = settings.mix.toString();
+      (document.getElementById('tempo-input') as HTMLInputElement).value = settings.tempo.toString();
+      (document.getElementById('cycle-beats-input') as HTMLInputElement).value = settings.cycleBeats.toString();
+      (document.getElementById('quantize-select') as HTMLSelectElement).value = settings.quantize;
+      updateConditionalLayouts();
+    }
+
+    function updateConditionalLayouts() {
+      if (!echoplexEngine) return;
+      const mode = echoplexEngine.getState().settings.interfaceMode;
+      document.querySelectorAll('.mode-stutter').forEach(el => {
+        (el as HTMLElement).classList.toggle('hidden', !(mode === 'STUTTER' || mode === 'EXPERT'));
+      });
+      document.querySelectorAll('.mode-delay').forEach(el => {
+        (el as HTMLElement).classList.toggle('hidden', !(mode === 'DELAY' || mode === 'EXPERT'));
       });
     }
 
