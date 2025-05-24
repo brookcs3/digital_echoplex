@@ -53,6 +53,62 @@ export class AdvancedLooperFunctions {
   }
 
   /**
+   * Start Insert recording
+   */
+  async startInsert(): Promise<void> {
+    const state = this.audioEngine.getState();
+    if (!state.isPlaying) return;
+
+    this.audioEngine.recorder.start();
+    state.isInserting = true;
+  }
+
+  /**
+   * Stop Insert and append the recording
+   */
+  async stopInsert(): Promise<void> {
+    const state = this.audioEngine.getState();
+    if (!state.isInserting) return;
+
+    const recording = await this.audioEngine.recorder.stop();
+    const url = URL.createObjectURL(recording);
+    const insertBuffer = await Tone.Buffer.fromUrl(url);
+
+    this.audioEngine.insertLoop(insertBuffer.get());
+    state.isInserting = false;
+
+    console.log('Insert completed');
+  }
+
+  /**
+   * Start Replace recording
+   */
+  async startReplace(): Promise<void> {
+    const state = this.audioEngine.getState();
+    if (!state.isPlaying) return;
+
+    this.audioEngine.recorder.start();
+    state.isReplacing = true;
+  }
+
+  /**
+   * Stop Replace and overwrite the loop
+   */
+  async stopReplace(): Promise<void> {
+    const state = this.audioEngine.getState();
+    if (!state.isReplacing) return;
+
+    const recording = await this.audioEngine.recorder.stop();
+    const url = URL.createObjectURL(recording);
+    const replaceBuffer = await Tone.Buffer.fromUrl(url);
+
+    this.audioEngine.replaceLoop(replaceBuffer.get());
+    state.isReplacing = false;
+
+    console.log('Replace completed');
+  }
+
+  /**
    * Implement Substitute functionality
    * Replaces a section of the loop with new audio
    */
