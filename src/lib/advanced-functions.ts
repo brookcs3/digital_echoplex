@@ -198,10 +198,38 @@ export class AdvancedLooperFunctions {
   }
 
   /**
+   * Start insert recording
+   */
+  async startInsert(): Promise<void> {
+    await this.audioEngine.startInsert();
+  }
+
+  /**
+   * Stop insert recording
+   */
+  async stopInsert(): Promise<void> {
+    await this.audioEngine.stopInsert();
+  }
+
+  /**
    * Wrapper for replace recording
    */
   async replaceLoop(): Promise<void> {
     await this.audioEngine.replaceLoop();
+  }
+
+  /**
+   * Start replace recording
+   */
+  async startReplace(): Promise<void> {
+    await this.audioEngine.startReplace();
+  }
+
+  /**
+   * Stop replace recording
+   */
+  async stopReplace(): Promise<void> {
+    await this.audioEngine.stopReplace();
   }
 
   /**

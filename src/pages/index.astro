@@ -250,21 +250,35 @@ import ParameterPanel from '../components/ParameterPanel.astro';
         updateUIState();
       });
 
-      // Insert button
-      document.getElementById('insert-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
+      // Insert button - press and hold to record
+      const insertBtn = document.getElementById('insert-button');
+      if (insertBtn) {
+        insertBtn.addEventListener('mousedown', async () => {
+          if (!echoplexEngine) return;
+          await echoplexEngine.startInsert();
+          updateUIState();
+        });
+        insertBtn.addEventListener('mouseup', async () => {
+          if (!echoplexEngine) return;
+          await echoplexEngine.stopInsert();
+          updateUIState();
+        });
+      }
 
-        await echoplexEngine.insertLoop();
-        updateUIState();
-      });
-
-      // Replace button
-      document.getElementById('replace-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
-
-        await echoplexEngine.replaceLoop();
-        updateUIState();
-      });
+      // Replace button - press and hold to record
+      const replaceBtn = document.getElementById('replace-button');
+      if (replaceBtn) {
+        replaceBtn.addEventListener('mousedown', async () => {
+          if (!echoplexEngine) return;
+          await echoplexEngine.startReplace();
+          updateUIState();
+        });
+        replaceBtn.addEventListener('mouseup', async () => {
+          if (!echoplexEngine) return;
+          await echoplexEngine.stopReplace();
+          updateUIState();
+        });
+      }
     }
 
     function setupParameterControls() {
@@ -481,13 +495,13 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       const insertButton = document.getElementById('insert-button');
       if (insertButton) {
         insertButton.classList.toggle('active', state.isInserting);
-        insertButton.textContent = state.isInserting ? 'Stop Insert' : 'Insert';
+        insertButton.textContent = state.isInserting ? 'Inserting...' : 'Insert';
       }
 
       const replaceButton = document.getElementById('replace-button');
       if (replaceButton) {
         replaceButton.classList.toggle('active', state.isReplacing);
-        replaceButton.textContent = state.isReplacing ? 'Stop Replace' : 'Replace';
+        replaceButton.textContent = state.isReplacing ? 'Replacing...' : 'Replace';
       }
       
       // Update loop selector

@@ -349,19 +349,24 @@ export class EchoplexAudioEngine {
   }
 
   /**
-   * Toggle insert recording at the current playback position
+   * Start insert recording at the current playback position
    */
-  async insertLoop(): Promise<void> {
+  async startInsert(): Promise<void> {
     const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    if (!this.state.isPlaying || !currentLoop) return;
+    if (!this.state.isPlaying || !currentLoop || this.state.isInserting) return;
 
-    if (!this.state.isInserting) {
-      this.recorder.start();
-      this.insertPosition = this.getPlaybackPosition();
-      this.state.isInserting = true;
-      console.log('Insert recording started');
-      return;
-    }
+    this.recorder.start();
+    this.insertPosition = this.getPlaybackPosition();
+    this.state.isInserting = true;
+    console.log('Insert recording started');
+  }
+
+  /**
+   * Stop insert recording and merge the recorded audio
+   */
+  async stopInsert(): Promise<void> {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+    if (!this.state.isInserting || !currentLoop) return;
 
     const recording = await this.recorder.stop();
     const url = URL.createObjectURL(recording);
@@ -411,19 +416,24 @@ export class EchoplexAudioEngine {
   }
 
   /**
-   * Toggle replace recording over the current playback position
+   * Start replace recording over the current playback position
    */
-  async replaceLoop(): Promise<void> {
+  async startReplace(): Promise<void> {
     const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    if (!this.state.isPlaying || !currentLoop) return;
+    if (!this.state.isPlaying || !currentLoop || this.state.isReplacing) return;
 
-    if (!this.state.isReplacing) {
-      this.recorder.start();
-      this.insertPosition = this.getPlaybackPosition();
-      this.state.isReplacing = true;
-      console.log('Replace recording started');
-      return;
-    }
+    this.recorder.start();
+    this.insertPosition = this.getPlaybackPosition();
+    this.state.isReplacing = true;
+    console.log('Replace recording started');
+  }
+
+  /**
+   * Stop replace recording and overwrite the recorded section
+   */
+  async stopReplace(): Promise<void> {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+    if (!this.state.isReplacing || !currentLoop) return;
 
     const recording = await this.recorder.stop();
     const url = URL.createObjectURL(recording);
@@ -470,6 +480,28 @@ export class EchoplexAudioEngine {
     if (this.state.isPlaying) {
       this.stopLoopPlayback();
       this.startLoopPlayback();
+    }
+  }
+
+  /**
+   * Toggle insert recording (wrapper for start/stop)
+   */
+  async insertLoop(): Promise<void> {
+    if (this.state.isInserting) {
+      await this.stopInsert();
+    } else {
+      await this.startInsert();
+    }
+  }
+
+  /**
+   * Toggle replace recording (wrapper for start/stop)
+   */
+  async replaceLoop(): Promise<void> {
+    if (this.state.isReplacing) {
+      await this.stopReplace();
+    } else {
+      await this.startReplace();
     }
   }
 
