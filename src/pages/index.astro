@@ -1,5 +1,8 @@
 ---
 import { EchoplexAudioEngine } from '../lib/audio-engine';
+import { AdvancedLooperFunctions } from '../lib/advanced-functions';
+import { MidiController } from '../lib/midi-controller';
+import { LoopFunction } from '../lib/types';
 import WaveformDisplay from '../components/WaveformDisplay.astro';
 import ControlPanel from '../components/ControlPanel.astro';
 import TransportControls from '../components/TransportControls.astro';
@@ -54,6 +57,8 @@ import ParameterPanel from '../components/ParameterPanel.astro';
   <script>
     // Global variables
     let echoplexEngine = null;
+    let advancedFunctions = null;
+    let midiController = null;
     let audioContextStarted = false;
     
     // Power button initialization
@@ -82,6 +87,21 @@ import ParameterPanel from '../components/ParameterPanel.astro';
               // Create the engine
               window.echoplexEngine = new EchoplexAudioEngine();
               echoplexEngine = window.echoplexEngine;
+              advancedFunctions = new AdvancedLooperFunctions(echoplexEngine);
+              const noteMap = {
+                60: LoopFunction.RECORD,
+                61: LoopFunction.OVERDUB,
+                62: LoopFunction.MUTE,
+                63: LoopFunction.REVERSE
+              };
+              const ccMap = {
+                20: 'feedback',
+                21: 'inputGain',
+                22: 'outputGain',
+                23: 'mix'
+              } as any;
+              midiController = new MidiController(echoplexEngine, advancedFunctions, noteMap, ccMap);
+              await midiController.init();
               
               // Request microphone access
               powerStatus.textContent = 'Requesting microphone access...';
@@ -107,6 +127,7 @@ import ParameterPanel from '../components/ParameterPanel.astro';
             
             // Initialize UI components
             initializeUI();
+            populateMidiDevices();
             
           } catch (error) {
             // Handle initialization errors
@@ -295,9 +316,36 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Interface mode select
       document.getElementById('interface-mode-select')?.addEventListener('change', (e) => {
         if (!echoplexEngine) return;
-        
+
         const value = (e.target as HTMLSelectElement).value as any;
         echoplexEngine.updateSettings({ interfaceMode: value });
+      });
+
+      document.getElementById('tempo-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ tempo: value });
+      });
+
+      document.getElementById('cycle-beats-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+        const value = parseInt((e.target as HTMLInputElement).value, 10);
+        echoplexEngine.updateSettings({ cycleBeats: value });
+      });
+
+      document.getElementById('clock-source-select')?.addEventListener('change', (e) => {
+        if (!advancedFunctions || !midiController) return;
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ clockSource: value });
+        const useMidi = value === 'MIDI';
+        advancedFunctions.syncToExternalClock(useMidi, midiController);
+      });
+
+      document.getElementById('midi-device-select')?.addEventListener('change', (e) => {
+        if (!midiController) return;
+        const id = (e.target as HTMLSelectElement).value;
+        midiController.setInput(id);
+        echoplexEngine.updateSettings({ midiDeviceId: id });
       });
     }
 
@@ -363,6 +411,22 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       
       // Start animation loop
       drawWaveform();
+    }
+
+    function populateMidiDevices() {
+      if (!midiController) return;
+      const select = document.getElementById('midi-device-select') as HTMLSelectElement | null;
+      if (!select) return;
+      select.innerHTML = '';
+      const inputs = midiController.getInputs();
+      inputs.forEach(input => {
+        const opt = document.createElement('option');
+        opt.value = input.id;
+        opt.textContent = input.name || input.id;
+        select.appendChild(opt);
+      });
+      const current = echoplexEngine.getState().settings.midiDeviceId;
+      if (current) select.value = current;
     }
 
     function updateUIState() {
