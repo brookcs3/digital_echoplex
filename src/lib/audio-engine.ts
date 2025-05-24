@@ -577,6 +577,93 @@ export class EchoplexAudioEngine {
   }
 
   /**
+   * Copy a loop from one index to another
+   */
+  copyLoop(fromIndex: number, toIndex: number): void {
+    if (fromIndex === toIndex) return;
+    if (!this.state.loops[fromIndex]) return;
+
+    while (this.state.loops.length <= toIndex) {
+      this.state.loops.push(this.createEmptyLoop(this.state.loops.length));
+    }
+
+    const source = this.state.loops[fromIndex];
+    const target = this.state.loops[toIndex];
+
+    // Save undo state of the target loop
+    this.addUndoAction({
+      type: 'COPY_LOOP',
+      loopId: target.id,
+      previousState: { ...target }
+    });
+
+    // Deep copy buffer if present
+    if (source.buffer) {
+      const newBuffer = this.context.createBuffer(
+        source.buffer.numberOfChannels,
+        source.buffer.length,
+        source.buffer.sampleRate
+      );
+      for (let ch = 0; ch < source.buffer.numberOfChannels; ch++) {
+        newBuffer.copyToChannel(source.buffer.getChannelData(ch), ch);
+      }
+      target.buffer = newBuffer;
+    } else {
+      target.buffer = null;
+    }
+
+    // Copy properties
+    target.startPoint = source.startPoint;
+    target.endPoint = source.endPoint;
+    target.windowStart = source.windowStart;
+    target.windowEnd = source.windowEnd;
+    target.isReversed = source.isReversed;
+    target.isHalfSpeed = source.isHalfSpeed;
+    target.isMuted = source.isMuted;
+
+    // Restart playback if destination is active loop
+    if (toIndex === this.state.currentLoopIndex && this.state.isPlaying) {
+      this.stopLoopPlayback();
+      this.startLoopPlayback();
+    }
+
+    console.log(`Copied loop ${fromIndex + 1} to ${toIndex + 1}`);
+  }
+
+  /**
+   * Move a loop from one index to another
+   */
+  moveLoop(fromIndex: number, toIndex: number): void {
+    if (fromIndex === toIndex) return;
+    if (!this.state.loops[fromIndex]) return;
+
+    this.copyLoop(fromIndex, toIndex);
+
+    const source = this.state.loops[fromIndex];
+
+    // Save undo for the source loop
+    this.addUndoAction({
+      type: 'MOVE_LOOP',
+      loopId: source.id,
+      previousState: { ...source }
+    });
+
+    // Clear the source loop
+    this.state.loops[fromIndex] = this.createEmptyLoop(source.id);
+
+    // Update current loop index if needed
+    if (this.state.currentLoopIndex === fromIndex) {
+      this.state.currentLoopIndex = toIndex;
+      if (this.state.isPlaying) {
+        this.stopLoopPlayback();
+        this.startLoopPlayback();
+      }
+    }
+
+    console.log(`Moved loop ${fromIndex + 1} to ${toIndex + 1}`);
+  }
+
+  /**
    * Reset the current loop (clear its content)
    */
   resetLoop(): void {

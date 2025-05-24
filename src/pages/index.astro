@@ -245,9 +245,31 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Mute button
       document.getElementById('mute-button')?.addEventListener('click', () => {
         if (!echoplexEngine) return;
-        
+
         echoplexEngine.toggleMute();
         updateUIState();
+      });
+
+      // Copy loop button
+      document.getElementById('copy-loop-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+
+        const dest = parseInt(prompt('Copy to loop number:') || '', 10);
+        if (!isNaN(dest)) {
+          echoplexEngine.copyLoop(echoplexEngine.getState().currentLoopIndex, dest - 1);
+          updateUIState();
+        }
+      });
+
+      // Move loop button
+      document.getElementById('move-loop-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+
+        const dest = parseInt(prompt('Move to loop number:') || '', 10);
+        if (!isNaN(dest)) {
+          echoplexEngine.moveLoop(echoplexEngine.getState().currentLoopIndex, dest - 1);
+          updateUIState();
+        }
       });
     }
 
@@ -420,6 +442,28 @@ import ParameterPanel from '../components/ParameterPanel.astro';
         loopDisplay.textContent = `Loop ${state.currentLoopIndex + 1}`;
       }
     }
+
+    // Keyboard shortcuts for copy and move
+    window.addEventListener('keydown', (e) => {
+      if (!echoplexEngine) return;
+      if (!e.ctrlKey) return;
+
+      if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        const dest = parseInt(prompt('Copy to loop number:') || '', 10);
+        if (!isNaN(dest)) {
+          echoplexEngine.copyLoop(echoplexEngine.getState().currentLoopIndex, dest - 1);
+          updateUIState();
+        }
+      } else if (e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        const dest = parseInt(prompt('Move to loop number:') || '', 10);
+        if (!isNaN(dest)) {
+          echoplexEngine.moveLoop(echoplexEngine.getState().currentLoopIndex, dest - 1);
+          updateUIState();
+        }
+      }
+    });
   </script>
 </body>
 </html>

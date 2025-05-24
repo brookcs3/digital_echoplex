@@ -256,8 +256,21 @@ export class PresetManager {
       // Update current loop index
       const state = this.audioEngine.getState();
       state.currentLoopIndex = sessionData.currentLoopIndex;
-      
-      // Load each loop
+
+      // Recreate loop structures
+      state.loops = sessionData.loops.map((l: any, idx: number) => ({
+        id: idx,
+        buffer: null,
+        startPoint: l.startPoint,
+        endPoint: l.endPoint,
+        windowStart: l.windowStart,
+        windowEnd: l.windowEnd,
+        isReversed: l.isReversed,
+        isHalfSpeed: l.isHalfSpeed,
+        isMuted: l.isMuted
+      }));
+
+      // Load audio buffers where available
       for (let i = 0; i < sessionData.loops.length; i++) {
         if (sessionData.loops[i].hasBuffer) {
           await this.loadLoop(i);
