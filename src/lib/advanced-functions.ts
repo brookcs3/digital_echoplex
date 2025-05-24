@@ -1,5 +1,6 @@
 import * as Tone from 'tone';
 import { EchoplexState, Loop, LoopFunction, LoopSettings, UndoAction } from './types';
+import { MidiController } from './midi-controller';
 
 /**
  * Advanced looper functions for the Digital Echo Plex
@@ -285,14 +286,24 @@ export class AdvancedLooperFunctions {
   /**
    * Implement synchronization with external clock
    */
-  syncToExternalClock(enabled: boolean): void {
+  syncToExternalClock(enabled: boolean, midi?: MidiController): void {
     if (enabled) {
-      // Enable external sync
       Tone.Transport.syncSource = 'midi';
+
+      if (midi) {
+        midi.onStart = () => this.audioEngine.startLoopPlayback();
+        midi.onStop = () => this.audioEngine.stopLoopPlayback();
+        midi.onTempo = (bpm: number) => this.setTempo(Math.round(bpm));
+      }
+
       console.log('Synced to external MIDI clock');
     } else {
-      // Use internal clock
       Tone.Transport.syncSource = 'transport';
+      if (midi) {
+        midi.onStart = undefined;
+        midi.onStop = undefined;
+        midi.onTempo = undefined;
+      }
       console.log('Using internal clock');
     }
   }

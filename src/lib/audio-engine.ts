@@ -96,7 +96,9 @@ export class EchoplexAudioEngine {
       feedback: 0.5,
       inputGain: 0.8,
       outputGain: 0.8,
-      mix: 0.5
+      mix: 0.5,
+      midiDeviceId: undefined,
+      clockSource: 'INTERNAL'
     };
   }
 
@@ -698,7 +700,11 @@ export class EchoplexAudioEngine {
     if (settings.mix !== undefined) {
       this.mixer.fade.value = settings.mix;
     }
-    
+
+    if (settings.tempo !== undefined) {
+      Tone.Transport.bpm.value = settings.tempo;
+    }
+
     console.log('Settings updated:', settings);
   }
 

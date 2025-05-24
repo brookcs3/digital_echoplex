@@ -12,6 +12,8 @@ export interface LoopSettings {
   inputGain: number;
   outputGain: number;
   mix: number;
+  midiDeviceId?: string;
+  clockSource: 'INTERNAL' | 'MIDI';
 }
 
 export interface Loop {
