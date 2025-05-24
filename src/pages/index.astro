@@ -1,5 +1,6 @@
 ---
 import { EchoplexAudioEngine } from '../lib/audio-engine';
+import { AdvancedLooperFunctions } from '../lib/advanced-functions';
 import WaveformDisplay from '../components/WaveformDisplay.astro';
 import ControlPanel from '../components/ControlPanel.astro';
 import TransportControls from '../components/TransportControls.astro';
@@ -54,6 +55,7 @@ import ParameterPanel from '../components/ParameterPanel.astro';
   <script>
     // Global variables
     let echoplexEngine = null;
+    let advancedFunctions = null;
     let audioContextStarted = false;
     
     // Power button initialization
@@ -82,6 +84,8 @@ import ParameterPanel from '../components/ParameterPanel.astro';
               // Create the engine
               window.echoplexEngine = new EchoplexAudioEngine();
               echoplexEngine = window.echoplexEngine;
+              window.advancedFunctions = new AdvancedLooperFunctions(echoplexEngine);
+              advancedFunctions = window.advancedFunctions;
               
               // Request microphone access
               powerStatus.textContent = 'Requesting microphone access...';
@@ -245,9 +249,71 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Mute button
       document.getElementById('mute-button')?.addEventListener('click', () => {
         if (!echoplexEngine) return;
-        
+
         echoplexEngine.toggleMute();
         updateUIState();
+      });
+
+      // Insert button (placeholder)
+      document.getElementById('insert-button')?.addEventListener('click', () => {
+        if (!advancedFunctions) return;
+        console.log('Insert button pressed');
+      });
+
+      // Replace button (placeholder)
+      document.getElementById('replace-button')?.addEventListener('click', () => {
+        if (!advancedFunctions) return;
+        console.log('Replace button pressed');
+      });
+
+      // Retrigger button
+      document.getElementById('retrigger-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        echoplexEngine.retriggerLoop();
+      });
+
+      // Start Point button (sets to beginning for demo)
+      document.getElementById('startpoint-button')?.addEventListener('click', () => {
+        if (!echoplexEngine) return;
+        echoplexEngine.setStartPoint(0);
+      });
+
+      // Loop Window button (set first half)
+      document.getElementById('window-button')?.addEventListener('click', () => {
+        if (!advancedFunctions || !echoplexEngine) return;
+        const state = echoplexEngine.getState();
+        const loop = state.loops[state.currentLoopIndex];
+        if (loop.endPoint > 0) {
+          advancedFunctions.setLoopWindow(loop.startPoint, loop.endPoint / 2);
+        }
+      });
+
+      // Substitute button toggles substitute recording
+      document.getElementById('substitute-button')?.addEventListener('click', async () => {
+        if (!advancedFunctions || !echoplexEngine) return;
+        const state = echoplexEngine.getState();
+        if (state.isReplacing) {
+          await advancedFunctions.stopSubstitute();
+        } else {
+          await advancedFunctions.startSubstitute();
+        }
+      });
+
+      // SUS button toggles sustain command
+      document.getElementById('sus-button')?.addEventListener('click', () => {
+        if (!advancedFunctions || !echoplexEngine) return;
+        const state = echoplexEngine.getState();
+        if (state.isSUSActive) {
+          advancedFunctions.stopSUSCommand();
+        } else {
+          advancedFunctions.startSUSCommand();
+        }
+      });
+
+      // Loop Divide button
+      document.getElementById('divide-button')?.addEventListener('click', () => {
+        if (!advancedFunctions || !echoplexEngine) return;
+        advancedFunctions.loopDivide(2);
       });
     }
 
@@ -279,9 +345,17 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Mix control
       document.getElementById('mix-control')?.addEventListener('input', (e) => {
         if (!echoplexEngine) return;
-        
+
         const value = parseFloat((e.target as HTMLInputElement).value);
         echoplexEngine.updateSettings({ mix: value });
+      });
+
+      // Mic monitor select
+      document.getElementById('mic-monitor-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ micMonitor: value });
       });
       
       // Quantize select

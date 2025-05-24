@@ -16,6 +16,7 @@ export class EchoplexAudioEngine {
   private mixer: Tone.CrossFade;
   private analyser: Tone.Analyser;
   private microphone: Tone.UserMedia | null = null;
+  private micConnected: boolean = false;
   private recordStartTime: number = 0;
   private scheduledEvents: number[] = [];
   private loopInterval: number | null = null;
@@ -96,7 +97,8 @@ export class EchoplexAudioEngine {
       feedback: 0.5,
       inputGain: 0.8,
       outputGain: 0.8,
-      mix: 0.5
+      mix: 0.5,
+      micMonitor: 'REC'
     };
   }
 
@@ -107,11 +109,30 @@ export class EchoplexAudioEngine {
     try {
       this.microphone = new Tone.UserMedia();
       await this.microphone.open();
-      this.microphone.connect(this.inputGain);
+      if (this.state.settings.micMonitor === 'ON') {
+        this.microphone.connect(this.inputGain);
+        this.micConnected = true;
+      }
       console.log('Microphone initialized successfully');
     } catch (error) {
       console.error('Error initializing microphone:', error);
       throw error;
+    }
+  }
+
+  /** Connect microphone to input gain if not already connected */
+  private connectMic(): void {
+    if (this.microphone && !this.micConnected) {
+      this.microphone.connect(this.inputGain);
+      this.micConnected = true;
+    }
+  }
+
+  /** Disconnect microphone from input gain */
+  private disconnectMic(): void {
+    if (this.microphone && this.micConnected) {
+      this.microphone.disconnect(this.inputGain);
+      this.micConnected = false;
     }
   }
 
@@ -120,6 +141,10 @@ export class EchoplexAudioEngine {
    */
   async startRecording(): Promise<void> {
     if (this.state.isRecording) return;
+
+    if (this.state.settings.micMonitor === 'REC') {
+      this.connectMic();
+    }
 
     // Start the recorder
     this.recorder.start();
@@ -167,10 +192,14 @@ export class EchoplexAudioEngine {
     // Update state
     this.state.isRecording = false;
     this.state.isPlaying = true;
-    
+
     // Start loop playback
     this.startLoopPlayback();
-    
+
+    if (this.state.settings.micMonitor === 'REC') {
+      this.disconnectMic();
+    }
+
     console.log('Recording stopped, loop created');
   }
 
@@ -245,7 +274,11 @@ export class EchoplexAudioEngine {
    */
   async startOverdub(): Promise<void> {
     if (!this.state.isPlaying || this.state.isOverdubbing) return;
-    
+
+    if (this.state.settings.micMonitor === 'REC') {
+      this.connectMic();
+    }
+
     // Start the recorder
     this.recorder.start();
     
@@ -327,6 +360,11 @@ export class EchoplexAudioEngine {
     }
     
     this.state.isOverdubbing = false;
+
+    if (this.state.settings.micMonitor === 'REC') {
+      this.disconnectMic();
+    }
+
     console.log('Overdub stopped and merged');
   }
 
@@ -415,10 +453,22 @@ export class EchoplexAudioEngine {
     
     // Toggle reverse state
     currentLoop.isReversed = !currentLoop.isReversed;
-    
-    // Update player if it exists
-    if (this.player) {
-      this.player.reverse = currentLoop.isReversed;
+
+    if (currentLoop.buffer) {
+      const channels = currentLoop.buffer.numberOfChannels;
+      const length = currentLoop.buffer.length;
+      const reversed = this.context.createBuffer(channels, length, currentLoop.buffer.sampleRate);
+      for (let ch = 0; ch < channels; ch++) {
+        const data = currentLoop.buffer.getChannelData(ch);
+        const rev = reversed.getChannelData(ch);
+        for (let i = 0; i < length; i++) {
+          rev[i] = data[length - 1 - i];
+        }
+      }
+      currentLoop.buffer = reversed;
+      if (this.player) {
+        this.player.buffer.set(reversed);
+      }
     }
     
     console.log(`Loop ${currentLoop.isReversed ? 'reversed' : 'forward'}`);
@@ -698,7 +748,15 @@ export class EchoplexAudioEngine {
     if (settings.mix !== undefined) {
       this.mixer.fade.value = settings.mix;
     }
-    
+
+    if (settings.micMonitor !== undefined) {
+      if (settings.micMonitor === 'ON') {
+        this.connectMic();
+      } else if (!this.state.isRecording && !this.state.isOverdubbing) {
+        this.disconnectMic();
+      }
+    }
+
     console.log('Settings updated:', settings);
   }
 
@@ -721,8 +779,11 @@ export class EchoplexAudioEngine {
    */
   dispose(): void {
     this.stopLoopPlayback();
-    
+
     if (this.microphone) {
+      if (this.micConnected) {
+        this.disconnectMic();
+      }
       this.microphone.close();
     }
     

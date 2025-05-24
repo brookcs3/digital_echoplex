@@ -12,6 +12,7 @@ export interface LoopSettings {
   inputGain: number;
   outputGain: number;
   mix: number;
+  micMonitor: 'REC' | 'ON';
 }
 
 export interface Loop {
