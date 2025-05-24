@@ -245,8 +245,24 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Mute button
       document.getElementById('mute-button')?.addEventListener('click', () => {
         if (!echoplexEngine) return;
-        
+
         echoplexEngine.toggleMute();
+        updateUIState();
+      });
+
+      // Insert button
+      document.getElementById('insert-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+
+        await echoplexEngine.insertLoop();
+        updateUIState();
+      });
+
+      // Replace button
+      document.getElementById('replace-button')?.addEventListener('click', async () => {
+        if (!echoplexEngine) return;
+
+        await echoplexEngine.replaceLoop();
         updateUIState();
       });
     }
@@ -460,6 +476,18 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       if (muteButton) {
         const currentLoop = state.loops[state.currentLoopIndex];
         muteButton.classList.toggle('active', currentLoop.isMuted);
+      }
+
+      const insertButton = document.getElementById('insert-button');
+      if (insertButton) {
+        insertButton.classList.toggle('active', state.isInserting);
+        insertButton.textContent = state.isInserting ? 'Stop Insert' : 'Insert';
+      }
+
+      const replaceButton = document.getElementById('replace-button');
+      if (replaceButton) {
+        replaceButton.classList.toggle('active', state.isReplacing);
+        replaceButton.textContent = state.isReplacing ? 'Stop Replace' : 'Replace';
       }
       
       // Update loop selector
