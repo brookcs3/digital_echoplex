@@ -489,6 +489,91 @@ export class EchoplexAudioEngine {
   }
 
   /**
+   * Insert new audio at the end of the current loop
+   */
+  insertLoop(buffer: AudioBuffer): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+
+    this.addUndoAction({
+      type: 'INSERT_LOOP',
+      loopId: currentLoop.id,
+      previousState: {
+        buffer: currentLoop.buffer,
+        endPoint: currentLoop.endPoint
+      }
+    });
+
+    if (!currentLoop.buffer) {
+      currentLoop.buffer = buffer;
+      currentLoop.startPoint = 0;
+      currentLoop.endPoint = buffer.duration;
+
+      if (this.player) {
+        this.player.buffer.set(buffer);
+      } else {
+        this.player = new Tone.Player(buffer).connect(this.mixer.b);
+      }
+    } else {
+      const newBuffer = this.context.createBuffer(
+        currentLoop.buffer.numberOfChannels,
+        currentLoop.buffer.length + buffer.length,
+        currentLoop.buffer.sampleRate
+      );
+
+      for (let ch = 0; ch < currentLoop.buffer.numberOfChannels; ch++) {
+        const currentData = currentLoop.buffer.getChannelData(ch);
+        const insertData = buffer.getChannelData(ch);
+        const newData = newBuffer.getChannelData(ch);
+        newData.set(currentData, 0);
+        newData.set(insertData, currentData.length);
+      }
+
+      currentLoop.buffer = newBuffer;
+      currentLoop.endPoint += buffer.duration;
+
+      if (this.player) {
+        this.player.buffer.set(newBuffer);
+      }
+    }
+
+    if (this.state.isPlaying) {
+      this.stopLoopPlayback();
+      this.startLoopPlayback();
+    }
+  }
+
+  /**
+   * Replace the current loop with new audio
+   */
+  replaceLoop(buffer: AudioBuffer): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex];
+
+    this.addUndoAction({
+      type: 'REPLACE_LOOP',
+      loopId: currentLoop.id,
+      previousState: {
+        buffer: currentLoop.buffer,
+        endPoint: currentLoop.endPoint
+      }
+    });
+
+    currentLoop.buffer = buffer;
+    currentLoop.startPoint = 0;
+    currentLoop.endPoint = buffer.duration;
+
+    if (this.player) {
+      this.player.buffer.set(buffer);
+    } else {
+      this.player = new Tone.Player(buffer).connect(this.mixer.b);
+    }
+
+    if (this.state.isPlaying) {
+      this.stopLoopPlayback();
+      this.startLoopPlayback();
+    }
+  }
+
+  /**
    * Set the loop window (a subsection of the loop to play)
    */
   setLoopWindow(start: number | null, end: number | null): void {

@@ -52,6 +52,8 @@ export enum LoopFunction {
   MULTIPLY,
   INSERT,
   REPLACE,
+  INSERT_LOOP,
+  REPLACE_LOOP,
   UNDO,
   MUTE,
   REVERSE,

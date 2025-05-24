@@ -54,6 +54,7 @@ import ParameterPanel from '../components/ParameterPanel.astro';
   <script>
     // Global variables
     let echoplexEngine = null;
+    let advancedFunctions = null;
     let audioContextStarted = false;
     
     // Power button initialization
@@ -82,6 +83,7 @@ import ParameterPanel from '../components/ParameterPanel.astro';
               // Create the engine
               window.echoplexEngine = new EchoplexAudioEngine();
               echoplexEngine = window.echoplexEngine;
+              advancedFunctions = new window.AdvancedLooperFunctions(echoplexEngine);
               
               // Request microphone access
               powerStatus.textContent = 'Requesting microphone access...';
@@ -245,8 +247,36 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Mute button
       document.getElementById('mute-button')?.addEventListener('click', () => {
         if (!echoplexEngine) return;
-        
+
         echoplexEngine.toggleMute();
+        updateUIState();
+      });
+
+      // Insert button
+      document.getElementById('insert-button')?.addEventListener('click', async () => {
+        if (!advancedFunctions) return;
+
+        const state = echoplexEngine.getState();
+        if (state.isInserting) {
+          await advancedFunctions.stopInsert();
+        } else {
+          await advancedFunctions.startInsert();
+        }
+
+        updateUIState();
+      });
+
+      // Replace button
+      document.getElementById('replace-button')?.addEventListener('click', async () => {
+        if (!advancedFunctions) return;
+
+        const state = echoplexEngine.getState();
+        if (state.isReplacing) {
+          await advancedFunctions.stopReplace();
+        } else {
+          await advancedFunctions.startReplace();
+        }
+
         updateUIState();
       });
     }
@@ -287,9 +317,25 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Quantize select
       document.getElementById('quantize-select')?.addEventListener('change', (e) => {
         if (!echoplexEngine) return;
-        
+
         const value = (e.target as HTMLSelectElement).value as any;
         echoplexEngine.updateSettings({ quantize: value });
+      });
+
+      // Insert mode select
+      document.getElementById('insert-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ insertMode: value });
+      });
+
+      // Overdub mode select
+      document.getElementById('overdub-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ overdubMode: value });
       });
       
       // Interface mode select
@@ -412,6 +458,16 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       if (muteButton) {
         const currentLoop = state.loops[state.currentLoopIndex];
         muteButton.classList.toggle('active', currentLoop.isMuted);
+      }
+
+      const insertButton = document.getElementById('insert-button');
+      if (insertButton) {
+        insertButton.classList.toggle('active', state.isInserting);
+      }
+
+      const replaceButton = document.getElementById('replace-button');
+      if (replaceButton) {
+        replaceButton.classList.toggle('active', state.isReplacing);
       }
       
       // Update loop selector
