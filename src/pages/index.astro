@@ -295,9 +295,57 @@ import ParameterPanel from '../components/ParameterPanel.astro';
       // Interface mode select
       document.getElementById('interface-mode-select')?.addEventListener('change', (e) => {
         if (!echoplexEngine) return;
-        
+
         const value = (e.target as HTMLSelectElement).value as any;
         echoplexEngine.updateSettings({ interfaceMode: value });
+      });
+
+      // Switch quantize select
+      document.getElementById('switch-quant-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ switchQuant: value });
+      });
+
+      // Insert mode select
+      document.getElementById('insert-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ insertMode: value });
+      });
+
+      // Overdub mode select
+      document.getElementById('overdub-mode-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ overdubMode: value });
+      });
+
+      // Sampler style select
+      document.getElementById('sampler-style-select')?.addEventListener('change', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = (e.target as HTMLSelectElement).value as any;
+        echoplexEngine.updateSettings({ samplerStyle: value });
+      });
+
+      // Tempo input
+      document.getElementById('tempo-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = parseFloat((e.target as HTMLInputElement).value);
+        echoplexEngine.updateSettings({ tempo: value });
+      });
+
+      // Cycle beats input
+      document.getElementById('cycle-beats-input')?.addEventListener('input', (e) => {
+        if (!echoplexEngine) return;
+
+        const value = parseInt((e.target as HTMLInputElement).value, 10);
+        echoplexEngine.updateSettings({ cycleBeats: value });
       });
     }
 
