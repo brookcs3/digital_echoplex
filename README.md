@@ -4,6 +4,8 @@
 
 This document provides detailed technical documentation for the Digital Echo Plex, a web-based implementation of the Echo Plex hardware looper. This implementation faithfully recreates the functionality of the original hardware while adding visual feedback and browser-based accessibility.
 
+For a quick overview of the available loop functions, see [Echoplex Functions](docs/Echoplex_Functions.md).
+
 ## Project Structure
 
 ```
