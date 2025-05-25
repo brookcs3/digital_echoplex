@@ -250,3 +250,6 @@ Settings and state are persisted using:
 The Digital Echo Plex successfully recreates the functionality of the original hardware in a web browser environment, with additional visual feedback and accessibility features. The implementation addresses key challenges in audio processing, user interface design, and browser compatibility while maintaining the authentic behavior of the original Echo Plex.
 
 Future improvements could focus on mobile optimization, reduced latency, expanded storage options, and additional features beyond the original hardware capabilities.
+
+
+![Hits](https://visitor-badge.laobi.icu/badge?page_id=brookcs3.digital_echoplex)
