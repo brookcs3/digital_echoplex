@@ -2,17 +2,35 @@
 ---
 
 <div class="loop-selector">
-  <button id="prev-loop-button" class="control-button">Previous</button>
-  <div id="current-loop-display" class="loop-display">Loop 1</div>
-  <button id="next-loop-button" class="control-button">Next</button>
+  <div class="loop-navigation">
+    <button id="prev-loop-button" class="control-button">Previous</button>
+    <div id="current-loop-display" class="loop-display">Loop 1</div>
+    <button id="next-loop-button" class="control-button">Next</button>
+  </div>
+  <div class="loop-actions">
+    <button id="copy-loop-button" class="control-button">Copy</button>
+    <button id="move-loop-button" class="control-button">Move</button>
+  </div>
 </div>
 
 <style>
   .loop-selector {
     display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .loop-navigation {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem;
+  }
+
+  .loop-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
   }
   
   .loop-display {
