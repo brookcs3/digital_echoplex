@@ -1,546 +1,442 @@
 ---
-import { EchoplexAudioEngine } from '../lib/audio-engine';
-import WaveformDisplay from '../components/WaveformDisplay.astro';
-import ControlPanel from '../components/ControlPanel.astro';
-import TransportControls from '../components/TransportControls.astro';
-import LoopSelector from '../components/LoopSelector.astro';
-import ParameterPanel from '../components/ParameterPanel.astro';
+// This is the main page for Digital Echo Plex
 ---
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Echo Plex</title>
-  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/power.css">
+  <style>
+    /* Critical styles to ensure immediate visual feedback */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #222;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .power-section {
+      text-align: center;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    #power-button {
+      background-color: #333;
+      color: #0f0;
+      border: 2px solid #0f0;
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    #power-button:hover {
+      background-color: #444;
+    }
+    
+    #power-button.powered-on {
+      background-color: #0f0;
+      color: #000;
+    }
+    
+    #power-button.powering {
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    #power-status {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    
+    #power-status.error {
+      color: #f00;
+    }
+    
+    /* FIX: Remove opacity and pointer-events restrictions from main interface */
+    .main-interface {
+      transition: opacity 0.5s;
+    }
+    
+    /* FIX: Only apply restrictions when explicitly powered off */
+    .main-interface.powered-off {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    
+    .timer-display {
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 24px;
+      padding: 10px;
+      border: 1px solid #0f0;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .timer-display .label {
+      font-size: 14px;
+      color: #0a0;
+    }
+    
+    .timer-display .time {
+      font-weight: bold;
+    }
+    
+    .timer-display .warning {
+      color: #f00;
+    }
+    
+    .control-section {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #444;
+      background-color: #333;
+    }
+    
+    .control-section h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #0f0;
+    }
+    
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .control-button {
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #666;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      min-width: 80px;
+      text-align: center;
+      /* FIX: Ensure buttons are clickable */
+      position: relative;
+      z-index: 10;
+    }
+    
+    .control-button:hover {
+      background-color: #555;
+    }
+    
+    .control-button.active {
+      background-color: #0f0;
+      color: #000;
+    }
+    
+    .parameter-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .parameter-control {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .parameter-control label {
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    .parameter-control input[type="range"] {
+      width: 100%;
+    }
+    
+    .parameter-control select {
+      width: 100%;
+      padding: 5px;
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #666;
+    }
+    
+    .waveform-display {
+      width: 100%;
+      height: 150px;
+      background-color: #000;
+      border: 1px solid #0f0;
+      margin-bottom: 20px;
+    }
+    
+    .preset-section {
+      margin-top: 20px;
+    }
+    
+    .preset-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .preset-description {
+      font-style: italic;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+    
+    .dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #333;
+      border: 2px solid #0f0;
+      padding: 20px;
+      z-index: 100;
+      width: 300px;
+    }
+    
+    .dialog h3 {
+      margin-top: 0;
+      color: #0f0;
+    }
+    
+    .dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .dialog input, .dialog textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #666;
+    }
+    
+    .function-active .function-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      border-radius: 50%;
+      margin-left: 5px;
+    }
+    
+    .recording-active #recording-time {
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0% { color: #0f0; }
+      50% { color: #f00; }
+      100% { color: #0f0; }
+    }
+    
+    /* Mic monitoring toggle styles */
+    .mic-monitoring-section {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #666;
+      background-color: #2a2a2a;
+    }
+    
+    .mic-monitoring-section h3 {
+      margin-top: 0;
+      font-size: 16px;
+      color: #0f0;
+    }
+    
+    .mic-monitoring-options {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .mic-monitoring-options label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .mic-monitoring-options input {
+      margin-right: 5px;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-container">
-    <header>
-      <h1>Digital Echo Plex</h1>
-    </header>
-    
-    <div id="power-section" class="power-section">
-      <button id="power-button" class="power-button">Power On</button>
-      <div id="power-status" class="power-status">Unit is powered off</div>
+  <div class="power-section">
+    <button id="power-button">Power On</button>
+    <div id="power-status">Unit is powered off</div>
+  </div>
+  
+  <div id="main-interface" class="main-interface powered-off">
+    <div class="timer-display">
+      <div>
+        <span class="label">Recording Time:</span>
+        <span id="recording-time" class="time">0.0</span>s
+      </div>
+      <div>
+        <span class="label">Loop Length:</span>
+        <span id="loop-length" class="time">0.0</span>s
+      </div>
     </div>
     
-    <main id="main-interface" class="powered-off">
-      <div class="waveform-container">
-        <WaveformDisplay />
+    <div class="waveform-display">
+      <canvas id="waveform-canvas"></canvas>
+    </div>
+    
+    <div class="control-section">
+      <h2>Transport Controls</h2>
+      <div class="button-row">
+        <button id="record-button" class="control-button">Record</button>
+        <button id="play-button" class="control-button">Play</button>
+        <button id="overdub-button" class="control-button">Overdub</button>
+        <button id="multiply-button" class="control-button">Multiply</button>
+        <button id="insert-button" class="control-button">Insert</button>
+        <button id="undo-button" class="control-button">Undo</button>
       </div>
       
-      <div class="controls-container">
-        <div class="top-controls">
-          <TransportControls />
-          <LoopSelector />
-        </div>
-        
-        <div class="main-controls">
-          <ControlPanel />
-        </div>
-        
-        <div class="parameter-panel">
-          <ParameterPanel />
+      <div class="record-mode">
+        <span>Record Mode:</span>
+        <label>
+          <input type="radio" name="record-mode" value="SWITCH" checked> SWITCH
+        </label>
+        <label>
+          <input type="radio" name="record-mode" value="TOGGLE"> TOGGLE
+        </label>
+      </div>
+      
+      <!-- Mic Monitoring Toggle -->
+      <div class="mic-monitoring-section">
+        <h3>Microphone Monitoring:</h3>
+        <div class="mic-monitoring-options">
+          <label>
+            <input type="radio" name="mic-monitoring-mode" value="RECORDING_ONLY" checked> Only While Recording
+          </label>
+          <label>
+            <input type="radio" name="mic-monitoring-mode" value="ALWAYS_ON"> Always On
+          </label>
         </div>
       </div>
-    </main>
+    </div>
     
-    <footer>
-      <p>Digital Echo Plex - Web Implementation</p>
-    </footer>
+    <div class="control-section">
+      <h2>Loop Controls</h2>
+      <div class="button-row">
+        <button id="prev-loop-button" class="control-button">&lt; Prev</button>
+        <div id="current-loop-display">Loop 1</div>
+        <button id="next-loop-button" class="control-button">Next &gt;</button>
+        <button id="reset-button" class="control-button">Reset</button>
+        <button id="reverse-button" class="control-button">Reverse</button>
+        <button id="half-speed-button" class="control-button">Half Speed</button>
+        <button id="mute-button" class="control-button">Mute</button>
+        <button id="window-button" class="control-button">Window</button>
+        <button id="function-button" class="control-button">Function <span class="function-indicator"></span></button>
+      </div>
+    </div>
+    
+    <div class="control-section">
+      <h2>Parameters</h2>
+      <div class="parameter-section">
+        <div class="parameter-control">
+          <label for="feedback-control">Feedback (1.0 = Loop)</label>
+          <input type="range" id="feedback-control" min="0" max="1" step="0.01" value="1.0">
+        </div>
+        
+        <div class="parameter-control">
+          <label for="input-gain-control">Input Gain</label>
+          <input type="range" id="input-gain-control" min="0" max="1" step="0.01" value="0.8">
+        </div>
+        
+        <div class="parameter-control">
+          <label for="output-gain-control">Output Gain</label>
+          <input type="range" id="output-gain-control" min="0" max="1" step="0.01" value="0.8">
+        </div>
+        
+        <div class="parameter-control">
+          <label for="mix-control">Mix</label>
+          <input type="range" id="mix-control" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        
+        <div class="parameter-control">
+          <label for="quantize-select">Quantize</label>
+          <select id="quantize-select">
+            <option value="OFF">OFF</option>
+            <option value="LOOP">LOOP</option>
+            <option value="CYCLE">CYCLE</option>
+            <option value="8TH">8TH</option>
+            <option value="16TH">16TH</option>
+          </select>
+        </div>
+        
+        <div class="parameter-control">
+          <label for="interface-mode-select">Interface Mode</label>
+          <select id="interface-mode-select">
+            <option value="LOOP">LOOP</option>
+            <option value="STUTTER">STUTTER</option>
+            <option value="DELAY">DELAY</option>
+            <option value="EXPERT">EXPERT</option>
+          </select>
+        </div>
+        
+        <div class="parameter-control">
+          <label for="overdub-mode-select">Overdub Mode</label>
+          <select id="overdub-mode-select">
+            <option value="TOGGLE" selected>TOGGLE</option>
+            <option value="SWITCH">SWITCH</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div class="control-section preset-section">
+      <h2>Presets</h2>
+      <select id="preset-select">
+        <option value="-1">Select Preset...</option>
+      </select>
+      <div id="preset-description" class="preset-description"></div>
+      <div class="preset-controls">
+        <button id="load-preset-button" class="control-button">Load</button>
+        <button id="save-preset-button" class="control-button">Save New</button>
+        <button id="delete-preset-button" class="control-button">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="save-preset-dialog" class="dialog">
+    <h3>Save Preset</h3>
+    <div>
+      <label for="preset-name-input">Name:</label>
+      <input type="text" id="preset-name-input" placeholder="Preset Name">
+    </div>
+    <div>
+      <label for="preset-description-input">Description:</label>
+      <textarea id="preset-description-input" placeholder="Preset Description" rows="3"></textarea>
+    </div>
+    <div class="dialog-buttons">
+      <button id="save-preset-cancel" class="control-button">Cancel</button>
+      <button id="save-preset-confirm" class="control-button">Save</button>
+    </div>
   </div>
 
-  <script>
-    // Global variables
-    let echoplexEngine = null;
-    let audioContextStarted = false;
-    
-    // Power button initialization
-    document.addEventListener('DOMContentLoaded', () => {
-      const powerButton = document.getElementById('power-button');
-      const powerStatus = document.getElementById('power-status');
-      const mainInterface = document.getElementById('main-interface');
-      
-      if (powerButton) {
-        powerButton.addEventListener('click', async () => {
-          try {
-            // Change button appearance immediately for feedback
-            powerButton.classList.add('powering');
-            powerButton.textContent = 'Starting...';
-            powerStatus.textContent = 'Initializing audio system...';
-            
-            // Initialize audio context and engine
-            if (!audioContextStarted) {
-              // Create audio context
-              const AudioContext = window.AudioContext || window.webkitAudioContext;
-              const audioContext = new AudioContext();
-              
-              // Resume audio context (needed for some browsers)
-              await audioContext.resume();
-              
-              // Create the engine
-              window.echoplexEngine = new EchoplexAudioEngine();
-              echoplexEngine = window.echoplexEngine;
-              
-              // Request microphone access
-              powerStatus.textContent = 'Requesting microphone access...';
-              try {
-                await echoplexEngine.initMicrophone();
-                audioContextStarted = true;
-                console.log('Audio system initialized successfully');
-              } catch (micError) {
-                powerStatus.textContent = 'Microphone access denied. Please allow microphone access and try again.';
-                powerButton.textContent = 'Power On';
-                powerButton.classList.remove('powering');
-                console.error('Microphone initialization failed:', micError);
-                return;
-              }
-            }
-            
-            // Power on successful
-            powerButton.textContent = 'Power Off';
-            powerButton.classList.remove('powering');
-            powerButton.classList.add('powered-on');
-            powerStatus.textContent = 'Unit is powered on and ready';
-            mainInterface.classList.remove('powered-off');
-            
-            // Initialize UI components
-            initializeUI();
-            
-          } catch (error) {
-            // Handle initialization errors
-            powerButton.textContent = 'Power On';
-            powerButton.classList.remove('powering');
-            powerStatus.textContent = `Error: ${error.message}. Please try again.`;
-            console.error('Initialization error:', error);
-          }
-        });
-      }
-    });
-
-    function initializeUI() {
-      // Set up event listeners for all controls
-      setupTransportControls();
-      setupLoopControls();
-      setupParameterControls();
-
-      loadSettingsToUI();
-      updateUIState();
-
-      // Start the waveform visualization
-      startWaveformVisualization();
-
-      console.log('UI initialized');
-    }
-
-    function setupTransportControls() {
-      // Record button
-      document.getElementById('record-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
-        
-        const state = echoplexEngine.getState();
-        
-        if (state.isRecording) {
-          await echoplexEngine.stopRecording();
-        } else {
-          await echoplexEngine.startRecording();
-        }
-        
-        updateUIState();
-      });
-      
-      // Play/Stop button
-      document.getElementById('play-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        const state = echoplexEngine.getState();
-        
-        if (state.isPlaying) {
-          echoplexEngine.stopLoopPlayback();
-        } else {
-          echoplexEngine.startLoopPlayback();
-        }
-        
-        updateUIState();
-      });
-      
-      // Overdub button
-      document.getElementById('overdub-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
-        
-        const state = echoplexEngine.getState();
-        
-        if (state.isOverdubbing) {
-          await echoplexEngine.stopOverdub();
-        } else {
-          await echoplexEngine.startOverdub();
-        }
-        
-        updateUIState();
-      });
-      
-      // Multiply button
-      document.getElementById('multiply-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
-        
-        const state = echoplexEngine.getState();
-        
-        if (state.isMultiplying) {
-          await echoplexEngine.stopMultiply();
-        } else {
-          echoplexEngine.startMultiply();
-        }
-        
-        updateUIState();
-      });
-      
-      // Undo button
-      document.getElementById('undo-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        echoplexEngine.undo();
-        updateUIState();
-      });
-    }
-
-    function setupLoopControls() {
-      // Next Loop button
-      document.getElementById('next-loop-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        echoplexEngine.nextLoop();
-        updateUIState();
-      });
-      
-      // Previous Loop button
-      document.getElementById('prev-loop-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        echoplexEngine.previousLoop();
-        updateUIState();
-      });
-      
-      // Reset button
-      document.getElementById('reset-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        echoplexEngine.resetLoop();
-        updateUIState();
-      });
-      
-      // Reverse button
-      document.getElementById('reverse-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        echoplexEngine.reverseLoop();
-        updateUIState();
-      });
-      
-      // Half-Speed button
-      document.getElementById('half-speed-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-        
-        echoplexEngine.toggleHalfSpeed();
-        updateUIState();
-      });
-      
-      // Mute button
-      document.getElementById('mute-button')?.addEventListener('click', () => {
-        if (!echoplexEngine) return;
-
-        echoplexEngine.toggleMute();
-        updateUIState();
-      });
-
-      // Insert button
-      document.getElementById('insert-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
-
-        await echoplexEngine.insertLoop();
-        updateUIState();
-      });
-
-      // Replace button
-      document.getElementById('replace-button')?.addEventListener('click', async () => {
-        if (!echoplexEngine) return;
-
-        await echoplexEngine.replaceLoop();
-        updateUIState();
-      });
-    }
-
-    function setupParameterControls() {
-      // Feedback control
-      document.getElementById('feedback-control')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-        
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ feedback: value });
-      });
-      
-      // Input gain control
-      document.getElementById('input-gain-control')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-        
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ inputGain: value });
-      });
-      
-      // Output gain control
-      document.getElementById('output-gain-control')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-        
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ outputGain: value });
-      });
-      
-      // Mix control
-      document.getElementById('mix-control')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-        
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ mix: value });
-      });
-      
-      // Quantize select
-      document.getElementById('quantize-select')?.addEventListener('change', (e) => {
-        if (!echoplexEngine) return;
-        
-        const value = (e.target as HTMLSelectElement).value as any;
-        echoplexEngine.updateSettings({ quantize: value });
-      });
-      
-      // Interface mode select
-      document.getElementById('interface-mode-select')?.addEventListener('change', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = (e.target as HTMLSelectElement).value as any;
-        echoplexEngine.updateSettings({ interfaceMode: value });
-        updateConditionalLayouts();
-      });
-
-      document.getElementById('stutter-length-input')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ stutterLength: value });
-      });
-
-      document.getElementById('delay-time-input')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ delayTime: value });
-      });
-    }
-
-    function loadSettingsToUI() {
-      if (!echoplexEngine) return;
-      const settings = echoplexEngine.getState().settings;
-      (document.getElementById('interface-mode-select') as HTMLSelectElement).value = settings.interfaceMode;
-      (document.getElementById('stutter-length-input') as HTMLInputElement).value = settings.stutterLength.toString();
-      (document.getElementById('delay-time-input') as HTMLInputElement).value = settings.delayTime.toString();
-      (document.getElementById('feedback-control') as HTMLInputElement).value = settings.feedback.toString();
-      (document.getElementById('input-gain-control') as HTMLInputElement).value = settings.inputGain.toString();
-      (document.getElementById('output-gain-control') as HTMLInputElement).value = settings.outputGain.toString();
-      (document.getElementById('mix-control') as HTMLInputElement).value = settings.mix.toString();
-      (document.getElementById('tempo-input') as HTMLInputElement).value = settings.tempo.toString();
-      (document.getElementById('cycle-beats-input') as HTMLInputElement).value = settings.cycleBeats.toString();
-      (document.getElementById('quantize-select') as HTMLSelectElement).value = settings.quantize;
-      updateConditionalLayouts();
-    }
-
-    function updateConditionalLayouts() {
-      if (!echoplexEngine) return;
-      const mode = echoplexEngine.getState().settings.interfaceMode;
-      document.querySelectorAll('.mode-stutter').forEach(el => {
-        (el as HTMLElement).classList.toggle('hidden', !(mode === 'STUTTER' || mode === 'EXPERT'));
-      });
-      document.querySelectorAll('.mode-delay').forEach(el => {
-        (el as HTMLElement).classList.toggle('hidden', !(mode === 'DELAY' || mode === 'EXPERT'));
-      });
-
-      // Switch quantize select
-      document.getElementById('switch-quant-select')?.addEventListener('change', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = (e.target as HTMLSelectElement).value as any;
-        echoplexEngine.updateSettings({ switchQuant: value });
-      });
-
-      // Insert mode select
-      document.getElementById('insert-mode-select')?.addEventListener('change', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = (e.target as HTMLSelectElement).value as any;
-        echoplexEngine.updateSettings({ insertMode: value });
-      });
-
-      // Overdub mode select
-      document.getElementById('overdub-mode-select')?.addEventListener('change', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = (e.target as HTMLSelectElement).value as any;
-        echoplexEngine.updateSettings({ overdubMode: value });
-      });
-
-      // Sampler style select
-      document.getElementById('sampler-style-select')?.addEventListener('change', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = (e.target as HTMLSelectElement).value as any;
-        echoplexEngine.updateSettings({ samplerStyle: value });
-      });
-
-      // Tempo input
-      document.getElementById('tempo-input')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = parseFloat((e.target as HTMLInputElement).value);
-        echoplexEngine.updateSettings({ tempo: value });
-      });
-
-      // Cycle beats input
-      document.getElementById('cycle-beats-input')?.addEventListener('input', (e) => {
-        if (!echoplexEngine) return;
-
-        const value = parseInt((e.target as HTMLInputElement).value, 10);
-        echoplexEngine.updateSettings({ cycleBeats: value });
-      });
-    }
-
-    function startWaveformVisualization() {
-      if (!echoplexEngine) return;
-      
-      const canvas = document.getElementById('waveform-canvas') as HTMLCanvasElement;
-      if (!canvas) return;
-      
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      
-      // Resize canvas to match container
-      function resizeCanvas() {
-        const container = canvas.parentElement;
-        if (container) {
-          canvas.width = container.clientWidth;
-          canvas.height = container.clientHeight;
-        }
-      }
-      
-      // Initial resize
-      resizeCanvas();
-      
-      // Resize on window resize
-      window.addEventListener('resize', resizeCanvas);
-      
-      // Animation loop for waveform visualization
-      function drawWaveform() {
-        if (!ctx || !echoplexEngine) return;
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Get waveform data
-        const waveformData = echoplexEngine.getWaveformData();
-        
-        // Draw waveform
-        ctx.beginPath();
-        ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 2;
-        
-        const sliceWidth = canvas.width / waveformData.length;
-        let x = 0;
-        
-        for (let i = 0; i < waveformData.length; i++) {
-          const y = (waveformData[i] * canvas.height / 2) + canvas.height / 2;
-          
-          if (i === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
-          
-          x += sliceWidth;
-        }
-        
-        ctx.stroke();
-        
-        // Continue animation loop
-        requestAnimationFrame(drawWaveform);
-      }
-      
-      // Start animation loop
-      drawWaveform();
-    }
-
-    function updateUIState() {
-      if (!echoplexEngine) return;
-      
-      const state = echoplexEngine.getState();
-      
-      // Update transport controls
-      const recordButton = document.getElementById('record-button');
-      if (recordButton) {
-        recordButton.classList.toggle('active', state.isRecording);
-        recordButton.textContent = state.isRecording ? 'Stop Recording' : 'Record';
-      }
-      
-      const playButton = document.getElementById('play-button');
-      if (playButton) {
-        playButton.classList.toggle('active', state.isPlaying);
-        playButton.textContent = state.isPlaying ? 'Stop' : 'Play';
-      }
-      
-      const overdubButton = document.getElementById('overdub-button');
-      if (overdubButton) {
-        overdubButton.classList.toggle('active', state.isOverdubbing);
-        overdubButton.textContent = state.isOverdubbing ? 'Stop Overdub' : 'Overdub';
-      }
-      
-      const multiplyButton = document.getElementById('multiply-button');
-      if (multiplyButton) {
-        multiplyButton.classList.toggle('active', state.isMultiplying);
-        multiplyButton.textContent = state.isMultiplying ? 'Stop Multiply' : 'Multiply';
-      }
-      
-      // Update loop controls
-      const reverseButton = document.getElementById('reverse-button');
-      if (reverseButton) {
-        const currentLoop = state.loops[state.currentLoopIndex];
-        reverseButton.classList.toggle('active', currentLoop.isReversed);
-      }
-      
-      const halfSpeedButton = document.getElementById('half-speed-button');
-      if (halfSpeedButton) {
-        const currentLoop = state.loops[state.currentLoopIndex];
-        halfSpeedButton.classList.toggle('active', currentLoop.isHalfSpeed);
-      }
-      
-      const muteButton = document.getElementById('mute-button');
-      if (muteButton) {
-        const currentLoop = state.loops[state.currentLoopIndex];
-        muteButton.classList.toggle('active', currentLoop.isMuted);
-      }
-
-      const insertButton = document.getElementById('insert-button');
-      if (insertButton) {
-        insertButton.classList.toggle('active', state.isInserting);
-        insertButton.textContent = state.isInserting ? 'Stop Insert' : 'Insert';
-      }
-
-      const replaceButton = document.getElementById('replace-button');
-      if (replaceButton) {
-        replaceButton.classList.toggle('active', state.isReplacing);
-        replaceButton.textContent = state.isReplacing ? 'Stop Replace' : 'Replace';
-      }
-      
-      // Update loop selector
-      const loopDisplay = document.getElementById('current-loop-display');
-      if (loopDisplay) {
-        loopDisplay.textContent = `Loop ${state.currentLoopIndex + 1}`;
-      }
-    }
-  </script>
+  <!-- Load the bundled script -->
+  <script src="/scripts/bundle.js" is:inline></script>
 </body>
 </html>
