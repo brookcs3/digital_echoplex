@@ -1,0 +1,5 @@
+# Echoplex Debug Log
+# Watch this file in real-time with: tail -f debug.log
+# Or view recent entries with: tail -n 20 debug.log
+
+[2025-06-27T22:20:00.000Z] SYSTEM: Debug logging initialized

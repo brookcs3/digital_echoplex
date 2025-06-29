@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="/styles/main.css">
   <link rel="stylesheet" href="/styles/power.css">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    
     /* Critical styles to ensure immediate visual feedback */
     body {
       font-family: 'Arial', sans-serif;
@@ -27,24 +29,27 @@
     }
     
     #power-button {
-      background-color: #333;
-      color: #0f0;
-      border: 2px solid #0f0;
-      border-radius: 50%;
-      width: 100px;
-      height: 100px;
-      font-size: 16px;
+      position: absolute;
+      width: 2.14%; /* 30px / 1400px - proper percentage of background */
+      height: 17.14%; /* 60px / 350px - proper percentage of background */
+      background: linear-gradient(to bottom, #800, #400);
+      border: 2px solid #600;
+      border-radius: 5px;
       cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+      pointer-events: auto !important;
+      z-index: 1000;
       transition: all 0.3s;
     }
     
     #power-button:hover {
-      background-color: #444;
+      background: linear-gradient(to bottom, #900, #500);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.7);
     }
     
     #power-button.powered-on {
-      background-color: #0f0;
-      color: #000;
+      background: linear-gradient(to bottom, #0f0, #080);
+      box-shadow: 0 0 15px #0f0;
     }
     
     #power-button.powering {
@@ -74,7 +79,39 @@
     /* FIX: Only apply restrictions when explicitly powered off */
     .main-interface.powered-off {
       opacity: 0.3;
+    }
+    
+    /* Only disable pointer events on controls, not the power button */
+    .main-interface.powered-off .control:not(.echoplex-power-button) {
       pointer-events: none;
+    }
+    
+    /* Power off - completely hide display like a real machine */
+    .main-interface.powered-off .timer-display,
+    .main-interface.powered-off .loop-display,
+    .main-interface.powered-off .multiple-display,
+    .main-interface.powered-off .status-led,
+    .main-interface.powered-off .tempo-dot,
+    .main-interface.powered-off .level-light {
+      display: none !important;
+    }
+    
+    /* Power button - small red button like real hardware */
+    .power-button {
+        position: absolute;
+        width: 2.14%; /* 30px / 1400px */
+        height: 17.14%; /* 60px / 350px */
+        background: linear-gradient(to bottom, #800, #400);
+        border: 2px solid #600;
+        border-radius: 5px;
+        cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+        pointer-events: auto !important;
+        z-index: 1000;
+    }
+    .power-button.on {
+        background: linear-gradient(to bottom, #f00, #800);
+        box-shadow: 0 0 15px #f00;
     }
     
     .timer-display {
@@ -113,6 +150,31 @@
       margin-top: 0;
       font-size: 18px;
       color: #0f0;
+    }
+    
+    /* FEATURE #1: Sustain Action Mode Visual Feedback */
+    .sustain-pressed {
+      background: linear-gradient(to bottom, #ff6600, #cc4400) !important;
+      box-shadow: 0 0 12px #ff6600 !important;
+      transform: scale(0.98);
+      border-color: #ff8800 !important;
+    }
+    
+    .button.sustain-mode {
+      border: 2px solid #ffaa00;
+    }
+    
+    .button.sustain-mode::after {
+      content: "SUS";
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ffaa00;
+      color: #000;
+      font-size: 8px;
+      padding: 1px 3px;
+      border-radius: 2px;
+      font-weight: bold;
     }
     
     .button-row {
@@ -278,13 +340,911 @@
     .mic-monitoring-options input {
       margin-right: 5px;
     }
+    
+    /* Sample Player Styles */
+    .sample-player {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 200px;
+      background-color: rgba(51, 51, 51, 0.95);
+      border: 1px solid #0f0;
+      border-radius: 4px;
+      padding: 8px;
+      z-index: 1000;
+      display: none;
+      font-size: 11px;
+    }
+    
+    .sample-player.visible {
+      display: block;
+    }
+    
+    /* SYSTEMATIC FIX #14: Loop Switching Visual Indicators */
+    .loop-indicator {
+      display: inline-block;
+      margin: 2px;
+      padding: 4px 8px;
+      background-color: #222;
+      border: 1px solid #444;
+      border-radius: 3px;
+      font-size: 10px;
+      text-align: center;
+      min-width: 40px;
+      vertical-align: top;
+    }
+    
+    .loop-indicator .loop-number {
+      font-weight: bold;
+      color: #0a0;
+      font-size: 12px;
+    }
+    
+    .loop-indicator .loop-status {
+      color: #888;
+      font-size: 8px;
+      margin-top: 2px;
+    }
+    
+    .loop-indicator .loop-led {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin: 2px auto;
+      background-color: #333;
+    }
+    
+    .loop-indicator .loop-led.green {
+      background-color: #0f0;
+      box-shadow: 0 0 4px #0f0;
+    }
+    
+    .loop-indicator .loop-led.green.active {
+      animation: pulse-green 1s infinite;
+    }
+    
+    .loop-indicator .loop-led.amber {
+      background-color: #ff0;
+      box-shadow: 0 0 4px #ff0;
+    }
+    
+    .loop-indicator .loop-led.red {
+      background-color: #f00;
+      box-shadow: 0 0 4px #f00;
+    }
+    
+    .loop-indicator .loop-led.off {
+      background-color: #333;
+      box-shadow: none;
+    }
+    
+    @keyframes pulse-green {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    
+    /* Loop display area for indicators */
+    .loop-display {
+      margin-top: 10px;
+      padding: 5px;
+      border: 1px solid #444;
+      background-color: #1a1a1a;
+      border-radius: 3px;
+    }
+    
+    .loop-display h4 {
+      margin: 0 0 5px 0;
+      color: #0a0;
+      font-size: 12px;
+    }
+    
+    /* SYSTEMATIC FIX #17: COMPREHENSIVE VISUAL STATE SYNCHRONIZATION */
+    
+    /* Enhanced button states that reflect exact audio states */
+    .button {
+      transition: all 0.2s ease;
+    }
+    
+    .button.recording {
+      background-color: #ff3333 !important;
+      box-shadow: 0 0 10px #ff3333;
+      animation: recording-pulse 1s infinite;
+    }
+    
+    .button.overdubbing {
+      background-color: #ff8800 !important;
+      box-shadow: 0 0 10px #ff8800;
+      animation: overdub-pulse 0.8s infinite;
+    }
+    
+    .button.playing {
+      background-color: #00ff00 !important;
+      box-shadow: 0 0 8px #00ff00;
+    }
+    
+    .button.muted {
+      background-color: #666 !important;
+      opacity: 0.5;
+      animation: mute-flash 2s infinite;
+    }
+    
+    .button.quantizing {
+      animation: quantize-glow 0.5s infinite alternate;
+    }
+    
+    .button.parameter-mode {
+      background-color: #ff8800 !important;
+      border-color: #ff8800 !important;
+    }
+    
+    /* Advanced LED states */
+    .status-led {
+      transition: all 0.3s ease;
+      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+    }
+    
+    /* HARDWARE-NATIVE: Data attribute state management (framework-independent) */
+    .status-led.astro-j7pv25f6[data-hw-state="recording"] {
+      background-color: #ff0000 !important;
+      box-shadow: 0 0 8px #ff0000, inset 0 0 4px #ff4444 !important;
+      animation: recording-blink 0.5s infinite !important;
+    }
+    
+    .status-led.astro-j7pv25f6[data-hw-state="ready"] {
+      background-color: #00ff00 !important;
+      box-shadow: 0 0 6px #00ff00, inset 0 0 3px #44ff44 !important;
+    }
+    
+    .status-led.astro-j7pv25f6[data-hw-state="overdubbing"] {
+      background-color: #ff8800 !important;
+      box-shadow: 0 0 8px #ff8800, inset 0 0 4px #ffaa44 !important;
+      animation: overdub-shimmer 1s infinite !important;
+    }
+    
+    .status-led.astro-j7pv25f6[data-hw-state="off"] {
+      background-color: #333 !important;
+      box-shadow: none !important;
+      animation: none !important;
+    }
+    
+    .status-led.astro-j7pv25f6[data-hw-state="muted"] {
+      background-color: #ffff00 !important;
+      box-shadow: 0 0 6px #ffff00 !important;
+      animation: mute-blink 1s infinite !important;
+    }
+    
+    .status-led.recording {
+      background-color: #ff0000;
+      box-shadow: 0 0 8px #ff0000, inset 0 0 4px #ff4444;
+      animation: recording-blink 0.5s infinite;
+    }
+    
+    .status-led.overdubbing {
+      background-color: #ff8800;
+      box-shadow: 0 0 8px #ff8800, inset 0 0 4px #ffaa44;
+      animation: overdub-shimmer 1s infinite;
+    }
+    
+    .status-led.playing {
+      background-color: #00ff00;
+      box-shadow: 0 0 6px #00ff00, inset 0 0 3px #44ff44;
+    }
+    
+    .status-led.muted {
+      background-color: #ffff00;
+      box-shadow: 0 0 6px #ffff00;
+      animation: mute-blink 1s infinite;
+    }
+    
+    .status-led.standby {
+      background-color: #004400;
+      box-shadow: none;
+    }
+    
+    .status-led.error {
+      background-color: #ff0000;
+      animation: error-flash 0.2s infinite;
+    }
+    
+    /* Memory pressure indicators */
+    .memory-warning {
+      color: #ffaa00 !important;
+      animation: memory-warning 2s infinite;
+    }
+    
+    .memory-critical {
+      color: #ff0000 !important;
+      animation: memory-critical 1s infinite;
+    }
+    
+    /* Loop state indicators */
+    .loop-empty {
+      opacity: 0.3;
+    }
+    
+    .loop-has-content {
+      opacity: 1.0;
+      box-shadow: 0 0 4px #00ff00;
+    }
+    
+    .loop-current {
+      border: 2px solid #00ff00 !important;
+      animation: current-loop-glow 2s infinite ease-in-out;
+    }
+    
+    /* Tempo and timing visual feedback */
+    .tempo-dot {
+      transition: all 0.1s ease;
+    }
+    
+    .tempo-dot.beat {
+      background-color: #00ff00;
+      transform: scale(1.3);
+      box-shadow: 0 0 8px #00ff00;
+    }
+    
+    .tempo-dot.off-beat {
+      background-color: #004400;
+      transform: scale(0.8);
+    }
+    
+    /* Quantization visual feedback */
+    .quantizing-display {
+      color: #ff8800;
+      animation: quantize-countdown 0.5s ease-in-out;
+    }
+    
+    /* Parameter mode visual feedback */
+    .parameter-row-active {
+      background-color: rgba(255, 136, 0, 0.2);
+      border: 1px solid #ff8800;
+    }
+    
+    .parameter-button-mapped {
+      border-color: #ff8800 !important;
+      color: #ff8800 !important;
+    }
+    
+    /* Audio level indicators */
+    .level-meter {
+      height: 4px;
+      background-color: #333;
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 2px 0;
+    }
+    
+    .level-meter .level-bar {
+      height: 100%;
+      transition: width 0.1s ease;
+      background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
+    }
+    
+    .level-meter.input .level-bar {
+      background: linear-gradient(to right, #0080ff, #00ff80, #ffff00);
+    }
+    
+    .level-meter.clipping .level-bar {
+      background-color: #ff0000 !important;
+      animation: clipping-flash 0.1s infinite;
+    }
+    
+    /* Knob visual feedback */
+    .knob.active {
+      box-shadow: 0 0 8px #00ff00;
+    }
+    
+    .knob.changing {
+      animation: knob-change 0.5s ease-out;
+    }
+    
+    /* Feedback routing visualization */
+    .feedback-active {
+      animation: feedback-flow 2s infinite linear;
+    }
+    
+    /* Error state indicators */
+    .error-state {
+      background-color: #330000 !important;
+      color: #ff6666 !important;
+      animation: error-pulse 1s infinite;
+    }
+    
+    /* Animation keyframes */
+    @keyframes recording-pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes overdub-pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes recording-blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes overdub-shimmer {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+    
+    @keyframes mute-flash {
+      0% { opacity: 1; }
+      25% { opacity: 0.3; }
+      50% { opacity: 1; }
+      75% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes mute-blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes quantize-glow {
+      0% { box-shadow: 0 0 5px #ff8800; }
+      100% { box-shadow: 0 0 15px #ff8800; }
+    }
+    
+    @keyframes quantize-countdown {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes current-loop-glow {
+      0% { box-shadow: 0 0 5px #00ff00; }
+      50% { box-shadow: 0 0 15px #00ff00; }
+      100% { box-shadow: 0 0 5px #00ff00; }
+    }
+    
+    @keyframes memory-warning {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes memory-critical {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes error-flash {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes error-pulse {
+      0% { background-color: #330000; }
+      50% { background-color: #660000; }
+      100% { background-color: #330000; }
+    }
+    
+    @keyframes clipping-flash {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes knob-change {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes feedback-flow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    
+    /* State-specific display colors */
+    .display.recording {
+      color: #ff4444 !important;
+      animation: recording-display 1s infinite;
+    }
+    
+    .display.overdubbing {
+      color: #ff8800 !important;
+    }
+    
+    .display.quantizing {
+      color: #ffff00 !important;
+      animation: pulse 0.5s infinite;
+    }
+    
+    .display.error {
+      color: #ff0000 !important;
+      animation: error-flash 0.3s infinite;
+    }
+    
+    @keyframes recording-display {
+      0% { color: #ff4444; }
+      50% { color: #ff8888; }
+      100% { color: #ff4444; }
+    }
+    
+    .sample-player h3 {
+      margin: 0 0 6px 0;
+      color: #0f0;
+      font-size: 10px;
+    }
+    
+    .sample-controls {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+    
+    .sample-controls button {
+      padding: 3px 6px;
+      background-color: #444;
+      color: #0f0;
+      border: 1px solid #0f0;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 9px;
+    }
+    
+    .sample-controls button:hover {
+      background-color: #555;
+    }
+    
+    .sample-controls button.active {
+      background-color: #0f0;
+      color: #000;
+    }
+    
+    .waveform-container {
+      position: relative;
+      height: 30px;
+      background-color: #222;
+      border: 1px solid #666;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+    
+    .waveform-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .playhead {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 100%;
+      background-color: #f00;
+      cursor: pointer;
+      z-index: 10;
+    }
+    
+    .file-input-wrapper {
+      margin-bottom: 6px;
+    }
+    
+    .file-input-wrapper input[type="file"] {
+      width: 100%;
+      padding: 2px;
+      background-color: #444;
+      color: #0f0;
+      border: 1px solid #666;
+      border-radius: 2px;
+      font-size: 9px;
+    }
+    
+    .recording-source {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 9px;
+    }
+    
+    .recording-source label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      color: #0f0;
+    }
+    
+    .recording-source input {
+      margin-right: 5px;
+    }
+    
+    /* ECHOPLEX DIGITAL PRO PLUS STYLES */
+
+    /* Main container */
+    .echoplex-container {
+        position: relative;
+        width: 95%;
+        max-width: 1400px;
+        aspect-ratio: 1400 / 162;
+        border: 2px solid #111;
+        user-select: none;
+        background: url('https://i.ibb.co/0jtXdtfz/axa.png') no-repeat center;
+        background-size: cover;
+        margin: 20px auto;
+    }
+
+    /* Brand and model text */
+    .brand-text {
+        position: absolute;
+        left: 5%;
+        top: 15%;
+        font-size: 2.5vw;
+        font-style: italic;
+        font-weight: bold;
+        color: #ddd;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .model-text {
+        position: absolute;
+        right: 25%;
+        top: 15%;
+        font-size: 1.8vw;
+        font-style: italic;
+        color: #ccc;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* KNOBS */
+    .knob {
+        position: absolute;
+        width: 2.86%;
+        height: 11.43%;
+        border-radius: 50%;
+        cursor: grab;
+    }
+
+    .knob:active {
+        cursor: grabbing;
+    }
+
+    .knob-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 30% 30%, #666, #222);
+        border-radius: 50%;
+        box-shadow: 
+            0 5px 15px rgba(0,0,0,0.8),
+            inset 0 -2px 5px rgba(0,0,0,0.5),
+            inset 0 2px 2px rgba(255,255,255,0.2);
+        transform-origin: center center;
+        pointer-events: none;
+    }
+
+    .knob-indicator {
+        position: absolute;
+        width: 3px;
+        height: 40%;
+        background: #fff;
+        left: 50%;
+        top: 10%;
+        transform: translateX(-50%);
+        box-shadow: 0 0 3px rgba(255,255,255,0.5);
+        pointer-events: none;
+    }
+
+    /* Knob labels */
+    .knob-label {
+        position: absolute;
+        color: #aaa;
+        font-size: 0.9vw;
+        text-align: center;
+        white-space: nowrap;
+        transform: translateX(-50%);
+    }
+
+    /* Level indicator lights */
+    .level-light {
+        position: absolute;
+        width: 5.5px;
+        height: 5.5px;
+        border-radius: 50%;
+        background: #300;
+        box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+    }
+
+    .level-light.green {
+        background: #0f0;
+        box-shadow: 0 0 8px #0f0, inset 0 0 3px rgba(255,255,255,0.5);
+    }
+
+    .level-light.yellow {
+        background: #ff0;
+        box-shadow: 0 0 8px #ff0, inset 0 0 3px rgba(255,255,255,0.5);
+    }
+
+    .level-light.red {
+        background: #f00;
+        box-shadow: 0 0 8px #f00, inset 0 0 3px rgba(255,255,255,0.5);
+    }
+
+    /* Display section */
+    .display-section {
+        position: absolute;
+        left: 40%;
+        top: 28%;
+        width: 30%;
+        height: 25%;
+        background: #111;
+        border: 2px solid #333;
+        border-radius: 5px;
+        padding: 1%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .loop-display {
+        font-family: 'Orbitron', monospace;
+        font-size: 2.8vw;
+        color: #f00;
+        text-shadow: 0 0 10px #f00;
+        letter-spacing: -0.08em;
+        background: #000;
+        padding: 0.5% 1%;
+        border-radius: 3px;
+        min-width: 60%;
+    }
+
+    .multiple-display {
+        font-family: 'Orbitron', monospace;
+        font-size: 1.2vw;
+        color: #f00;
+        text-shadow: 0 0 8px #f00;
+        background: #000;
+        padding: 0.5% 1%;
+        border-radius: 3px;
+        min-width: 25%;
+        text-align: center;
+    }
+
+    /* Display labels */
+    .display-labels {
+        position: absolute;
+        left: 40%;
+        top: 55%;
+        width: 30%;
+        display: flex;
+        justify-content: space-around;
+        color: #888;
+        font-size: 0.7vw;
+    }
+
+    /* Button control hitbox */
+    .control {
+        position: absolute;
+        cursor: pointer;
+    }
+
+    .button {
+        transition: all 0.1s;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+    }
+
+    .button:active {
+        transform: scale(0.95);
+    }
+
+    .button-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, #f8f8f8, #d0d0d0);
+        border: 1px solid #888;
+        border-radius: 50%;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        pointer-events: none;
+    }
+
+    /* Button labels */
+    .button-label {
+        position: absolute;
+        color: #ccc;
+        font-size: 0.65vw;
+        text-align: center;
+        white-space: nowrap;
+        transform: translateX(-50%);
+    }
+
+    /* Status LED under each button */
+    .status-led {
+        position: absolute;
+        bottom: -86%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 29%;
+        height: 24%;
+        border-radius: 50%;
+        background: #111;
+        box-shadow: inset 0 0 2px rgba(0,0,0,0.8);
+    }
+
+    .status-led.green {
+        background: #0f0;
+        box-shadow: 0 0 8px #0f0, inset 0 0 2px rgba(255,255,255,0.5);
+    }
+
+    .status-led.red {
+        background: #f00;
+        box-shadow: 0 0 8px #f00, inset 0 0 2px rgba(255,255,255,0.5);
+    }
+
+    .status-led.orange {
+        background: #f80;
+        box-shadow: 0 0 8px #f80, inset 0 0 2px rgba(255,255,255,0.5);
+    }
+
+    /* Parameter matrix grid */
+    .parameter-matrix {
+        position: absolute;
+        left: 53%;
+        bottom: 13%;
+        width: 39%;
+        height: 22%;
+        background: rgba(34, 34, 34, 0.26);
+        border: 1px solid rgba(68, 68, 68, 0.29);
+        border-radius: 3px;
+        padding: 0.5%;
+    }
+
+    .matrix-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 25%;
+        color: #666;
+        font-size: 0.6vw;
+    }
+
+    .matrix-cell {
+        text-align: center;
+        width: 12.5%;
+        flex: 1;
+    }
+
+    .matrix-cell:first-child {
+        text-align: left;
+        padding-left: 2%;
+    }
+
+    /* Row indicator lights */
+    .row-indicator {
+        position: absolute;
+        width: 0.71%;
+        height: 2.86%;
+        border-radius: 50%;
+        background: #111;
+        box-shadow: inset 0 0 3px rgba(0,0,0,0.8);
+    }
+
+    .row-indicator.active {
+        background: #f80;
+        box-shadow: 0 0 8px #f80, inset 0 0 2px rgba(255,255,255,0.5);
+    }
+
+    .row-label {
+        position: absolute;
+        left: -50px;
+        font-size: 0.65vw;
+        color: #000;
+        white-space: nowrap;
+        width: 45px;
+        text-align: right;
+    }
+
+    /* Visual tempo guide dots */
+    .tempo-dot {
+        position: absolute;
+        width: 0.29%;
+        height: 1.14%;
+        border-radius: 50%;
+        background: #400;
+    }
+
+    .tempo-dot.active {
+        background: #f00;
+        box-shadow: 0 0 6px #f00;
+    }
+
+    /* SYSTEMATIC FIX #8: Enhanced tempo dot states */
+    .tempo-dot.tempo-blink {
+        background: #f80;
+        animation: tempoPulse 0.1s ease-in-out;
+    }
+
+    .tempo-dot.tempo-off {
+        background: #200;
+        opacity: 0.1;
+    }
+
+    @keyframes tempoPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    /* AutoUndo blink for loop display */
+    .loop-display.auto-undo-blink {
+        animation: autoUndoBlink 1s ease-in-out infinite;
+    }
+
+    @keyframes autoUndoBlink {
+        0%, 90% { opacity: 1; }
+        95% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    /* Value display */
+    .value-display {
+        position: absolute;
+        background: rgba(0,0,0,0.9);
+        color: #0ff;
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-family: monospace;
+        pointer-events: none;
+        z-index: 1000;
+        border: 1px solid #0ff;
+    }
   </style>
 </head>
 <body>
-  <div class="power-section">
-    <button id="power-button">Power On</button>
-    <div id="power-status">Unit is powered off</div>
+  <!-- Sample Player -->
+  <div id="sample-player" class="sample-player">
+    <h3>Sample Player</h3>
+    
+    <div class="file-input-wrapper">
+      <input type="file" id="audio-file-input" accept="audio/*">
+    </div>
+    
+    <div class="sample-controls">
+      <button id="sample-play-btn">Play</button>
+      <button id="sample-stop-btn">Stop</button>
+      <button id="sample-load-btn" disabled>Load</button>
+    </div>
+    
+      <canvas id="sample-waveform" class="waveform-canvas"></canvas>
+      <div id="sample-playhead" class="playhead"></div>
+    </div>
+    
+    <div class="recording-source">
+      <span>Record from:</span>
+      <label>
+        <input type="radio" name="record-source" value="microphone" checked> Microphone
+      </label>
+      <label>
+        <input type="radio" name="record-source" value="sample"> Sample
+      </label>
+    </div>
+    
+    <!-- Debug buttons -->
+    <div style="margin-top: 5px; font-size: 9px;">
+      <button onclick="window.echoplexEngine?.testChannelSwitch('microphone')" style="padding: 2px 4px; font-size: 8px;">Test Mic</button>
+      <button onclick="window.echoplexEngine?.testChannelSwitch('sample')" style="padding: 2px 4px; font-size: 8px;">Test Sample</button>
+    </div>
   </div>
+
   
   <div id="main-interface" class="main-interface powered-off">
     <div class="timer-display">
@@ -302,109 +1262,183 @@
       <canvas id="waveform-canvas"></canvas>
     </div>
     
-    <div class="control-section">
-      <h2>Transport Controls</h2>
-      <div class="button-row">
-        <button id="record-button" class="control-button">Record</button>
-        <button id="play-button" class="control-button">Play</button>
-        <button id="overdub-button" class="control-button">Overdub</button>
-        <button id="multiply-button" class="control-button">Multiply</button>
-        <button id="insert-button" class="control-button">Insert</button>
-        <button id="undo-button" class="control-button">Undo</button>
-      </div>
-      
-      <div class="record-mode">
-        <span>Record Mode:</span>
-        <label>
-          <input type="radio" name="record-mode" value="SWITCH" checked> SWITCH
-        </label>
-        <label>
-          <input type="radio" name="record-mode" value="TOGGLE"> TOGGLE
-        </label>
-      </div>
-      
-      <!-- Mic Monitoring Toggle -->
-      <div class="mic-monitoring-section">
-        <h3>Microphone Monitoring:</h3>
-        <div class="mic-monitoring-options">
-          <label>
-            <input type="radio" name="mic-monitoring-mode" value="RECORDING_ONLY" checked> Only While Recording
-          </label>
-          <label>
-            <input type="radio" name="mic-monitoring-mode" value="ALWAYS_ON"> Always On
-          </label>
+    <!-- ECHOPLEX DIGITAL PRO PLUS INTERFACE -->
+    <div class="echoplex-container">
+        <!-- Power Button (small red button like real hardware) -->
+        <div class="power-button" style="right: 3%; top: 40%;" id="power-button"></div>
+        <div class="button-label" style="left: 95.43%; top: 60%;">POWER</div>
+        
+        <!-- Branding -->
+        <div class="brand-text">Echoplex</div>
+        <div class="model-text">Digital Pro Plus</div>
+
+        <!-- KNOBS -->
+        <!-- Input Knob -->
+        <div class="control knob" style="left: 1.3%; top: 56%; width: 2.8%; height: 22.5%;" data-param="input" data-min="0" data-max="127" data-value="64">
+            <div class="knob-image">DRQ
+                <div class="knob-indicator"></div>
+            </div>
         </div>
-      </div>
+        <div class="knob-label" style="left: 12.43%; top: 62%;">Input</div>
+
+        <!-- Output Knob -->
+        <div class="control knob" style="left: 7.5%; top: 56%; width: 2.8%; height: 22.5%;" data-param="output" data-min="0" data-max="127" data-value="64">
+            <div class="knob-image">
+                <div class="knob-indicator"></div>
+            </div>
+        </div>
+        <div class="knob-label" style="left: 17.43%; top: 62%;">Output</div>
+
+        <!-- Mix Knob -->
+        <div class="control knob" style="left: 21.2%; top: 56%; width: 2.8%; height: 22.5%;" data-param="mix" data-min="0" data-max="127" data-value="64">
+            <div class="knob-image">
+                <div class="knob-indicator"></div>
+            </div>
+        </div>
+        <div class="knob-label" style="left: 29.43%; top: 62%;">Mix</div>
+
+        <!-- Feedback Knob -->
+        <div class="control knob" style="left: 26.8%; top: 56%; width: 2.8%; height: 22.5%;" data-param="feedback" data-min="0" data-max="127" data-value="95">
+            <div class="knob-image">
+                <div class="knob-indicator"></div>
+            </div>
+        </div>
+        <div class="knob-label" style="left: 34.43%; top: 62%;">Feedback</div>
+
+        <!-- Level indicator lights -->
+        <div class="level-light astro-j7pv25f6" id="input-level" style="left: 13%; top: 73%; width: 0.7%; height: 6%;"></div>
+        <div class="level-light astro-j7pv25f6" id="feedback-level" style="left: 16.9%; top: 73%; width: 0.7%; height: 6%;"></div>
+
+        <!-- Display Section -->
+        <div class="display-section" style="left: 32.8%; top:32%; width: 16.9%; height: 27%;">
+            <div class="loop-display" id="loop-display" style="left: 23.8%; top:32%; width: 2.9%; height: 77%;">0.0</div>
+            <div class="multiple-display" id="multiple-display"></div>
+        </div>
+        <div class="display-labels">
+            <span>LOOP</span>
+            <span>LOOPTIME</span>
+            <span>MULTIPLE</span>
+        </div>
+
+        <!-- Visual tempo dots -->
+        <div class="tempo-dot" id="tempo-dot-right" style="right: 45%; top: 52%;"></div>
+        <div class="tempo-dot" id="tempo-dot-left" style="right: 47%; top: 52%;"></div>
+
+        <!-- BUTTONS - SINGLE ROW OF 8 -->
+        <div class="control button" style="left: 54.3%; top: 9.0%; width: 2.6%; height: 21.0%;" data-function="parameters">
+            <div class="button-image">
+            </div>
+        </div>
+        <div class="button-label" style="left: 49.5%; top: 28%;">Parameters</div>
+
+        <div class="control button" style="left: 61%; top: 10.3%; width: 2.6%; height: 21%;" data-function="record">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 55.5%; top: 28%;">Record</div>
+
+        <div class="control button" style="left: 65.5%; top: 10.3%; width: 2.6%; height: 21%;" data-function="overdub">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 61.5%; top: 28%;">Overdub</div>
+
+        <div class="control button" style="left: 70%; top: 10.3%; width: 2.6%; height: 21%;" data-function="multiply">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 67.5%; top: 28%;">Multiply</div>
+
+        <div class="control button" style="left: 74.5%; top: 10.3%; width: 2.6%; height: 21%;" data-function="insert">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 73.5%; top: 28%;">Ins/Rev</div>
+
+        <div class="control button" style="left: 79.2%; top: 10.3%; width: 2.6%; height: 21%;" data-function="mute">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 79.5%; top: 28%;">Mute</div>
+
+        <div class="control button" style="left: 83.6%; top: 10.3%; width: 2.6%; height: 21%;" data-function="undo">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 85.5%; top: 28%;">Undo</div>
+
+        <div class="control button" style="left: 88.3%; top: 10.3%; width: 2.6%; height: 21%;" data-function="nextloop">
+            <div class="button-image">
+                <div class="status-led astro-j7pv25f6"></div>
+            </div>
+        </div>
+        <div class="button-label" style="left: 91.5%; top: 28%;">NextLoop</div>
+        
+        <!-- Row Indicator Lights -->
+        <div class="row-indicator status-led astro-j7pv25f6" style="left: 56.3%; top: 52%; width: 0.7%; height: 6%;" id="loops-led">
+            <div class="row-label" style="transform: translateX(-18%) translateY(-14%);">Loops</div>
+        </div>
+        <div class="row-indicator status-led astro-j7pv25f6" style="left: 57.5%; top: 62.5%; width: 0.7%; height: 6%;" id="midi-led">
+            <div class="row-label" style="transform: translateX(-22%);">MIDI</div>
+        </div>
+        <div class="row-indicator status-led astro-j7pv25f6" style="left: 58.6%; top: 72%; width: 0.7%; height: 6%;" id="switches-led">
+            <div class="row-label" style="transform: translateY(-32%); translateX(-60%)">Switches</div>
+        </div>
+        <div class="row-indicator status-led astro-j7pv25f6" style="left: 59.6%; top: 82%; width: 0.7%; height: 6%;" id="timing-led">
+            <div class="row-label" style="transform: translateY(-34%) translateX(-20%);">Timing</div>
+        </div>
+
+        <!-- Parameter Matrix (corrected order to match hardware) -->
+        <div class="parameter-matrix">
+            <div class="matrix-row">
+                <div class="matrix-cell">Loops</div>
+                <div class="matrix-cell">MoreLoops</div>
+                <div class="matrix-cell">AutoRecord</div>
+                <div class="matrix-cell">LoopCopy</div>
+                <div class="matrix-cell">SwitchQuant</div>
+                <div class="matrix-cell">LoopTrig</div>
+                <div class="matrix-cell">Velocity</div>
+                <div class="matrix-cell">SamplerStyle</div>
+            </div>
+            <div class="matrix-row">
+                <div class="matrix-cell">MIDI</div>
+                <div class="matrix-cell">Channel</div>
+                <div class="matrix-cell">ControlSource</div>
+                <div class="matrix-cell">Source #</div>
+                <div class="matrix-cell">VolumeCont</div>
+                <div class="matrix-cell">FeedBkCont</div>
+                <div class="matrix-cell">Dump</div>
+                <div class="matrix-cell">Load</div>
+            </div>
+            <div class="matrix-row">
+                <div class="matrix-cell">Switches</div>
+                <div class="matrix-cell">RecordMode</div>
+                <div class="matrix-cell">OverdubMode</div>
+                <div class="matrix-cell">RoundMode</div>
+                <div class="matrix-cell">InsertMode</div>
+                <div class="matrix-cell">MuteMode</div>
+                <div class="matrix-cell">Overflow</div>
+                <div class="matrix-cell">Presets</div>
+            </div>
+            <div class="matrix-row">
+                <div class="matrix-cell">Timing</div>
+                <div class="matrix-cell">Loop/Delay</div>
+                <div class="matrix-cell">Quantize</div>
+                <div class="matrix-cell">8ths/Cycle</div>
+                <div class="matrix-cell">Sync</div>
+                <div class="matrix-cell">Threshold</div>
+                <div class="matrix-cell">Reverse</div>
+                <div class="matrix-cell">StartPoint</div>
+            </div>
+        </div>
     </div>
     
-    <div class="control-section">
-      <h2>Loop Controls</h2>
-      <div class="button-row">
-        <button id="prev-loop-button" class="control-button">&lt; Prev</button>
-        <div id="current-loop-display">Loop 1</div>
-        <button id="next-loop-button" class="control-button">Next &gt;</button>
-        <button id="reset-button" class="control-button">Reset</button>
-        <button id="reverse-button" class="control-button">Reverse</button>
-        <button id="half-speed-button" class="control-button">Half Speed</button>
-        <button id="mute-button" class="control-button">Mute</button>
-        <button id="window-button" class="control-button">Window</button>
-        <button id="function-button" class="control-button">Function <span class="function-indicator"></span></button>
-      </div>
-    </div>
-    
-    <div class="control-section">
-      <h2>Parameters</h2>
-      <div class="parameter-section">
-        <div class="parameter-control">
-          <label for="feedback-control">Feedback (1.0 = Loop)</label>
-          <input type="range" id="feedback-control" min="0" max="1" step="0.01" value="1.0">
-        </div>
-        
-        <div class="parameter-control">
-          <label for="input-gain-control">Input Gain</label>
-          <input type="range" id="input-gain-control" min="0" max="1" step="0.01" value="0.8">
-        </div>
-        
-        <div class="parameter-control">
-          <label for="output-gain-control">Output Gain</label>
-          <input type="range" id="output-gain-control" min="0" max="1" step="0.01" value="0.8">
-        </div>
-        
-        <div class="parameter-control">
-          <label for="mix-control">Mix</label>
-          <input type="range" id="mix-control" min="0" max="1" step="0.01" value="0.5">
-        </div>
-        
-        <div class="parameter-control">
-          <label for="quantize-select">Quantize</label>
-          <select id="quantize-select">
-            <option value="OFF">OFF</option>
-            <option value="LOOP">LOOP</option>
-            <option value="CYCLE">CYCLE</option>
-            <option value="8TH">8TH</option>
-            <option value="16TH">16TH</option>
-          </select>
-        </div>
-        
-        <div class="parameter-control">
-          <label for="interface-mode-select">Interface Mode</label>
-          <select id="interface-mode-select">
-            <option value="LOOP">LOOP</option>
-            <option value="STUTTER">STUTTER</option>
-            <option value="DELAY">DELAY</option>
-            <option value="EXPERT">EXPERT</option>
-          </select>
-        </div>
-        
-        <div class="parameter-control">
-          <label for="overdub-mode-select">Overdub Mode</label>
-          <select id="overdub-mode-select">
-            <option value="TOGGLE" selected>TOGGLE</option>
-            <option value="SWITCH">SWITCH</option>
-          </select>
-        </div>
-      </div>
-    </div>
     
     <div class="control-section preset-section">
       <h2>Presets</h2>
@@ -436,7 +1470,315 @@
     </div>
   </div>
 
-  <!-- Load the bundled script -->
-  <script src="/scripts/bundle.js" is:inline></script>
+  <!-- Load Tone.js library for comprehensive audio functionality -->
+  <script src="https://unpkg.com/tone@14.7.77/build/Tone.js" is:inline></script>
+  
+  <!-- Load the comprehensive Echoplex Digital Pro Plus implementation -->
+  <script src="/scripts/echoplex-pro.js" is:inline></script>
+  
+  <!-- Initialize the Echoplex system after everything loads -->
+  <script is:inline>
+    // DEBUGGING & TESTING INTERFACE
+    window.echoplexDebug = {
+      logs: [],
+      errors: [],
+      tests: [],
+      state: {},
+      
+      log: function(msg) {
+        const entry = `[${new Date().toISOString()}] ${msg}`;
+        this.logs.push(entry);
+        console.log('🔍 DEBUG:', msg);
+        
+        // Send to CLI if in development
+        if (window.location.hostname === 'localhost') {
+          this.sendToCLI('LOG', msg);
+        }
+        
+        this.updateDebugDisplay();
+      },
+      
+      error: function(msg, error) {
+        const entry = `[${new Date().toISOString()}] ERROR: ${msg}`;
+        if (error) entry += ` - ${error.message}`;
+        this.errors.push(entry);
+        console.error('❌ DEBUG ERROR:', msg, error);
+        
+        // Send to CLI if in development
+        if (window.location.hostname === 'localhost') {
+          this.sendToCLI('ERROR', `${msg}${error ? ` - ${error.message}` : ''}`);
+        }
+        
+        this.updateDebugDisplay();
+      },
+      
+      test: function(name, fn) {
+        try {
+          const result = fn();
+          const entry = `✅ ${name}: PASS${result ? ` - ${result}` : ''}`;
+          this.tests.push(entry);
+          console.log('🧪 TEST:', entry);
+        } catch (error) {
+          const entry = `❌ ${name}: FAIL - ${error.message}`;
+          this.tests.push(entry);
+          console.error('🧪 TEST:', entry);
+        }
+        this.updateDebugDisplay();
+      },
+      
+      updateDebugDisplay: function() {
+        const debugPanel = document.getElementById('debug-panel');
+        if (debugPanel) {
+          const isMinimized = debugPanel.classList.contains('minimized');
+          
+          if (isMinimized) {
+            debugPanel.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>🔍 Debug (${this.errors.length} errors)</span>
+                <button onclick="window.echoplexDebug.toggleMinimize()" style="background:none;border:none;color:#0f0;cursor:pointer;">⬆️</button>
+              </div>
+            `;
+          } else {
+            debugPanel.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h3 style="margin:0; font-size:12px;">🔍 Debug Console</h3>
+                <button onclick="window.echoplexDebug.toggleMinimize()" style="background:none;border:none;color:#0f0;cursor:pointer;">⬇️</button>
+              </div>
+              <div class="debug-section">
+                <div style="font-size:9px;">Recent: ${this.logs.slice(-2).map(l => `<div>${l.substring(0, 50)}...</div>`).join('')}</div>
+              </div>
+              <div class="debug-section">
+                <div style="color:#f88; font-size:9px;">Errors: ${this.errors.length > 0 ? this.errors.slice(-1)[0].substring(0, 40) + '...' : 'None'}</div>
+              </div>
+              <div class="debug-actions" style="margin-top:5px;">
+                <button onclick="window.echoplexDebug.runDiagnostics()" style="font-size:8px; padding:2px;">🔬 Test</button>
+                <button onclick="window.echoplexDebug.exportLogs()" style="font-size:8px; padding:2px;">📋 Copy</button>
+                <button onclick="window.echoplexDebug.clear()" style="font-size:8px; padding:2px;">🧹 Clear</button>
+                <button onclick="window.echoplexDebug.hide()" style="font-size:8px; padding:2px;">✖️ Hide</button>
+              </div>
+            `;
+          }
+        }
+      },
+      
+      toggleMinimize: function() {
+        const debugPanel = document.getElementById('debug-panel');
+        if (debugPanel) {
+          debugPanel.classList.toggle('minimized');
+          if (debugPanel.classList.contains('minimized')) {
+            debugPanel.style.maxHeight = '30px';
+          } else {
+            debugPanel.style.maxHeight = '200px';
+          }
+          this.updateDebugDisplay();
+        }
+      },
+      
+      hide: function() {
+        const debugPanel = document.getElementById('debug-panel');
+        if (debugPanel) {
+          debugPanel.style.display = 'none';
+        }
+        console.log('🔍 Debug panel hidden. To show: window.echoplexDebug.show()');
+      },
+      
+      show: function() {
+        const debugPanel = document.getElementById('debug-panel');
+        if (debugPanel) {
+          debugPanel.style.display = 'block';
+          this.updateDebugDisplay();
+        }
+      },
+      
+      runDiagnostics: function() {
+        this.log('Starting comprehensive diagnostics...');
+        
+        // Test 1: Basic Dependencies
+        this.test('Tone.js Available', () => typeof Tone !== 'undefined' ? 'Loaded' : null);
+        this.test('EchoplexDigitalPro Class', () => typeof EchoplexDigitalPro !== 'undefined' ? 'Loaded' : null);
+        
+        // Test 2: DOM Elements
+        this.test('Power Button', () => document.getElementById('power-button') ? 'Found' : null);
+        this.test('Main Interface', () => document.querySelector('.main-interface') ? 'Found' : null);
+        this.test('Loop Display', () => document.querySelector('.timer-display') ? 'Found' : null);
+        
+        // Test 3: Echoplex Instance
+        if (window.echoplexPro) {
+          this.test('Echoplex Instance', () => 'Active');
+          this.test('Audio System', () => window.echoplexPro.isAudioReady ? 'Ready' : 'Not Ready');
+          this.test('Power State', () => window.echoplexPro.state?.power ? 'ON' : 'OFF');
+          this.test('Loop Time', () => `${window.echoplexPro.state?.loopTime || 0}s`);
+          
+          // Test 4: Audio Context
+          if (window.echoplexPro.audioContext) {
+            this.test('Audio Context State', () => window.echoplexPro.audioContext.state);
+            this.test('Sample Rate', () => `${window.echoplexPro.audioContext.sampleRate}Hz`);
+          }
+          
+          // Test 5: MIDI System
+          this.test('MIDI Clock System', () => window.echoplexPro.midiClockSystem ? 'Initialized' : 'Missing');
+          this.test('Clock Receiver', () => window.echoplexPro.clockReceiver ? 'Initialized' : 'Missing');
+        } else {
+          this.test('Echoplex Instance', () => null);
+        }
+        
+        // Test 6: Browser Capabilities
+        this.test('Web Audio Support', () => 'AudioContext' in window || 'webkitAudioContext' in window ? 'Supported' : null);
+        this.test('MIDI Support', () => 'requestMIDIAccess' in navigator ? 'Supported' : 'Not Supported');
+        this.test('Media Devices', () => navigator.mediaDevices ? 'Available' : 'Not Available');
+        
+        this.log('Diagnostics complete');
+      },
+      
+      exportLogs: function() {
+        const report = {
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          logs: this.logs,
+          errors: this.errors,
+          tests: this.tests,
+          echoplexState: window.echoplexPro?.state || null,
+          audioContext: window.echoplexPro?.audioContext ? {
+            state: window.echoplexPro.audioContext.state,
+            sampleRate: window.echoplexPro.audioContext.sampleRate
+          } : null
+        };
+        
+        // Save to file for CLI access (if on localhost)
+        if (window.location.hostname === 'localhost') {
+          try {
+            // Try to save debug data that CLI can read
+            fetch('/api/debug', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(report)
+            }).catch(() => {
+              // Fallback: save to localStorage
+              localStorage.setItem('echoplex_debug_export', JSON.stringify(report, null, 2));
+              console.log('💾 Debug data saved to localStorage (CLI can read)');
+            });
+          } catch (error) {
+            localStorage.setItem('echoplex_debug_export', JSON.stringify(report, null, 2));
+          }
+        }
+        
+        const reportText = JSON.stringify(report, null, 2);
+        navigator.clipboard.writeText(reportText).then(() => {
+          alert('Debug report copied to clipboard! Also saved for CLI access.');
+        });
+      },
+      
+      clear: function() {
+        this.logs = [];
+        this.errors = [];
+        this.tests = [];
+        this.updateDebugDisplay();
+      }
+    };
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      window.echoplexDebug.log('DOM loaded, checking dependencies...');
+      window.echoplexDebug.log(`Tone.js available: ${typeof Tone !== 'undefined'}`);
+      window.echoplexDebug.log(`EchoplexDigitalPro class available: ${typeof EchoplexDigitalPro !== 'undefined'}`);
+      
+      // Initialize Echoplex if not already done
+      if (typeof window.echoplexPro === 'undefined') {
+        try {
+          window.echoplexDebug.log('Creating Echoplex Digital Pro Plus instance...');
+          window.echoplexPro = new EchoplexDigitalPro();
+          window.echoplexDebug.log('✅ Echoplex Digital Pro Plus ready!');
+          
+          // Immediately test the power button connection
+          const powerButton = document.getElementById('power-button');
+          if (powerButton) {
+            window.echoplexDebug.log('Power button found and connected');
+            
+            // Add diagnostic button for testing
+            powerButton.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              window.echoplexPro.runDiagnostics();
+            });
+            
+            // Test power button click manually
+            powerButton.addEventListener('click', () => {
+              window.echoplexDebug.log(`Power button clicked! Current state: ${window.echoplexPro.state.power}`);
+            });
+          } else {
+            window.echoplexDebug.error('❌ Power button not found!');
+          }
+          
+        } catch (error) {
+          window.echoplexDebug.error('❌ Failed to initialize Echoplex', error);
+          // Show error to user
+          const powerButton = document.getElementById('power-button');
+          if (powerButton) {
+            powerButton.textContent = 'Error - Right click for details';
+            powerButton.style.backgroundColor = '#f00';
+            powerButton.addEventListener('click', () => {
+              alert(`Echoplex initialization failed:\n${error.message}\n\nPlease refresh the page and ensure:\n- Microphone permissions\n- Audio is not muted\n- Browser supports Web Audio`);
+            });
+          }
+        }
+      }
+      
+      // Add debug panel to interface
+      setTimeout(() => {
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'debug-panel';
+        debugPanel.style.cssText = `
+          position: fixed;
+          bottom: 10px;
+          right: 10px;
+          width: 300px;
+          max-height: 200px;
+          background: rgba(0,0,0,0.8);
+          color: #0f0;
+          font-family: monospace;
+          font-size: 10px;
+          padding: 5px;
+          border: 1px solid #0f0;
+          border-radius: 3px;
+          overflow-y: auto;
+          z-index: 10000;
+          opacity: 0.7;
+          transition: opacity 0.3s;
+        `;
+        
+        // Make it less intrusive - fade out after a few seconds
+        debugPanel.addEventListener('mouseenter', () => debugPanel.style.opacity = '1');
+        debugPanel.addEventListener('mouseleave', () => debugPanel.style.opacity = '0.7');
+        document.body.appendChild(debugPanel);
+        window.echoplexDebug.updateDebugDisplay();
+        window.echoplexDebug.runDiagnostics();
+      }, 100);
+    });
+  </script>
+  
+  <!-- Load the sample player -->
+  <script src="/scripts/sample-player.js" is:inline></script>
+  
+  <script is:inline>
+    // Show/hide sample player based on power state
+    document.addEventListener('DOMContentLoaded', () => {
+      const powerButton = document.getElementById('power-button');
+      const samplePlayer = document.getElementById('sample-player');
+      
+      // Listen for power state changes
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const isPoweredOn = powerButton.classList.contains('powered-on');
+            if (isPoweredOn && samplePlayer) {
+              samplePlayer.classList.add('visible');
+            } else if (samplePlayer) {
+              samplePlayer.classList.remove('visible');
+            }
+          }
+        });
+      });
+      
+      observer.observe(powerButton, { attributes: true });
+    });
+  </script>
 </body>
 </html>

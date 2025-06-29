@@ -1,0 +1,186 @@
+<!DOCTYPE html><meta charset="utf-8"><h1 id="-d-14-susrecord-sustain-action-record">### *D 14 SUSRecord Sustain Action Record</h1>
+<h3 id="d-15-susoverdub-sustain-action-overdub">D# 15 SUSOverdub Sustain Action Overdub</h3>
+<h3 id="e-16-susroundmultiply-sustain-action-rounded-multiply">E 16 SUSRoundMultiply Sustain Action Rounded Multiply</h3>
+<h3 id="f-17-susroundedinsert-sustain-action-rounded-insert">F 17 SUSRoundedInsert Sustain Action Rounded Insert</h3>
+<h3 id="f-18-susmute-sustain-action-mute">F# 18 SUSMute Sustain Action Mute</h3>
+<h3 id="g-19-shortundo-immediately-execute-the-shortundo-function-undo-to-end">G 19 ShortUndo Immediately execute the ShortUndo function (Undo to end)</h3>
+<h3 id="g-20-susnextloop-sustain-action-nextloop-noteon--nextloop-noteoff--previousloop">G# 20 SUSNextLoop Sustain Action NextLoop (NoteOn = NextLoop, NoteOff = PreviousLoop)</h3>
+<h3 id="a-21-susreplace-sustain-action-replace">A 21 SUSReplace Sustain Action Replace</h3>
+<h3 id="a-22-sussubstitute-sustain-action-substitute">A# 22 SUSSubstitute Sustain Action Substitute*</h3>
+<h1 id="midi-command-list"><em>MIDI Command List</em></h1>
+<h1 id="continued"><em>Continued</em></h1>
+<h2 id="reference---midi-control-7-5"><em>Reference - MIDI Control 7-5</em></h2>
+<h3 id="b-23-sustogglereverse-sustain-action-reverse">*B 23 SUSToggleReverse Sustain Action Reverse</h3>
+<h3 id="c-24-sustogglespeed-sustain-action-halfspeed">C 24 SUSToggleSpeed Sustain Action HalfSpeed</h3>
+<h3 id="c-25-reset-immediately-reset-current-loop">C# 25 Reset Immediately reset current loop</h3>
+<h3 id="d-26-generalreset-immediately-reset-all-loops">D 26 GeneralReset Immediately reset all loops</h3>
+<h3 id="d-27-exit-parameters-exit-parameter-editing-and-return-to-play-state">D# 27 Exit Parameters Exit Parameter editing and return to Play state</h3>
+<h3 id="e-28-susunroundedmultiply-sustain-action-unrounded-multiply">E 28 SUSUnroundedMultiply Sustain Action Unrounded Multiply</h3>
+<h3 id="f-29-susunroundedinsert-sustain-action-unrounded-insert">F 29 SUSUnroundedInsert Sustain Action Unrounded Insert</h3>
+<h3 id="f-30-susmute-retrigger-sustain-action-mute-retrigger-noteon--mute-noteoffretrig">F# 30 SUSMute-Retrigger Sustain Action Mute-Retrigger (NoteOn = Mute, NoteOff=Retrig.)</h3>
+<h3 id="g-31-longundo-immediately-execute-the-longundo-function">G 31 LongUndo Immediately execute the LongUndo function</h3>
+<h3 id="g-32-forward-go-into-forward">G# 32 Forward Go into Forward</h3>
+<h3 id="a-33-reverse-go-into-reverse">A 33 Reverse Go into Reverse</h3>
+<h3 id="a-34-fullspeed-go-into-fullspeed">A# 34 FullSpeed Go into FullSpeed</h3>
+<h3 id="b-35-halfspeed-go-into-halfspeed">B 35 HalfSpeed Go into HalfSpeed</h3>
+<h3 id="c-36-sampleplay-immediately-restart-the-loop-and-play-once">C 36 SamplePlay Immediately restart the loop and play once</h3>
+<h3 id="c-37-retrigger-immediately-restart-the-loop-and-play-forever">C# 37 ReTrigger Immediately restart the loop and play forever</h3>
+<h3 id="d-38-realign-restart-the-loop-at-next-global-midi-startpoint">D 38 ReAlign Restart the loop at next Global MIDI StartPoint</h3>
+<h3 id="d-39-muterealign-immediately-mute-and-restart-the-loop-at-next-global-midi-startpoint">D# 39 MuteReAlign Immediately Mute and restart the loop at next Global MIDI StartPoint</h3>
+<h3 id="e-40-quantmidistartsong-wait-to-next-local-loop-startpoint-and-then-send-a-startsong">E 40 QuantMIDIStartSong Wait to next Local Loop StartPoint and then send a StartSong</h3>
+<h3 id="f-41-mutequantmidistartsong-immediately-mute-then-wait-to-next-startpoint-and-send-startsong">F 41 MuteQuantMIDIStartSong Immediately Mute, then wait to next StartPoint and send StartSong</h3>
+<h3 id="f-42-startpoint-set-the-startpoint-to-the-current-spot-in-the-loop">F# 42 StartPoint Set the StartPoint to the current spot in the loop</h3>
+<h3 id="g-43-quantstartpoint-wait-to-next-global-midi-startpoint-and-then-set-the-local-startpoint-there">G 43 QuantStartPoint Wait to next Global MIDI StartPoint and then set the local StartPoint there</h3>
+<h3 id="g-44-beattriggersample-mute-and-wait-for-beatsync-then-trigger-loop-to-play-once-repeated-beatsyncs">G# 44 BeatTriggerSample Mute and wait for BeatSync, then trigger loop to play once. Repeated BeatSyncs</h3>
+<h3 id="retrigger-the-loop">retrigger the loop.</h3>
+<h3 id="a-45-midibeatsync-virtually-send-a-beatsync-pulse-by-midi">A 45 MIDIBeatSync Virtually send a BeatSync pulse by MIDI*</h3>
+<h1 id="virtualbuttonsimmediate-action"><em>VirtualButtons</em>Immediate Action</h1>
+<p>Play Mode</p>
+<h1 id="midi-commands-can-be-used-to-emulate-the-front-panel">*Midi Commands can be used to emulate the Front Panel</h1>
+<h1 id="buttons">Buttons*</h1>
+<p><em>A set of MIDI commands in the Echoplex are called</em> <em>MIDI VirtualButtons,</em>
+<em>because they behave exactly the same way the corresponding front
+panel buttons do.
+With</em> <em>MIDI VirtualButtons</em> <em>you can press the front panel buttons virtually
+by MIDI, and do things like long presses and short presses and cross
+functions.
+If the</em> <em>ControlSource</em> <em>parameter is set to</em> <em>Notes,</em> <em>then a NoteOn message is
+the same as pressing the button, and a NoteOff message is the same as
+releasing the button. If the</em> <em>ControlSource</em> <em>Parameter is set to</em> <em>Continuous
+Controllers,</em> <em>a controller with a positive value is the same as pressing a
+button, and a controller message with a value of 0 is the same as
+releasing the button.
+This press and release concept is important to remember when
+programming a MIDI controller. When using</em> <em>VirtualButtons</em> <em>you have to
+make sure you send both the NoteOn and the NoteOff, so that you both
+press and release the button!
+The</em> <em>VirtualButtons</em> <em>emulate the front panel interface in MIDI. However,
+there are more</em> <em>VirtualButtons</em> <em>than front panel buttons because we offer
+all the</em> <em>InsertMode</em> <em>options simultaneously from MIDI as if they were
+separate buttons. The</em> <em>MIDIInsertButton</em> <em>is the exception, it still does what
+is selected in</em> <em>InsertMode</em> <em>for consistency.</em>
+<em>VirtualButtons</em> <em>allow you to use MIDI to take advantage of the economical
+design of the front panel interface, which lets you get a lot of
+functionality out of a few buttons.
+See the Source# section in the Parameters chapter for the command list
+and specific note or controllers needed for each</em> <em>VirtualButton.</em></p>
+<h1 id="plug-in-your-instrument-mixer-send-or-microphone"><em>Plug in your instrument, mixer send, or microphone.</em></h1>
+<p><em>This back-panel jack accepts 1/4” phone plugs carrying the audio signal
+to be recorded or delayed. It is a high-impedance input designed to
+accept a wide range of audio levels, including high-impedance
+microphone outputs, signals from electric guitars and basses (with
+either passive or active electronics), and line-level signals from
+electronic instruments and mixers.</em></p>
+<h1 id="indicates-the-current-loop"><em>Indicates the current Loop.</em></h1>
+<p><em>The</em> <em>Loop Display</em> <em>shows the current Loop selected. This is mainly
+meaningful when more than one loop has been set up using the</em>
+<em>MoreLoops</em> <em>parameter.
+The Echoplex can have its memory divided into as many as 16 different
+loops. In order to save front panel space and use a single digit for the</em>
+<em>Loop Display</em>*, some of the loops are labeled with letters instead of
+numbers. If you set up 16 loops, you will see they are labeled* <em>1 - 9,</em>
+<em>followed by</em> <em>A, b, C, d, E, F, G.</em># <em>Loops LED</em></p>
+<h1 id="front-panel"><em>Front Panel</em></h1>
+<h1 id="indicates-the-loops-row-of-the-parameter-matrix-is-selected"><em>Indicates the Loops Row of the Parameter Matrix is selected.</em></h1>
+<p><em>The</em> <em>Loops LED</em> <em>is illuminated when the Loops Row of the</em> <em>Parameter
+Matrix</em> <em>has been selected for editing with the</em> <em>Parameter Button</em>*. The*
+<em>Multiple Display</em> <em>will also show</em> <em>P4</em> <em>when this row is selected in the</em>
+<em>Parameter Editing Mode</em>*.
+The Loops Row consists of the* <em>Parameters</em> <em>related to multiple loops.
+These are</em> <em>MoreLoops, AutoRecord, LoopCopy, SwitchQuant, LoopTrig,
+Velocity,</em> <em>and</em> <em>SamplerStyle.</em>
+<em>The</em> <em>Loops LED</em> <em>is not used in</em> <em>Play Mode</em>*.*</p>
+<h3 id="see-also-parameter-button-multiple-display-parameter-matrix"><em>See also: Parameter Button, Multiple Display, Parameter Matrix</em></h3>
+<h1 id="looptime-volume-continuous-controller-display"><em>LoopTime</em>’## <em>V**OLUME</em> C<em>ONTINUOUS</em> C<em>ONTROLLER</em> D<em>ISPLAY</em></h1>
+<h3 id="when-the-midi-continuous-controller-forloop-output-volume-is-sent-to"><em>When the MIDI continuous controller for</em>Loop Output Volume is sent to</h3>
+<p>the Echoplex, the value appears on the LoopTime Display in the same
+way as with Feedback.</p>
+<h2 id="command-display"><em>C**OMMAND</em> D<em>ISPLAY</em></h2>
+<h3 id="several-functions-that-do-not-have-their-own-obvious-led-indicator-are">*Several functions that do not have their own obvious LED indicator are</h3>
+<h3 id="displayed-briefly-with-some-letters-on-the-redlooptime-display">displayed briefly with some letters on the red*LoopTime Display.</h3>
+<p>These are:
+<em>Display Command
+rE Reverse
+Fd Forward
+H.SP HalfSpeed
+F.SP FullSpeed
+S.Un Short Undo
+L.Un Long Undo
+AL ReAlign
+St.S QuantMIDIStartSong
+S.Pt StartPoint sent
+cS.P QuantStartPoint
+Pr.E Preset Editor
+P n Preset Change received
+LOA Load Preset
+SAF Save Preset
+RES Revert Preset to default</em></p>
+<h2 id="memory-size-display"><em>M**EMORY</em> S<em>IZE</em> D<em>ISPLAY</em></h2>
+<p><em>The size of the memory is only shown for a short time after startup and
+after</em> <em>GeneralReset</em>*. To see it again, just do a* <em>Short-Press Multiply</em> <em>in</em>
+<em>Reset</em> <em>and it will appear briefly on the</em> <em>LoopTime Display</em>*.*</p>
+<h2 id="parameter-editing-display"><em>P**ARAMETER</em> E<em>DITING</em> D<em>ISPLAY</em></h2>
+<p><em>When you are editing parameters, the value of the current parameter is
+displayed in the</em> <em>LoopTime Display</em>*.*</p>
+<h2 id="quantizing-display---ooo"><em>Q**UANTIZING</em> D<em>ISPLAY</em> - <em>OOO</em></h2>
+<p><em>When</em> <em>Quantize=Cycle, Loop, or 8th</em>*, most command actions are*
+<em>Quantized,</em> <em>meaning the wait until a designated point before they
+execute. During the</em> <em>Quantize Period</em> <em>while it is waiting to execute, the</em>
+<em>LoopTime Display</em> <em>will change to</em> <em>“ooo”</em> <em>to indicate we are waiting.
+Similarly, if we are waiting for a Sync event to start Recording, the</em>
+<em>LoopTime Display</em> <em>will show</em> <em>“ooo”.</em>
+<em>If</em> <em>Threshold</em> <em>is set to something other than 0,</em> <em>Record</em> <em>will wait until an
+audio signal reaches the threshold before it will start recording. During
+this wait time the</em> <em>LoopTime Display</em> <em>will also show</em> <em>“ooo”.</em></p>
+<h2 id="switchquantize-display"><em>S**WITCH</em>Q<em>UANTIZE</em> D<em>ISPLAY</em></h2>
+<p><em>When</em> <em>SwitchQuantize = Cycle, Loop, Confirm, ConfirmCycle,</em> <em>or</em>
+<em>ConfirmLoop</em>*, the Echoplex waits for the designated point or action
+before switching loops after* <em>NextLoop</em> <em>is pressed or a</em> <em>MIDI
+LoopTrigger</em> <em>is received.
+During this waiting period the</em> <em>LoopTime Display</em> <em>changes to show
+which loop we are about to switch in to. It will display this as</em> <em>“L 1”, “L 2”,
+“L 3”,</em> <em>etc. Additional presses of</em> <em>NextLoop</em> <em>or received</em> <em>MIDI
+LoopTriggers</em> <em>will update the display to show the target Loop.</em>
+<em>9-16 Echoplex Digital Pro Plus User’s Manual</em></p>
+<h1 id="looptime-display"><em>LoopTime Display</em></h1>
+<h1 id="continued-1"><em>Continued</em></h1>
+<h2 id="preset-display"><em>P**RESET</em> D<em>ISPLAY</em></h2>
+<p><em>When you are in the</em> <em>Preset Editor</em>*, the* <em>LoopTime Display</em> <em>shows the</em>
+<em>Preset</em> <em>number as</em> <em>“Pr #”.</em> <em>No dot after</em> <em>“Pr”</em> <em>indicates that this</em> <em>Preset</em> <em>is
+the last one that has been loaded into the playing state</em> <em>Preset 0</em>*. If there
+is a dot after* <em>“Pr”,</em> <em>it is not the one currently loaded. When the display
+shows</em> <em>“PrE”</em> <em>it means that the</em> <em>Preset 0</em> <em>parameter settings have been
+modified since the preset was loaded to them.
+With the display indicators it should be easy to tell in the editor which</em>
+<em>Preset</em> <em>you are currently using, and if there are new changes made that
+you may want to save.
+When a</em> <em>MIDI Program Change</em> <em>command is received or when you use the
+front panel buttons to select a</em> <em>Preset,</em> <em>the</em> <em>LoopTime Display</em> <em>briefly
+changes to show the preset you are selecting. It displays it as</em> <em>“P n”,</em>
+<em>where</em> <em>n</em> <em>is the preset number.
+See the Preset section for more details.</em></p>
+<h3 id="see-also-record-multiply-insert-sync-feedback-feedbkcont-volumecont-parameter">*See also: Record, Multiply, Insert, Sync, Feedback, FeedBkCont, VolumeCont, Parameter</h3>
+<h3 id="button-quantize-switchquantize-nextloop-presets">Button, Quantize, SwitchQuantize, NextLoop, Presets*</h3>
+<h1 id="midi"><em>MIDI</em></h1>
+<h1 id="global-clocks-and-loop"><em>G</em>LOBAL CLOCKS AND LOOP</h1>
+<h1 id="switching"><em>S</em>WITCHING</h1>
+<p><em>The</em> <em>Timing LED</em> <em>for 8th note</em> <em>Sub-Cycles</em> <em>counts on 8th notes
+determined by the global clock. The</em> <em>Switches LED</em> <em>for</em> <em>Cycles</em>*, on the
+other hand, blinks at the local* <em>StartPoints</em> <em>based on the local clock.
+If multiple loops are used and the loops are switched</em> <em>Unquantized,</em> <em>it is
+possible to see these move out of alignment with each other. This can be
+a little disconcerting, but it can also be helpful as a reference of where
+the</em> <em>Global Clock</em> <em>is in relation to your</em> <em>Local Cycle StartPoints</em> <em>as you switch
+loops.</em></p>
+<h1 id="tempo-limits"><em>T</em>EMPO LIMITS</h1>
+<p><em>If the tempo is above 400 BPM, the 8th note</em> <em>Sub-Cycle LED</em> <em>stops
+blinking since it becomes useless as a visual indicator at such speeds.
+This is also the point where</em> <em>MIDI clock</em> <em>is no longer sent for similar
+reasons. You can still make loops as short as you like.</em></p>
+<h1 id="visual-beat-matching-indicator"><em>V</em>ISUAL BEAT MATCHING INDICATOR</h1>
+<p><em>The</em> <em>Multiple Left Dot LED</em> <em>showing the</em> <em>Sync</em> <em>correction can be useful
+for tuning the tempo on a sequencer to match with an existing loop on
+the Echoplex. By watching the frequency and intensity of this LED you
+can quickly speed or slow the tempo of the sequencer to match the loop
+in the Echoplex, at which point the dot stops blinking. This technique**allows you to start a loop without the sequencer, then start the
+sequencer and tune its tempo to match.</em></p>

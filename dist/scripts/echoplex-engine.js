@@ -7,9 +7,9 @@
 class EchoplexAudioEngine {
   constructor() {
     // Initialize audio context
-    this.context = null;
-    this.initAudioContext();
-    
+    this.context = null
+    this.initAudioContext()
+
     // Initialize state
     this.state = {
       isRecording: false,
@@ -36,14 +36,14 @@ class EchoplexAudioEngine {
         feedback: 1.0, // Set to maximum by default as requested
         inputGain: 0.8,
         outputGain: 0.8,
-        mix: 0.5
+        mix: 0.5,
       },
-      undoStack: []
-    };
-    
+      undoStack: [],
+    }
+
     // Maximum recording time in seconds (as per hardware specs)
-    this.MAX_RECORDING_TIME = 120;
-    
+    this.MAX_RECORDING_TIME = 120
+
     // Create initial empty loops
     for (let i = 0; i < 8; i++) {
       this.state.loops.push({
@@ -55,766 +55,968 @@ class EchoplexAudioEngine {
         windowEnd: null,
         isReversed: false,
         isHalfSpeed: false,
-        isMuted: false
-      });
+        isMuted: false,
+      })
     }
-    
+
     // Initialize audio nodes
-    this.inputNode = null;
-    this.outputNode = null;
-    this.recorder = null;
-    this.player = null;
-    
+    this.inputNode = null
+    this.outputNode = null
+    this.recorder = null
+    this.player = null
+
     // Timer for checking recording duration
-    this.recordingTimer = null;
-    
-    console.log('EchoplexAudioEngine initialized');
+    this.recordingTimer = null
+
+    console.log('EchoplexAudioEngine initialized')
   }
-  
+
   // Initialize audio context
   initAudioContext() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.context = new AudioContext();
-      console.log('Audio context initialized');
+      const AudioContext = window.AudioContext || window.webkitAudioContext
+      this.context = new AudioContext()
+      console.log('Audio context initialized')
     } catch (error) {
-      console.error('Failed to initialize audio context:', error);
+      console.error('Failed to initialize audio context:', error)
     }
   }
-  
+
   // Initialize microphone input
   async initMicrophone() {
     if (!this.context) {
-      throw new Error('Audio context not initialized');
+      throw new Error('Audio context not initialized')
     }
     
+    // Verify Tone.js is available
+    if (typeof Tone === 'undefined') {
+      throw new Error('Tone.js library not loaded')
+    }
+
     try {
       // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           autoGainControl: false,
           noiseSuppression: false,
-          latency: 0.01
-        }
-      });
+          latency: 0.01,
+        },
+      })
+
+      // Create Tone.js input system using Tone.UserMedia
+      this.micInput = new Tone.UserMedia()
+      await this.micInput.open()
       
-      // Create input node
-      this.inputNode = this.context.createMediaStreamSource(stream);
+      // Create Tone.js channels for mixing
+      this.channel1 = new Tone.Channel(this.state.settings.inputGain, 0) // Mic channel
+      this.channel2 = new Tone.Channel(0.8, 0) // Sample channel (initially muted)
+      this.masterGain = new Tone.Gain(this.state.settings.outputGain)
       
-      // Create gain nodes
-      this.inputGain = this.context.createGain();
-      this.outputGain = this.context.createGain();
+      // Connect microphone to channel 1
+      this.micInput.connect(this.channel1)
       
-      // Set initial gain values
-      this.inputGain.gain.value = this.state.settings.inputGain;
-      this.outputGain.gain.value = this.state.settings.outputGain;
+      // Mix both channels to master gain
+      this.channel1.connect(this.masterGain)
+      this.channel2.connect(this.masterGain)
+      this.masterGain.toDestination()
       
-      // Connect nodes
-      this.inputNode.connect(this.inputGain);
-      this.inputGain.connect(this.outputGain);
-      this.outputGain.connect(this.context.destination);
+      // Store references for backward compatibility with existing code
+      this.inputGain = this.channel1
+      this.outputGain = this.masterGain
+
+      // Create a destination for recording from the mixed signal
+      this.recordingDestination = this.masterGain.context.createMediaStreamDestination()
+      this.masterGain.connect(this.recordingDestination)
       
-      // Create recorder
-      this.recorder = new MediaRecorder(stream);
-      this.recordedChunks = [];
-      
+      // Create recorder from the mixed signal
+      this.recorder = new MediaRecorder(this.recordingDestination.stream)
+      this.recordedChunks = []
+
       // Set up recorder events
       this.recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          this.recordedChunks.push(event.data);
+          this.recordedChunks.push(event.data)
         }
-      };
-      
-      console.log('Microphone initialized');
-      return true;
-      
+      }
+
+      // Set up channel switching
+      this.setupChannelSwitching()
+
+      console.log('Input system initialized with channel switching')
+      return true
     } catch (error) {
-      console.error('Error initializing microphone:', error);
-      throw new Error('Failed to access microphone. Please check permissions.');
+      console.error('Error initializing microphone:', error)
+      throw new Error('Failed to access microphone. Please check permissions.')
     }
   }
   
-  // Get current state
-  getState() {
-    return this.state;
-  }
-  
-  // Update settings
-  updateSettings(newSettings) {
-    this.state.settings = { ...this.state.settings, ...newSettings };
+  setupChannelSwitching() {
+    console.log('Setting up channel switching...')
+    const recordSourceRadios = document.querySelectorAll('input[name="record-source"]')
+    console.log('Found radio buttons:', recordSourceRadios.length)
     
-    // Apply settings to audio nodes
-    if (this.inputGain && newSettings.inputGain !== undefined) {
-      this.inputGain.gain.value = newSettings.inputGain;
+    if (recordSourceRadios.length === 0) {
+      console.warn('No record-source radio buttons found!')
+      // Try again after a delay
+      setTimeout(() => this.setupChannelSwitching(), 1000)
+      return
     }
     
-    if (this.outputGain && newSettings.outputGain !== undefined) {
-      this.outputGain.gain.value = newSettings.outputGain;
+    recordSourceRadios.forEach((radio, index) => {
+      console.log(`Radio ${index}: value="${radio.value}", checked=${radio.checked}`)
+      radio.addEventListener('change', () => {
+        console.log(`Radio changed to: ${radio.value}`)
+        this.switchInputChannel(radio.value)
+      })
+    })
+    
+    // Initialize with microphone
+    this.switchInputChannel('microphone')
+  }
+  
+  switchInputChannel(channel) {
+    console.log(`switchInputChannel called with: ${channel}`)
+    console.log('Channel1 exists:', !!this.channel1)
+    console.log('Channel2 exists:', !!this.channel2)
+    
+    if (!this.channel1 || !this.channel2) {
+      console.error('Channels not initialized!')
+      return
     }
     
-    console.log('Settings updated:', newSettings);
+    if (channel === 'microphone') {
+      // Enable mic channel, mute sample channel
+      this.channel1.mute = false
+      this.channel1.volume.value = 0 // 0 dB
+      this.channel2.mute = true
+      console.log('✓ Switched to microphone input (Channel 1)')
+      console.log('Channel1 muted:', this.channel1.mute, 'Channel2 muted:', this.channel2.mute)
+    } else if (channel === 'sample') {
+      // Enable sample channel, mute mic channel
+      this.channel1.mute = true
+      this.channel2.mute = false
+      this.channel2.volume.value = 0 // 0 dB
+      console.log('✓ Switched to sample input (Channel 2)')
+      console.log('Channel1 muted:', this.channel1.mute, 'Channel2 muted:', this.channel2.mute)
+      
+      // Start sample playback if available
+      this.startSamplePlayback()
+    } else {
+      console.warn('Unknown channel:', channel)
+    }
   }
   
-  // Set record mode (SWITCH or TOGGLE)
-  setRecordMode(mode) {
-    if (mode !== 'SWITCH' && mode !== 'TOGGLE') {
-      console.error('Invalid record mode:', mode);
-      return;
+  // Method to connect sample player audio
+  connectSamplePlayer(audioBuffer) {
+    if (!audioBuffer || !this.channel2) return
+    
+    // Disconnect any existing sample player
+    if (this.samplePlayer) {
+      this.samplePlayer.disconnect()
+      this.samplePlayer.dispose()
     }
     
-    this.state.recordMode = mode;
-    console.log(`Record mode set to ${mode}`);
+    // Create Tone.js Player for the sample
+    this.samplePlayer = new Tone.Player(audioBuffer)
+    this.samplePlayer.loop = true
+    
+    // Connect sample player to channel 2
+    this.samplePlayer.connect(this.channel2)
+    
+    console.log('Sample connected to Channel 2')
   }
   
-  // Toggle function mode
-  toggleFunctionMode() {
-    this.state.isFunctionActive = !this.state.isFunctionActive;
-    console.log(`Function mode ${this.state.isFunctionActive ? 'activated' : 'deactivated'}`);
-    return this.state.isFunctionActive;
+  // Start sample playback (for when sample channel is active)
+  startSamplePlayback() {
+    if (this.samplePlayer && this.samplePlayer.loaded) {
+      this.samplePlayer.start()
+      console.log('Sample playback started')
+    }
   }
   
-  // Start recording
-  async startRecording() {
-    if (!this.recorder) {
-      throw new Error('Recorder not initialized');
+  // Stop sample playback
+  stopSamplePlayback() {
+    if (this.samplePlayer) {
+      this.samplePlayer.stop()
+      console.log('Sample playback stopped')
+    }
+  }
+  
+  // Manual channel switching for testing
+  testChannelSwitch(channel) {
+    console.log(`Manual test: switching to ${channel}`)
+    this.switchInputChannel(channel)
+  }
+  
+  // Comprehensive cleanup method
+  dispose() {
+    console.log('Disposing echoplex engine...')
+    
+    // Stop all audio sources
+    if (this.isPlaying) {
+      this.stopLoopPlayback()
     }
     
     if (this.state.isRecording) {
-      return;
+      this.stopRecording().catch(err => console.error('Error stopping recording:', err))
     }
     
+    // Clear all timers
+    if (this.recordingTimer) {
+      clearInterval(this.recordingTimer)
+      this.recordingTimer = null
+    }
+    
+    if (this.playbackTimer) {
+      clearInterval(this.playbackTimer)
+      this.playbackTimer = null
+    }
+    
+    // Dispose Tone.js objects
+    if (this.micInput) {
+      this.micInput.close()
+      this.micInput.dispose()
+    }
+    
+    if (this.channel1) this.channel1.dispose()
+    if (this.channel2) this.channel2.dispose()
+    if (this.masterGain) this.masterGain.dispose()
+    if (this.samplePlayer) this.samplePlayer.dispose()
+    
+    // Clear state
+    this.state.isRecording = false
+    this.state.isPlaying = false
+    this.initialized = false
+    
+    console.log('Echoplex engine disposed')
+  }
+
+  // Get current state
+  getState() {
+    return this.state
+  }
+
+  // Update settings
+  updateSettings(newSettings) {
+    this.state.settings = { ...this.state.settings, ...newSettings }
+
+    // Apply settings to audio nodes
+    if (this.inputGain && newSettings.inputGain !== undefined) {
+      this.inputGain.volume.value = Tone.gainToDb(newSettings.inputGain)
+    }
+
+    if (this.outputGain && newSettings.outputGain !== undefined) {
+      this.outputGain.gain.value = newSettings.outputGain
+    }
+
+    console.log('Settings updated:', newSettings)
+  }
+
+  // Set record mode (SWITCH or TOGGLE)
+  setRecordMode(mode) {
+    if (mode !== 'SWITCH' && mode !== 'TOGGLE') {
+      console.error('Invalid record mode:', mode)
+      return
+    }
+
+    this.state.recordMode = mode
+    console.log(`Record mode set to ${mode}`)
+  }
+
+  // Toggle function mode
+  toggleFunctionMode() {
+    this.state.isFunctionActive = !this.state.isFunctionActive
+    console.log(
+      `Function mode ${this.state.isFunctionActive ? 'activated' : 'deactivated'}`,
+    )
+    return this.state.isFunctionActive
+  }
+
+  // Start recording
+  async startRecording() {
+    if (!this.recorder) {
+      throw new Error('Recorder not initialized')
+    }
+
+    if (this.state.isRecording) {
+      return
+    }
+
     // Reset recorded chunks
-    this.recordedChunks = [];
-    
+    this.recordedChunks = []
+
     // Start recording
-    this.recorder.start();
-    this.state.isRecording = true;
-    
+    this.recorder.start()
+    this.state.isRecording = true
+
     // Store the start time for the timer
-    this.state.recordStartTime = this.context.currentTime;
-    
+    this.state.recordStartTime = this.context.currentTime
+
     // Set up timer to check recording duration
-    this.recordingTimer = setInterval(() => {
-      const currentDuration = this.getCurrentRecordingTime();
-      
+    this.recordingTimer = setInterval(async () => {
+      const currentDuration = this.getCurrentRecordingTime()
+
       // If we've reached the maximum recording time, stop recording
       if (currentDuration >= this.MAX_RECORDING_TIME) {
-        console.log('Maximum recording time reached, stopping recording');
-        this.stopRecording();
+        console.log('Maximum recording time reached, stopping recording')
+        try {
+          await this.stopRecording()
+        } catch (error) {
+          console.error('Error stopping recording:', error)
+        }
       }
-    }, 100); // Check every 100ms
-    
-    console.log('Recording started');
+    }, 100) // Check every 100ms
+
+    console.log('Recording started')
   }
-  
+
+
   // Stop recording
   async stopRecording() {
     if (!this.recorder || !this.state.isRecording) {
-      return;
+      return
     }
-    
+
     // Clear the recording timer
     if (this.recordingTimer) {
-      clearInterval(this.recordingTimer);
-      this.recordingTimer = null;
+      clearInterval(this.recordingTimer)
+      this.recordingTimer = null
     }
-    
+
     return new Promise((resolve) => {
       this.recorder.onstop = async () => {
         // Calculate loop duration
-        this.state.loopDuration = this.context.currentTime - this.state.recordStartTime;
-        
+        this.state.loopDuration =
+          this.context.currentTime - this.state.recordStartTime
+
         // Create blob from recorded chunks
-        const blob = new Blob(this.recordedChunks, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        
+        const blob = new Blob(this.recordedChunks, { type: 'audio/webm' })
+        const url = URL.createObjectURL(blob)
+
         try {
           // Create audio buffer from blob
-          const response = await fetch(url);
-          const arrayBuffer = await response.arrayBuffer();
-          const audioBuffer = await this.context.decodeAudioData(arrayBuffer);
-          
+          const response = await fetch(url)
+          const arrayBuffer = await response.arrayBuffer()
+          const audioBuffer = await this.context.decodeAudioData(arrayBuffer)
+
           // Save previous state for undo
           this.addUndoAction({
             type: 'RECORD',
             loopId: this.state.loops[this.state.currentLoopIndex].id,
-            previousState: { 
+            previousState: {
               buffer: this.state.loops[this.state.currentLoopIndex].buffer,
-              startPoint: this.state.loops[this.state.currentLoopIndex].startPoint,
-              endPoint: this.state.loops[this.state.currentLoopIndex].endPoint
-            }
-          });
-          
+              startPoint:
+                this.state.loops[this.state.currentLoopIndex].startPoint,
+              endPoint: this.state.loops[this.state.currentLoopIndex].endPoint,
+            },
+          })
+
           // Update loop
-          this.state.loops[this.state.currentLoopIndex].buffer = audioBuffer;
-          this.state.loops[this.state.currentLoopIndex].startPoint = 0;
-          this.state.loops[this.state.currentLoopIndex].endPoint = audioBuffer.duration;
-          
+          this.state.loops[this.state.currentLoopIndex].buffer = audioBuffer
+          this.state.loops[this.state.currentLoopIndex].startPoint = 0
+          this.state.loops[this.state.currentLoopIndex].endPoint =
+            audioBuffer.duration
+
           // Start playback
-          this.startLoopPlayback();
-          
-          console.log('Recording stopped and saved');
-          resolve(true);
-          
+          this.startLoopPlayback()
+
+          console.log('Recording stopped and saved')
+          resolve(true)
         } catch (error) {
-          console.error('Error processing recording:', error);
-          resolve(false);
+          console.error('Error processing recording:', error)
+          resolve(false)
         }
-      };
-      
+      }
+
       // Stop recording
-      this.recorder.stop();
-      this.state.isRecording = false;
-    });
+      this.recorder.stop()
+      this.state.isRecording = false
+    })
   }
-  
+
   // Get current recording time
   getCurrentRecordingTime() {
     if (!this.state.isRecording || this.state.recordStartTime === null) {
-      return 0;
+      return 0
     }
-    
-    return this.context.currentTime - this.state.recordStartTime;
+
+    return this.context.currentTime - this.state.recordStartTime
   }
-  
+
   // Get loop duration
   getLoopDuration() {
-    return this.state.loopDuration;
+    return this.state.loopDuration
   }
-  
+
   // Get current playback position
   getCurrentPlaybackPosition() {
     if (!this.state.isPlaying || !this.player) {
-      return 0;
+      return 0
     }
-    
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    const loopStart = currentLoop.windowStart !== null ? currentLoop.windowStart : currentLoop.startPoint;
-    const loopEnd = currentLoop.windowEnd !== null ? currentLoop.windowEnd : currentLoop.endPoint;
-    const loopDuration = loopEnd - loopStart;
-    
+
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    const loopStart =
+      currentLoop.windowStart !== null
+        ? currentLoop.windowStart
+        : currentLoop.startPoint
+    const loopEnd =
+      currentLoop.windowEnd !== null
+        ? currentLoop.windowEnd
+        : currentLoop.endPoint
+    const loopDuration = loopEnd - loopStart
+
     // Calculate position based on audio context time
-    const elapsed = (this.context.currentTime - this.playbackStartTime) % loopDuration;
-    return loopStart + elapsed;
+    const elapsed =
+      (this.context.currentTime - this.playbackStartTime) % loopDuration
+    return loopStart + elapsed
   }
-  
+
   // Start loop playback
   startLoopPlayback() {
     if (this.state.isPlaying) {
-      return;
+      return
     }
-    
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
-      console.log('No loop to play');
-      return;
+      console.log('No loop to play')
+      return
     }
-    
+
     // Create buffer source
-    this.player = this.context.createBufferSource();
-    this.player.buffer = currentLoop.buffer;
-    
+    this.player = this.context.createBufferSource()
+    this.player.buffer = currentLoop.buffer
+
     // Set playback rate based on half-speed setting
-    this.player.playbackRate.value = currentLoop.isHalfSpeed ? 0.5 : 1;
-    
+    this.player.playbackRate.value = currentLoop.isHalfSpeed ? 0.5 : 1
+
     // Set reverse playback if needed
     if (currentLoop.isReversed) {
       // Create a reversed buffer
-      const reversedBuffer = this.createReversedBuffer(currentLoop.buffer);
-      this.player.buffer = reversedBuffer;
+      const reversedBuffer = this.createReversedBuffer(currentLoop.buffer)
+      this.player.buffer = reversedBuffer
     }
-    
+
     // Connect player to output
     if (currentLoop.isMuted) {
       // Don't connect if muted
     } else {
-      this.player.connect(this.outputGain);
+      this.player.connect(this.outputGain)
     }
-    
+
     // Set loop points
-    const loopStart = currentLoop.windowStart !== null ? currentLoop.windowStart : currentLoop.startPoint;
-    const loopEnd = currentLoop.windowEnd !== null ? currentLoop.windowEnd : currentLoop.endPoint;
-    
+    const loopStart =
+      currentLoop.windowStart !== null
+        ? currentLoop.windowStart
+        : currentLoop.startPoint
+    const loopEnd =
+      currentLoop.windowEnd !== null
+        ? currentLoop.windowEnd
+        : currentLoop.endPoint
+
     // Start playback with looping
-    this.player.loop = true;
-    this.player.loopStart = loopStart;
-    this.player.loopEnd = loopEnd;
-    this.player.start(0, loopStart);
-    
+    this.player.loop = true
+    this.player.loopStart = loopStart
+    this.player.loopEnd = loopEnd
+    this.player.start(0, loopStart)
+
     // Store playback start time for position tracking
-    this.playbackStartTime = this.context.currentTime;
-    
-    this.state.isPlaying = true;
-    
-    console.log('Playback started');
+    this.playbackStartTime = this.context.currentTime
+
+    this.state.isPlaying = true
+
+    console.log('Playback started')
   }
-  
+
   // Stop loop playback
   stopLoopPlayback() {
     if (!this.state.isPlaying || !this.player) {
-      return;
+      return
     }
-    
+
     // Stop player
-    this.player.stop();
-    this.player.disconnect();
-    this.player = null;
-    
-    this.state.isPlaying = false;
-    
-    console.log('Playback stopped');
+    this.player.stop()
+    this.player.disconnect()
+    this.player = null
+
+    this.state.isPlaying = false
+
+    console.log('Playback stopped')
   }
-  
+
   // Start overdub
   async startOverdub() {
     if (!this.recorder || !this.state.isPlaying) {
-      return;
+      return
     }
-    
+
     if (this.state.isOverdubbing) {
-      return;
+      return
     }
-    
+
     // Reset recorded chunks
-    this.recordedChunks = [];
-    
+    this.recordedChunks = []
+
     // Start recording
-    this.recorder.start();
-    this.state.isOverdubbing = true;
-    
+    this.recorder.start()
+    this.state.isOverdubbing = true
+
     // Store the start time for the timer
-    this.state.recordStartTime = this.context.currentTime;
-    
+    this.state.recordStartTime = this.context.currentTime
+
     // Set up timer to check recording duration
     this.recordingTimer = setInterval(() => {
-      const currentDuration = this.getCurrentRecordingTime();
-      
+      const currentDuration = this.getCurrentRecordingTime()
+
       // If we've reached the maximum recording time, stop recording
       if (currentDuration >= this.MAX_RECORDING_TIME) {
-        console.log('Maximum recording time reached, stopping overdub');
-        this.stopOverdub();
+        console.log('Maximum recording time reached, stopping overdub')
+        this.stopOverdub()
       }
-    }, 100); // Check every 100ms
-    
-    console.log('Overdub started');
+    }, 100) // Check every 100ms
+
+    console.log('Overdub started')
   }
-  
+
   // Stop overdub
   async stopOverdub() {
     if (!this.recorder || !this.state.isOverdubbing) {
-      return;
+      return
     }
-    
+
     // Clear the recording timer
     if (this.recordingTimer) {
-      clearInterval(this.recordingTimer);
-      this.recordingTimer = null;
+      clearInterval(this.recordingTimer)
+      this.recordingTimer = null
     }
-    
+
     return new Promise((resolve) => {
       this.recorder.onstop = async () => {
         // Create blob from recorded chunks
-        const blob = new Blob(this.recordedChunks, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        
+        const blob = new Blob(this.recordedChunks, { type: 'audio/webm' })
+        const url = URL.createObjectURL(blob)
+
         try {
           // Create audio buffer from blob
-          const response = await fetch(url);
-          const arrayBuffer = await response.arrayBuffer();
-          const overdubBuffer = await this.context.decodeAudioData(arrayBuffer);
-          
+          const response = await fetch(url)
+          const arrayBuffer = await response.arrayBuffer()
+          const overdubBuffer = await this.context.decodeAudioData(arrayBuffer)
+
           // Get current loop
-          const currentLoop = this.state.loops[this.state.currentLoopIndex];
-          
+          const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
           if (!currentLoop.buffer) {
-            console.log('No loop to overdub');
-            resolve(false);
-            return;
+            console.log('No loop to overdub')
+            resolve(false)
+            return
           }
-          
+
           // Save previous state for undo
           this.addUndoAction({
             type: 'OVERDUB',
             loopId: currentLoop.id,
-            previousState: { buffer: currentLoop.buffer }
-          });
-          
+            previousState: { buffer: currentLoop.buffer },
+          })
+
           // Mix original and overdub buffers
-          const mixedBuffer = this.mixBuffers(currentLoop.buffer, overdubBuffer);
-          
+          const mixedBuffer = this.mixBuffers(currentLoop.buffer, overdubBuffer)
+
           // Update loop
-          currentLoop.buffer = mixedBuffer;
-          
+          currentLoop.buffer = mixedBuffer
+
           // Restart playback with new buffer
-          this.stopLoopPlayback();
-          this.startLoopPlayback();
-          
-          console.log('Overdub stopped and mixed');
-          resolve(true);
-          
+          this.stopLoopPlayback()
+          this.startLoopPlayback()
+
+          console.log('Overdub stopped and mixed')
+          resolve(true)
         } catch (error) {
-          console.error('Error processing overdub:', error);
-          resolve(false);
+          console.error('Error processing overdub:', error)
+          resolve(false)
         }
-      };
-      
+      }
+
       // Stop recording
-      this.recorder.stop();
-      this.state.isOverdubbing = false;
-    });
+      this.recorder.stop()
+      this.state.isOverdubbing = false
+    })
   }
-  
+
   // Start insert (replace mode)
   async startInsert() {
     // If function mode is active, this becomes reverse instead
     if (this.state.isFunctionActive) {
-      this.reverseLoop();
-      this.state.isFunctionActive = false; // Deactivate function mode after use
-      return;
+      this.reverseLoop()
+      this.state.isFunctionActive = false // Deactivate function mode after use
+      return
     }
-    
+
     if (!this.recorder || !this.state.isPlaying) {
-      return;
+      return
     }
-    
+
     if (this.state.isReplacing) {
-      return;
+      return
     }
-    
+
     // Reset recorded chunks
-    this.recordedChunks = [];
-    
+    this.recordedChunks = []
+
     // Start recording
-    this.recorder.start();
-    this.state.isReplacing = true;
-    
+    this.recorder.start()
+    this.state.isReplacing = true
+
     // Store the start time and position for the insert
-    this.state.recordStartTime = this.context.currentTime;
-    this.insertStartPosition = this.getCurrentPlaybackPosition();
-    
+    this.state.recordStartTime = this.context.currentTime
+    this.insertStartPosition = this.getCurrentPlaybackPosition()
+
     // Set up timer to check recording duration
     this.recordingTimer = setInterval(() => {
-      const currentDuration = this.getCurrentRecordingTime();
-      
+      const currentDuration = this.getCurrentRecordingTime()
+
       // If we've reached the maximum recording time, stop recording
       if (currentDuration >= this.MAX_RECORDING_TIME) {
-        console.log('Maximum recording time reached, stopping insert');
-        this.stopInsert();
+        console.log('Maximum recording time reached, stopping insert')
+        this.stopInsert()
       }
-    }, 100); // Check every 100ms
-    
-    console.log('Insert started');
+    }, 100) // Check every 100ms
+
+    console.log('Insert started')
   }
-  
+
   // Stop insert
   async stopInsert() {
     if (!this.recorder || !this.state.isReplacing) {
-      return;
+      return
     }
-    
+
     // Clear the recording timer
     if (this.recordingTimer) {
-      clearInterval(this.recordingTimer);
-      this.recordingTimer = null;
+      clearInterval(this.recordingTimer)
+      this.recordingTimer = null
     }
-    
+
     return new Promise((resolve) => {
       this.recorder.onstop = async () => {
         // Create blob from recorded chunks
-        const blob = new Blob(this.recordedChunks, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        
+        const blob = new Blob(this.recordedChunks, { type: 'audio/webm' })
+        const url = URL.createObjectURL(blob)
+
         try {
           // Create audio buffer from blob
-          const response = await fetch(url);
-          const arrayBuffer = await response.arrayBuffer();
-          const insertBuffer = await this.context.decodeAudioData(arrayBuffer);
-          
+          const response = await fetch(url)
+          const arrayBuffer = await response.arrayBuffer()
+          const insertBuffer = await this.context.decodeAudioData(arrayBuffer)
+
           // Get current loop
-          const currentLoop = this.state.loops[this.state.currentLoopIndex];
-          
+          const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
           if (!currentLoop.buffer) {
-            console.log('No loop to insert into');
-            resolve(false);
-            return;
+            console.log('No loop to insert into')
+            resolve(false)
+            return
           }
-          
+
           // Save previous state for undo
           this.addUndoAction({
             type: 'INSERT',
             loopId: currentLoop.id,
-            previousState: { buffer: currentLoop.buffer }
-          });
-          
+            previousState: { buffer: currentLoop.buffer },
+          })
+
           // Calculate insert position and duration
-          const insertDuration = insertBuffer.duration;
-          const insertPosition = this.insertStartPosition - currentLoop.startPoint;
-          
+          const insertDuration = insertBuffer.duration
+          const insertPosition =
+            this.insertStartPosition - currentLoop.startPoint
+
           // Replace section of the original buffer with the insert buffer
           const replacedBuffer = this.replaceBufferSection(
             currentLoop.buffer,
             insertBuffer,
             insertPosition,
-            insertDuration
-          );
-          
+            insertDuration,
+          )
+
           // Update loop
-          currentLoop.buffer = replacedBuffer;
-          
+          currentLoop.buffer = replacedBuffer
+
           // Restart playback with new buffer
-          this.stopLoopPlayback();
-          this.startLoopPlayback();
-          
-          console.log('Insert stopped and replaced section');
-          resolve(true);
-          
+          this.stopLoopPlayback()
+          this.startLoopPlayback()
+
+          console.log('Insert stopped and replaced section')
+          resolve(true)
         } catch (error) {
-          console.error('Error processing insert:', error);
-          resolve(false);
+          console.error('Error processing insert:', error)
+          resolve(false)
         }
-      };
-      
+      }
+
       // Stop recording
-      this.recorder.stop();
-      this.state.isReplacing = false;
-    });
+      this.recorder.stop()
+      this.state.isReplacing = false
+    })
   }
-  
+
   // Replace a section of a buffer with another buffer
   replaceBufferSection(originalBuffer, newBuffer, position, duration) {
     // Create a new buffer with the same length as the original
     const replacedBuffer = this.context.createBuffer(
       originalBuffer.numberOfChannels,
       originalBuffer.length,
-      originalBuffer.sampleRate
-    );
-    
+      originalBuffer.sampleRate,
+    )
+
     // Calculate sample positions
-    const positionSample = Math.floor(position * originalBuffer.sampleRate);
-    const durationSamples = Math.floor(duration * originalBuffer.sampleRate);
-    
+    const positionSample = Math.floor(position * originalBuffer.sampleRate)
+    const durationSamples = Math.floor(duration * originalBuffer.sampleRate)
+
     // Copy and replace data for each channel
-    for (let channel = 0; channel < originalBuffer.numberOfChannels; channel++) {
-      const originalData = originalBuffer.getChannelData(channel);
-      const newData = channel < newBuffer.numberOfChannels ? 
-                      newBuffer.getChannelData(channel) : 
-                      new Float32Array(durationSamples).fill(0);
-      const replacedData = replacedBuffer.getChannelData(channel);
-      
+    for (
+      let channel = 0;
+      channel < originalBuffer.numberOfChannels;
+      channel++
+    ) {
+      const originalData = originalBuffer.getChannelData(channel)
+      const newData =
+        channel < newBuffer.numberOfChannels
+          ? newBuffer.getChannelData(channel)
+          : new Float32Array(durationSamples).fill(0)
+      const replacedData = replacedBuffer.getChannelData(channel)
+
       // Copy data before insert position
       for (let i = 0; i < positionSample; i++) {
-        replacedData[i] = originalData[i];
+        replacedData[i] = originalData[i]
       }
-      
+
       // Copy new data at insert position
       for (let i = 0; i < durationSamples; i++) {
         if (positionSample + i < replacedData.length && i < newData.length) {
-          replacedData[positionSample + i] = newData[i];
+          replacedData[positionSample + i] = newData[i]
         }
       }
-      
+
       // Copy data after insert
-      for (let i = positionSample + durationSamples; i < originalData.length; i++) {
+      for (
+        let i = positionSample + durationSamples;
+        i < originalData.length;
+        i++
+      ) {
         if (i < replacedData.length) {
-          replacedData[i] = originalData[i];
+          replacedData[i] = originalData[i]
         }
       }
     }
-    
-    return replacedBuffer;
+
+    return replacedBuffer
   }
-  
+
   // Start multiply
   startMultiply() {
     if (!this.state.isPlaying) {
-      return;
+      return
     }
-    
-    this.state.isMultiplying = true;
-    this.multiplyStartTime = this.context.currentTime;
-    
-    console.log('Multiply started');
+
+    this.state.isMultiplying = true
+    this.multiplyStartTime = this.context.currentTime
+
+    console.log('Multiply started')
   }
-  
+
   // Stop multiply
   async stopMultiply() {
     if (!this.state.isMultiplying) {
-      return;
+      return
     }
-    
+
     // Calculate multiply duration
-    const multiplyDuration = this.context.currentTime - this.multiplyStartTime;
-    
+    const multiplyDuration = this.context.currentTime - this.multiplyStartTime
+
     // Get current loop
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
-      console.log('No loop to multiply');
-      this.state.isMultiplying = false;
-      return;
+      console.log('No loop to multiply')
+      this.state.isMultiplying = false
+      return
     }
-    
+
     // Save previous state for undo
     this.addUndoAction({
       type: 'MULTIPLY',
       loopId: currentLoop.id,
-      previousState: { 
+      previousState: {
         buffer: currentLoop.buffer,
-        endPoint: currentLoop.endPoint
-      }
-    });
-    
+        endPoint: currentLoop.endPoint,
+      },
+    })
+
     // Calculate new loop length
-    const originalDuration = currentLoop.endPoint - currentLoop.startPoint;
-    const cycles = Math.ceil(multiplyDuration / originalDuration);
-    const newDuration = originalDuration * (cycles + 1);
-    
+    const originalDuration = currentLoop.endPoint - currentLoop.startPoint
+    const cycles = Math.ceil(multiplyDuration / originalDuration)
+    const newDuration = originalDuration * (cycles + 1)
+
     // Ensure we don't exceed the maximum recording time
     if (newDuration > this.MAX_RECORDING_TIME) {
-      console.log(`Multiply would exceed maximum recording time (${this.MAX_RECORDING_TIME}s), limiting to max`);
-      const maxCycles = Math.floor(this.MAX_RECORDING_TIME / originalDuration) - 1;
-      const limitedDuration = originalDuration * (maxCycles + 1);
-      
+      console.log(
+        `Multiply would exceed maximum recording time (${this.MAX_RECORDING_TIME}s), limiting to max`,
+      )
+      const maxCycles =
+        Math.floor(this.MAX_RECORDING_TIME / originalDuration) - 1
+      const limitedDuration = originalDuration * (maxCycles + 1)
+
       // Create a new buffer with the increased length
       const newBuffer = this.context.createBuffer(
         currentLoop.buffer.numberOfChannels,
         Math.ceil(limitedDuration * currentLoop.buffer.sampleRate),
-        currentLoop.buffer.sampleRate
-      );
-      
+        currentLoop.buffer.sampleRate,
+      )
+
       // Copy the original buffer data multiple times
-      for (let channel = 0; channel < currentLoop.buffer.numberOfChannels; channel++) {
-        const originalData = currentLoop.buffer.getChannelData(channel);
-        const newData = newBuffer.getChannelData(channel);
-        
+      for (
+        let channel = 0;
+        channel < currentLoop.buffer.numberOfChannels;
+        channel++
+      ) {
+        const originalData = currentLoop.buffer.getChannelData(channel)
+        const newData = newBuffer.getChannelData(channel)
+
         // Copy original data multiple times
         for (let i = 0; i <= maxCycles; i++) {
-          const offset = i * originalData.length;
+          const offset = i * originalData.length
           for (let j = 0; j < originalData.length; j++) {
             if (offset + j < newData.length) {
-              newData[offset + j] = originalData[j];
+              newData[offset + j] = originalData[j]
             }
           }
         }
       }
-      
+
       // Update the loop
-      currentLoop.buffer = newBuffer;
-      currentLoop.endPoint = limitedDuration;
-      
-      console.log(`Multiply limited to ${maxCycles + 1} cycles due to maximum recording time`);
+      currentLoop.buffer = newBuffer
+      currentLoop.endPoint = limitedDuration
+
+      console.log(
+        `Multiply limited to ${maxCycles + 1} cycles due to maximum recording time`,
+      )
     } else {
       // Create a new buffer with the increased length
       const newBuffer = this.context.createBuffer(
         currentLoop.buffer.numberOfChannels,
         Math.ceil(newDuration * currentLoop.buffer.sampleRate),
-        currentLoop.buffer.sampleRate
-      );
-      
+        currentLoop.buffer.sampleRate,
+      )
+
       // Copy the original buffer data multiple times
-      for (let channel = 0; channel < currentLoop.buffer.numberOfChannels; channel++) {
-        const originalData = currentLoop.buffer.getChannelData(channel);
-        const newData = newBuffer.getChannelData(channel);
-        
+      for (
+        let channel = 0;
+        channel < currentLoop.buffer.numberOfChannels;
+        channel++
+      ) {
+        const originalData = currentLoop.buffer.getChannelData(channel)
+        const newData = newBuffer.getChannelData(channel)
+
         // Copy original data multiple times
         for (let i = 0; i <= cycles; i++) {
-          const offset = i * originalData.length;
+          const offset = i * originalData.length
           for (let j = 0; j < originalData.length; j++) {
             if (offset + j < newData.length) {
-              newData[offset + j] = originalData[j];
+              newData[offset + j] = originalData[j]
             }
           }
         }
       }
-      
+
       // Update the loop
-      currentLoop.buffer = newBuffer;
-      currentLoop.endPoint = newDuration;
-      
-      console.log(`Multiply completed with ${cycles + 1} cycles`);
+      currentLoop.buffer = newBuffer
+      currentLoop.endPoint = newDuration
+
+      console.log(`Multiply completed with ${cycles + 1} cycles`)
     }
-    
+
     // Restart playback with new buffer
-    this.stopLoopPlayback();
-    this.startLoopPlayback();
-    
-    this.state.isMultiplying = false;
+    this.stopLoopPlayback()
+    this.startLoopPlayback()
+
+    this.state.isMultiplying = false
   }
-  
+
   // Reverse loop
   reverseLoop() {
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
-      return;
+      return
     }
-    
+
     // Toggle reversed state
-    currentLoop.isReversed = !currentLoop.isReversed;
-    
+    currentLoop.isReversed = !currentLoop.isReversed
+
     // If playing, restart with reversed buffer
     if (this.state.isPlaying) {
-      this.stopLoopPlayback();
-      this.startLoopPlayback();
+      this.stopLoopPlayback()
+      this.startLoopPlayback()
     }
-    
-    console.log(`Loop ${currentLoop.isReversed ? 'reversed' : 'normal'}`);
+
+    console.log(`Loop ${currentLoop.isReversed ? 'reversed' : 'normal'}`)
   }
-  
+
   // Toggle half-speed
   toggleHalfSpeed() {
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
-      return;
+      return
     }
-    
+
     // Toggle half-speed state
-    currentLoop.isHalfSpeed = !currentLoop.isHalfSpeed;
-    
+    currentLoop.isHalfSpeed = !currentLoop.isHalfSpeed
+
     // If playing, update playback rate
     if (this.state.isPlaying && this.player) {
-      this.player.playbackRate.value = currentLoop.isHalfSpeed ? 0.5 : 1;
+      this.player.playbackRate.value = currentLoop.isHalfSpeed ? 0.5 : 1
     }
-    
-    console.log(`Loop ${currentLoop.isHalfSpeed ? 'half-speed' : 'normal speed'}`);
+
+    console.log(
+      `Loop ${currentLoop.isHalfSpeed ? 'half-speed' : 'normal speed'}`,
+    )
   }
-  
+
   // Toggle mute
   toggleMute() {
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
-      return;
+      return
     }
-    
+
     // Toggle mute state
-    currentLoop.isMuted = !currentLoop.isMuted;
-    
+    currentLoop.isMuted = !currentLoop.isMuted
+
     // If playing, update connections
     if (this.state.isPlaying && this.player) {
       if (currentLoop.isMuted) {
-        this.player.disconnect();
+        this.player.disconnect()
       } else {
-        this.player.connect(this.outputGain);
+        this.player.connect(this.outputGain)
       }
     }
-    
-    console.log(`Loop ${currentLoop.isMuted ? 'muted' : 'unmuted'}`);
+
+    console.log(`Loop ${currentLoop.isMuted ? 'muted' : 'unmuted'}`)
   }
-  
+
   // Reset loop
   resetLoop() {
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     // Save previous state for undo
     if (currentLoop.buffer) {
       this.addUndoAction({
         type: 'RESET',
         loopId: currentLoop.id,
-        previousState: { 
+        previousState: {
           buffer: currentLoop.buffer,
           startPoint: currentLoop.startPoint,
           endPoint: currentLoop.endPoint,
@@ -822,294 +1024,315 @@ class EchoplexAudioEngine {
           windowEnd: currentLoop.windowEnd,
           isReversed: currentLoop.isReversed,
           isHalfSpeed: currentLoop.isHalfSpeed,
-          isMuted: currentLoop.isMuted
-        }
-      });
+          isMuted: currentLoop.isMuted,
+        },
+      })
     }
-    
+
     // Stop playback if playing
     if (this.state.isPlaying) {
-      this.stopLoopPlayback();
+      this.stopLoopPlayback()
     }
-    
+
     // Reset loop properties
-    currentLoop.buffer = null;
-    currentLoop.startPoint = 0;
-    currentLoop.endPoint = 0;
-    currentLoop.windowStart = null;
-    currentLoop.windowEnd = null;
-    currentLoop.isReversed = false;
-    currentLoop.isHalfSpeed = false;
-    currentLoop.isMuted = false;
-    
-    console.log('Loop reset');
+    currentLoop.buffer = null
+    currentLoop.startPoint = 0
+    currentLoop.endPoint = 0
+    currentLoop.windowStart = null
+    currentLoop.windowEnd = null
+    currentLoop.isReversed = false
+    currentLoop.isHalfSpeed = false
+    currentLoop.isMuted = false
+
+    console.log('Loop reset')
   }
-  
+
   // Next loop
   nextLoop() {
     // Stop playback if playing
     if (this.state.isPlaying) {
-      this.stopLoopPlayback();
+      this.stopLoopPlayback()
     }
-    
+
     // Increment loop index
-    this.state.currentLoopIndex = (this.state.currentLoopIndex + 1) % this.state.loops.length;
-    
+    this.state.currentLoopIndex =
+      (this.state.currentLoopIndex + 1) % this.state.loops.length
+
     // Start playback if new loop has content
     if (this.state.loops[this.state.currentLoopIndex].buffer) {
-      this.startLoopPlayback();
+      this.startLoopPlayback()
     }
-    
-    console.log(`Switched to loop ${this.state.currentLoopIndex + 1}`);
+
+    console.log(`Switched to loop ${this.state.currentLoopIndex + 1}`)
   }
-  
+
   // Previous loop
   previousLoop() {
     // Stop playback if playing
     if (this.state.isPlaying) {
-      this.stopLoopPlayback();
+      this.stopLoopPlayback()
     }
-    
+
     // Decrement loop index
-    this.state.currentLoopIndex = (this.state.currentLoopIndex - 1 + this.state.loops.length) % this.state.loops.length;
-    
+    this.state.currentLoopIndex =
+      (this.state.currentLoopIndex - 1 + this.state.loops.length) %
+      this.state.loops.length
+
     // Start playback if new loop has content
     if (this.state.loops[this.state.currentLoopIndex].buffer) {
-      this.startLoopPlayback();
+      this.startLoopPlayback()
     }
-    
-    console.log(`Switched to loop ${this.state.currentLoopIndex + 1}`);
+
+    console.log(`Switched to loop ${this.state.currentLoopIndex + 1}`)
   }
-  
+
   // Set loop window
   setLoopWindow(start, end) {
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
-      return;
+      return
     }
-    
+
     // Save previous state for undo
     this.addUndoAction({
       type: 'WINDOW',
       loopId: currentLoop.id,
-      previousState: { 
+      previousState: {
         windowStart: currentLoop.windowStart,
-        windowEnd: currentLoop.windowEnd
-      }
-    });
-    
+        windowEnd: currentLoop.windowEnd,
+      },
+    })
+
     // Set window points
-    currentLoop.windowStart = start;
-    currentLoop.windowEnd = end;
-    
+    currentLoop.windowStart = start
+    currentLoop.windowEnd = end
+
     // If playing, update loop points
     if (this.state.isPlaying && this.player) {
-      const loopStart = currentLoop.windowStart !== null ? currentLoop.windowStart : currentLoop.startPoint;
-      const loopEnd = currentLoop.windowEnd !== null ? currentLoop.windowEnd : currentLoop.endPoint;
-      
-      this.player.loopStart = loopStart;
-      this.player.loopEnd = loopEnd;
+      const loopStart =
+        currentLoop.windowStart !== null
+          ? currentLoop.windowStart
+          : currentLoop.startPoint
+      const loopEnd =
+        currentLoop.windowEnd !== null
+          ? currentLoop.windowEnd
+          : currentLoop.endPoint
+
+      this.player.loopStart = loopStart
+      this.player.loopEnd = loopEnd
     }
-    
-    console.log(`Loop window set: ${start} to ${end}`);
+
+    console.log(`Loop window set: ${start} to ${end}`)
   }
-  
+
   // Add undo action
   addUndoAction(action) {
-    this.state.undoStack.push(action);
-    
+    this.state.undoStack.push(action)
+
     // Limit undo stack size
     if (this.state.undoStack.length > 20) {
-      this.state.undoStack.shift();
+      this.state.undoStack.shift()
     }
   }
-  
+
   // Undo last action
   undo() {
     if (this.state.undoStack.length === 0) {
-      console.log('Nothing to undo');
-      return;
+      console.log('Nothing to undo')
+      return
     }
-    
-    const action = this.state.undoStack.pop();
-    
+
+    const action = this.state.undoStack.pop()
+
     // Find the loop
-    const loopIndex = this.state.loops.findIndex(loop => loop.id === action.loopId);
-    
+    const loopIndex = this.state.loops.findIndex(
+      (loop) => loop.id === action.loopId,
+    )
+
     if (loopIndex === -1) {
-      console.log('Loop not found for undo');
-      return;
+      console.log('Loop not found for undo')
+      return
     }
-    
+
     // Stop playback if playing
-    const wasPlaying = this.state.isPlaying;
+    const wasPlaying = this.state.isPlaying
     if (wasPlaying) {
-      this.stopLoopPlayback();
+      this.stopLoopPlayback()
     }
-    
+
     // Restore previous state
     switch (action.type) {
       case 'RECORD':
       case 'RESET':
         this.state.loops[loopIndex] = {
           ...this.state.loops[loopIndex],
-          ...action.previousState
-        };
-        break;
-        
+          ...action.previousState,
+        }
+        break
+
       case 'OVERDUB':
       case 'MULTIPLY':
       case 'INSERT':
-        this.state.loops[loopIndex].buffer = action.previousState.buffer;
+        this.state.loops[loopIndex].buffer = action.previousState.buffer
         if (action.previousState.endPoint !== undefined) {
-          this.state.loops[loopIndex].endPoint = action.previousState.endPoint;
+          this.state.loops[loopIndex].endPoint = action.previousState.endPoint
         }
-        break;
-        
+        break
+
       case 'WINDOW':
-        this.state.loops[loopIndex].windowStart = action.previousState.windowStart;
-        this.state.loops[loopIndex].windowEnd = action.previousState.windowEnd;
-        break;
-        
+        this.state.loops[loopIndex].windowStart =
+          action.previousState.windowStart
+        this.state.loops[loopIndex].windowEnd = action.previousState.windowEnd
+        break
+
       default:
-        console.log(`Unknown action type: ${action.type}`);
+        console.log(`Unknown action type: ${action.type}`)
     }
-    
+
     // Restart playback if it was playing
     if (wasPlaying && this.state.loops[loopIndex].buffer) {
-      this.startLoopPlayback();
+      this.startLoopPlayback()
     }
-    
-    console.log(`Undo ${action.type} completed`);
+
+    console.log(`Undo ${action.type} completed`)
   }
-  
+
   // Create reversed buffer
   createReversedBuffer(buffer) {
     const reversedBuffer = this.context.createBuffer(
       buffer.numberOfChannels,
       buffer.length,
-      buffer.sampleRate
-    );
-    
+      buffer.sampleRate,
+    )
+
     for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-      const originalData = buffer.getChannelData(channel);
-      const reversedData = reversedBuffer.getChannelData(channel);
-      
+      const originalData = buffer.getChannelData(channel)
+      const reversedData = reversedBuffer.getChannelData(channel)
+
       for (let i = 0; i < buffer.length; i++) {
-        reversedData[i] = originalData[buffer.length - 1 - i];
+        reversedData[i] = originalData[buffer.length - 1 - i]
       }
     }
-    
-    return reversedBuffer;
+
+    return reversedBuffer
   }
-  
+
   // Mix two buffers
   mixBuffers(buffer1, buffer2) {
     // Ensure both buffers have the same length
-    const length = Math.max(buffer1.length, buffer2.length);
-    const sampleRate = buffer1.sampleRate;
-    const channels = Math.max(buffer1.numberOfChannels, buffer2.numberOfChannels);
-    
+    const length = Math.max(buffer1.length, buffer2.length)
+    const sampleRate = buffer1.sampleRate
+    const channels = Math.max(
+      buffer1.numberOfChannels,
+      buffer2.numberOfChannels,
+    )
+
     // Create a new buffer for the mix
-    const mixedBuffer = this.context.createBuffer(channels, length, sampleRate);
-    
+    const mixedBuffer = this.context.createBuffer(channels, length, sampleRate)
+
     // Mix the channels
     for (let channel = 0; channel < channels; channel++) {
-      const mixedData = mixedBuffer.getChannelData(channel);
-      
+      const mixedData = mixedBuffer.getChannelData(channel)
+
       // Get channel data from both buffers
-      const data1 = channel < buffer1.numberOfChannels ? buffer1.getChannelData(channel) : new Float32Array(length);
-      const data2 = channel < buffer2.numberOfChannels ? buffer2.getChannelData(channel) : new Float32Array(length);
-      
+      const data1 =
+        channel < buffer1.numberOfChannels
+          ? buffer1.getChannelData(channel)
+          : new Float32Array(length)
+      const data2 =
+        channel < buffer2.numberOfChannels
+          ? buffer2.getChannelData(channel)
+          : new Float32Array(length)
+
       // Mix with feedback
-      const feedback = this.state.settings.feedback;
-      
+      const feedback = this.state.settings.feedback
+
       for (let i = 0; i < length; i++) {
         // Get samples, using 0 for out-of-bounds
-        const sample1 = i < data1.length ? data1[i] * feedback : 0;
-        const sample2 = i < data2.length ? data2[i] : 0;
-        
+        const sample1 = i < data1.length ? data1[i] * feedback : 0
+        const sample2 = i < data2.length ? data2[i] : 0
+
         // Mix samples
-        mixedData[i] = sample1 + sample2;
-        
+        mixedData[i] = sample1 + sample2
+
         // Prevent clipping
-        if (mixedData[i] > 1) mixedData[i] = 1;
-        if (mixedData[i] < -1) mixedData[i] = -1;
+        if (mixedData[i] > 1) mixedData[i] = 1
+        if (mixedData[i] < -1) mixedData[i] = -1
       }
     }
-    
-    return mixedBuffer;
+
+    return mixedBuffer
   }
-  
+
   // Get waveform data for visualization
   getWaveformData() {
-    const currentLoop = this.state.loops[this.state.currentLoopIndex];
-    
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+
     if (!currentLoop.buffer) {
       // Return empty waveform if no buffer
-      return new Float32Array(100).fill(0);
+      return new Float32Array(100).fill(0)
     }
-    
+
     // Get the first channel of audio data
-    const channel = currentLoop.buffer.getChannelData(0);
-    
+    const channel = currentLoop.buffer.getChannelData(0)
+
     // Downsample to 100 points for visualization
-    const samples = 100;
-    const blockSize = Math.floor(channel.length / samples);
-    const waveform = new Float32Array(samples);
-    
+    const samples = 100
+    const blockSize = Math.floor(channel.length / samples)
+    const waveform = new Float32Array(samples)
+
     for (let i = 0; i < samples; i++) {
-      const start = i * blockSize;
-      let sum = 0;
-      
+      const start = i * blockSize
+      let sum = 0
+
       // Average the values in this block
       for (let j = 0; j < blockSize; j++) {
         if (start + j < channel.length) {
-          sum += Math.abs(channel[start + j]);
+          sum += Math.abs(channel[start + j])
         }
       }
-      
-      waveform[i] = sum / blockSize;
+
+      waveform[i] = sum / blockSize
     }
-    
-    return waveform;
+
+    return waveform
   }
-  
+
   // Clean up resources
   dispose() {
     // Clear the recording timer if active
     if (this.recordingTimer) {
-      clearInterval(this.recordingTimer);
-      this.recordingTimer = null;
+      clearInterval(this.recordingTimer)
+      this.recordingTimer = null
     }
-    
+
     // Stop playback
     if (this.state.isPlaying) {
-      this.stopLoopPlayback();
+      this.stopLoopPlayback()
     }
-    
+
     // Disconnect nodes
     if (this.inputNode) {
-      this.inputNode.disconnect();
+      this.inputNode.disconnect()
     }
-    
+
     if (this.inputGain) {
-      this.inputGain.disconnect();
+      this.inputGain.disconnect()
     }
-    
+
     if (this.outputGain) {
-      this.outputGain.disconnect();
+      this.outputGain.disconnect()
     }
-    
+
     // Close audio context
     if (this.context && this.context.state !== 'closed') {
-      this.context.close();
+      this.context.close()
     }
-    
-    console.log('EchoplexAudioEngine disposed');
+
+    console.log('EchoplexAudioEngine disposed')
   }
 }
 
 // Make available globally
-window.EchoplexAudioEngine = EchoplexAudioEngine;
+window.EchoplexAudioEngine = EchoplexAudioEngine

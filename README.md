@@ -43,16 +43,17 @@ digital_echoplex/
 3. **Control Modes**
    - SWITCH/TOGGLE modes for buttons
    - Function button as modifier
+
 - Multiple interface modes (Loop, Stutter, Delay, Expert)
 
 ### Interface Modes
 
-| Mode | Behavior |
-|------|----------|
-| **LOOP** | Standard looping. |
+| Mode        | Behavior                               |
+| ----------- | -------------------------------------- |
+| **LOOP**    | Standard looping.                      |
 | **STUTTER** | Rapid retrigger using `stutterLength`. |
-| **DELAY** | Adds delay with `delayTime`. |
-| **EXPERT** | Enables both stutter and delay. |
+| **DELAY**   | Adds delay with `delayTime`.           |
+| **EXPERT**  | Enables both stutter and delay.        |
 
 4. **Parameters and Settings**
    - Feedback control (default: maximum for true looper functionality)
@@ -70,7 +71,8 @@ digital_echoplex/
 
 **Problem:** Initial implementation had issues with script loading order, resulting in "EchoplexAudioEngine is not defined" errors.
 
-**Solution:** 
+**Solution:**
+
 - Bundled all JavaScript into a single file to ensure proper loading
 - Made the EchoplexAudioEngine globally available
 - Added explicit error handling for script loading failures
@@ -81,6 +83,7 @@ digital_echoplex/
 **Problem:** Buttons were unresponsive due to an overlay blocking interaction.
 
 **Solution:**
+
 - Fixed CSS to remove opacity and pointer-events restrictions after power-on
 - Added proper z-index to ensure buttons are clickable
 - Ensured all interactive elements have proper event handling
@@ -91,6 +94,7 @@ digital_echoplex/
 **Problem:** When feedback was set to maximum, the microphone would cause unwanted feedback loops when not actively recording.
 
 **Solution:**
+
 - Implemented a microphone monitoring toggle with two modes:
   - "Only While Recording" (default): Microphone only active during recording/overdubbing
   - "Always On": Microphone always active (for headphone users)
@@ -102,6 +106,7 @@ digital_echoplex/
 **Problem:** The original implementation didn't correctly handle the SWITCH vs. TOGGLE record modes.
 
 **Solution:**
+
 - Implemented both SWITCH and TOGGLE modes for the Record button
 - In SWITCH mode: Recording starts on first press, stops on second press
 - In TOGGLE mode: Recording only happens while button is held down
@@ -112,6 +117,7 @@ digital_echoplex/
 **Problem:** Users needed visual feedback about recording time and loop length.
 
 **Solution:**
+
 - Added a timer display showing current recording time and loop length
 - Implemented visual warnings when approaching maximum recording time
 - Added animation effects to indicate active recording
@@ -123,11 +129,13 @@ digital_echoplex/
 **Potential Issue:** The Web Audio API has varying levels of support across browsers.
 
 **Mitigation:**
+
 - Added browser compatibility checks during initialization
 - Provided clear error messages for unsupported browsers
 - Used standard JavaScript instead of TypeScript for wider compatibility
 
 **Future Improvement:**
+
 - Add fallback modes for browsers with limited Web Audio support
 - Implement a service worker for offline functionality
 
@@ -136,11 +144,13 @@ digital_echoplex/
 **Potential Issue:** Touch interactions differ from mouse interactions, and mobile browsers have stricter audio context policies.
 
 **Mitigation:**
+
 - Added touch event handlers for all interactive elements
 - Implemented explicit user interaction before audio context initialization
 - Designed responsive layout that works on various screen sizes
 
 **Future Improvement:**
+
 - Add specific mobile-optimized layout
 - Implement haptic feedback for touch interactions
 - Add PWA capabilities for home screen installation
@@ -150,11 +160,13 @@ digital_echoplex/
 **Potential Issue:** Web Audio API may have higher latency than dedicated hardware.
 
 **Mitigation:**
+
 - Optimized audio processing chain
 - Used low-latency settings where available
 - Implemented buffer management to reduce processing overhead
 
 **Future Improvement:**
+
 - Add WebAssembly (WASM) implementation for critical audio processing
 - Implement advanced buffer management techniques
 - Add option for quality vs. latency tradeoffs
@@ -164,11 +176,13 @@ digital_echoplex/
 **Potential Issue:** Browser storage has limitations for saving audio data.
 
 **Mitigation:**
+
 - Focused on saving settings and metadata rather than audio buffers
 - Implemented preset system for saving configurations
 - Added export/import functionality for settings
 
 **Future Improvement:**
+
 - Add option to save audio to IndexedDB
 - Implement cloud storage integration
 - Add project file format for complete session saving
@@ -178,11 +192,13 @@ digital_echoplex/
 **Potential Issue:** Some advanced Echo Plex features are complex to implement in a web environment.
 
 **Mitigation:**
+
 - Prioritized core functionality first
 - Implemented advanced features with clear visual feedback
 - Added documentation for complex features
 
 **Future Improvement:**
+
 - Add MIDI controller support
 - Implement more advanced synchronization features
 - Add multi-track capability beyond the original hardware
@@ -243,13 +259,10 @@ Settings and state are persisted using:
 
 ## Deployment
 
-
-
 ## Conclusion
 
 The Digital Echo Plex successfully recreates the functionality of the original hardware in a web browser environment, with additional visual feedback and accessibility features. The implementation addresses key challenges in audio processing, user interface design, and browser compatibility while maintaining the authentic behavior of the original Echo Plex.
 
 Future improvements could focus on mobile optimization, reduced latency, expanded storage options, and additional features beyond the original hardware capabilities.
-
 
 ![Hits](https://visitor-badge.laobi.icu/badge?page_id=brookcs3.digital_echoplex)

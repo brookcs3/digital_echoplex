@@ -164,7 +164,7 @@ footer {
   .top-controls {
     flex-direction: column;
   }
-  
+
   .main-controls {
     grid-template-columns: 1fr;
   }

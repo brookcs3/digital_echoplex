@@ -1,0 +1,39 @@
+---
+---
+
+<div class="loop-selector">
+  <button id="prev-loop-button" class="control-button">Previous</button>
+  <div id="current-loop-display" class="loop-display">Loop 1</div>
+  <button id="next-loop-button" class="control-button">Next</button>
+</div>
+
+<style>
+  .loop-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+  }
+  
+  .loop-display {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00ff00;
+    text-align: center;
+    flex: 1;
+  }
+  
+  .control-button {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #00ff00;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .control-button:hover {
+    background-color: #444;
+  }
+</style>

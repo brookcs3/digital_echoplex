@@ -33,4 +33,3 @@ Additional helpers expose more detailed control:
 - **syncToExternalClock(enabled)** – Enable or disable synchronization to an external MIDI clock.
 - **reAlign()** – Align loop playback with the next beat.
 - **startQuantizedRecording() / stopQuantizedRecording()** – Begin or end recording on precise musical boundaries.
-
