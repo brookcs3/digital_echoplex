@@ -87,6 +87,11 @@ class EchoplexAudioEngine {
     if (!this.context) {
       throw new Error('Audio context not initialized')
     }
+    
+    // Verify Tone.js is available
+    if (typeof Tone === 'undefined') {
+      throw new Error('Tone.js library not loaded')
+    }
 
     try {
       // Request microphone access
@@ -99,24 +104,33 @@ class EchoplexAudioEngine {
         },
       })
 
-      // Create input node
-      this.inputNode = this.context.createMediaStreamSource(stream)
+      // Create Tone.js input system using Tone.UserMedia
+      this.micInput = new Tone.UserMedia()
+      await this.micInput.open()
+      
+      // Create Tone.js channels for mixing
+      this.channel1 = new Tone.Channel(this.state.settings.inputGain, 0) // Mic channel
+      this.channel2 = new Tone.Channel(0.8, 0) // Sample channel (initially muted)
+      this.masterGain = new Tone.Gain(this.state.settings.outputGain)
+      
+      // Connect microphone to channel 1
+      this.micInput.connect(this.channel1)
+      
+      // Mix both channels to master gain
+      this.channel1.connect(this.masterGain)
+      this.channel2.connect(this.masterGain)
+      this.masterGain.toDestination()
+      
+      // Store references for backward compatibility with existing code
+      this.inputGain = this.channel1
+      this.outputGain = this.masterGain
 
-      // Create gain nodes
-      this.inputGain = this.context.createGain()
-      this.outputGain = this.context.createGain()
-
-      // Set initial gain values
-      this.inputGain.gain.value = this.state.settings.inputGain
-      this.outputGain.gain.value = this.state.settings.outputGain
-
-      // Connect nodes
-      this.inputNode.connect(this.inputGain)
-      this.inputGain.connect(this.outputGain)
-      this.outputGain.connect(this.context.destination)
-
-      // Create recorder
-      this.recorder = new MediaRecorder(stream)
+      // Create a destination for recording from the mixed signal
+      this.recordingDestination = this.masterGain.context.createMediaStreamDestination()
+      this.masterGain.connect(this.recordingDestination)
+      
+      // Create recorder from the mixed signal
+      this.recorder = new MediaRecorder(this.recordingDestination.stream)
       this.recordedChunks = []
 
       // Set up recorder events
@@ -126,12 +140,156 @@ class EchoplexAudioEngine {
         }
       }
 
-      console.log('Microphone initialized')
+      // Set up channel switching
+      this.setupChannelSwitching()
+
+      console.log('Input system initialized with channel switching')
       return true
     } catch (error) {
       console.error('Error initializing microphone:', error)
       throw new Error('Failed to access microphone. Please check permissions.')
     }
+  }
+  
+  setupChannelSwitching() {
+    console.log('Setting up channel switching...')
+    const recordSourceRadios = document.querySelectorAll('input[name="record-source"]')
+    console.log('Found radio buttons:', recordSourceRadios.length)
+    
+    if (recordSourceRadios.length === 0) {
+      console.warn('No record-source radio buttons found!')
+      // Try again after a delay
+      setTimeout(() => this.setupChannelSwitching(), 1000)
+      return
+    }
+    
+    recordSourceRadios.forEach((radio, index) => {
+      console.log(`Radio ${index}: value="${radio.value}", checked=${radio.checked}`)
+      radio.addEventListener('change', () => {
+        console.log(`Radio changed to: ${radio.value}`)
+        this.switchInputChannel(radio.value)
+      })
+    })
+    
+    // Initialize with microphone
+    this.switchInputChannel('microphone')
+  }
+  
+  switchInputChannel(channel) {
+    console.log(`switchInputChannel called with: ${channel}`)
+    console.log('Channel1 exists:', !!this.channel1)
+    console.log('Channel2 exists:', !!this.channel2)
+    
+    if (!this.channel1 || !this.channel2) {
+      console.error('Channels not initialized!')
+      return
+    }
+    
+    if (channel === 'microphone') {
+      // Enable mic channel, mute sample channel
+      this.channel1.mute = false
+      this.channel1.volume.value = 0 // 0 dB
+      this.channel2.mute = true
+      console.log('✓ Switched to microphone input (Channel 1)')
+      console.log('Channel1 muted:', this.channel1.mute, 'Channel2 muted:', this.channel2.mute)
+    } else if (channel === 'sample') {
+      // Enable sample channel, mute mic channel
+      this.channel1.mute = true
+      this.channel2.mute = false
+      this.channel2.volume.value = 0 // 0 dB
+      console.log('✓ Switched to sample input (Channel 2)')
+      console.log('Channel1 muted:', this.channel1.mute, 'Channel2 muted:', this.channel2.mute)
+      
+      // Start sample playback if available
+      this.startSamplePlayback()
+    } else {
+      console.warn('Unknown channel:', channel)
+    }
+  }
+  
+  // Method to connect sample player audio
+  connectSamplePlayer(audioBuffer) {
+    if (!audioBuffer || !this.channel2) return
+    
+    // Disconnect any existing sample player
+    if (this.samplePlayer) {
+      this.samplePlayer.disconnect()
+      this.samplePlayer.dispose()
+    }
+    
+    // Create Tone.js Player for the sample
+    this.samplePlayer = new Tone.Player(audioBuffer)
+    this.samplePlayer.loop = true
+    
+    // Connect sample player to channel 2
+    this.samplePlayer.connect(this.channel2)
+    
+    console.log('Sample connected to Channel 2')
+  }
+  
+  // Start sample playback (for when sample channel is active)
+  startSamplePlayback() {
+    if (this.samplePlayer && this.samplePlayer.loaded) {
+      this.samplePlayer.start()
+      console.log('Sample playback started')
+    }
+  }
+  
+  // Stop sample playback
+  stopSamplePlayback() {
+    if (this.samplePlayer) {
+      this.samplePlayer.stop()
+      console.log('Sample playback stopped')
+    }
+  }
+  
+  // Manual channel switching for testing
+  testChannelSwitch(channel) {
+    console.log(`Manual test: switching to ${channel}`)
+    this.switchInputChannel(channel)
+  }
+  
+  // Comprehensive cleanup method
+  dispose() {
+    console.log('Disposing echoplex engine...')
+    
+    // Stop all audio sources
+    if (this.isPlaying) {
+      this.stopLoopPlayback()
+    }
+    
+    if (this.state.isRecording) {
+      this.stopRecording().catch(err => console.error('Error stopping recording:', err))
+    }
+    
+    // Clear all timers
+    if (this.recordingTimer) {
+      clearInterval(this.recordingTimer)
+      this.recordingTimer = null
+    }
+    
+    if (this.playbackTimer) {
+      clearInterval(this.playbackTimer)
+      this.playbackTimer = null
+    }
+    
+    // Dispose Tone.js objects
+    if (this.micInput) {
+      this.micInput.close()
+      this.micInput.dispose()
+    }
+    
+    if (this.channel1) this.channel1.dispose()
+    if (this.channel2) this.channel2.dispose()
+    if (this.masterGain) this.masterGain.dispose()
+    if (this.samplePlayer) this.samplePlayer.dispose()
+    
+    // Clear state
+    this.state.isRecording = false
+    this.state.isPlaying = false
+    this.initialized = false
+    
+    console.log('Echoplex engine disposed')
   }
 
   // Get current state
@@ -145,7 +303,7 @@ class EchoplexAudioEngine {
 
     // Apply settings to audio nodes
     if (this.inputGain && newSettings.inputGain !== undefined) {
-      this.inputGain.gain.value = newSettings.inputGain
+      this.inputGain.volume.value = Tone.gainToDb(newSettings.inputGain)
     }
 
     if (this.outputGain && newSettings.outputGain !== undefined) {
@@ -196,18 +354,23 @@ class EchoplexAudioEngine {
     this.state.recordStartTime = this.context.currentTime
 
     // Set up timer to check recording duration
-    this.recordingTimer = setInterval(() => {
+    this.recordingTimer = setInterval(async () => {
       const currentDuration = this.getCurrentRecordingTime()
 
       // If we've reached the maximum recording time, stop recording
       if (currentDuration >= this.MAX_RECORDING_TIME) {
         console.log('Maximum recording time reached, stopping recording')
-        this.stopRecording()
+        try {
+          await this.stopRecording()
+        } catch (error) {
+          console.error('Error stopping recording:', error)
+        }
       }
     }, 100) // Check every 100ms
 
     console.log('Recording started')
   }
+
 
   // Stop recording
   async stopRecording() {

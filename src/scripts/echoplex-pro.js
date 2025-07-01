@@ -61,7 +61,7 @@ class EchoplexDigitalPro {
                 input: 64,
                 output: 64,
                 mix: 64,
-                feedback: 127
+                feedback: 95
             },
             // ECHOPLEX MEMORY & BUFFERS
             maxMemory: 198, // seconds
@@ -456,9 +456,9 @@ class EchoplexDigitalPro {
     handleShortPress(buttonName) {
         console.log(`Echoplex: Short press - ${buttonName}`);
         
-        // Handle parameter button - ADOBE AI FIX: Use working handleParameters() function
+        // Handle parameter button
         if (buttonName === 'parameters') {
-            this.handleParameters();
+            this.enterParameterEditingMode();
             return;
         }
         
@@ -978,15 +978,15 @@ class EchoplexDigitalPro {
             const statusLed = btnElement?.querySelector('.status-led');
             
             if (statusLed && this.state.parameterMode > 0) {
-                // In parameter mode, show green LED to indicate parameter function (no orange for buttons)
+                // In parameter mode, show orange LED to indicate parameter function
                 statusLed.classList.add('parameter-mode');
                 statusLed.classList.remove('green', 'red');
-                statusLed.style.backgroundColor = '#00ff00'; // Green for parameter mode (no orange for buttons)
+                statusLed.style.backgroundColor = '#f80'; // Orange for parameter mode
             } else if (statusLed && this.state.parameterMode === 0) {
                 // Back to normal mode, restore default state
-                statusLed.classList.remove('parameter-mode', 'orange'); // Remove parameter-mode and any orange color
-                statusLed.classList.add('green'); // Add green for default state
-                statusLed.style.backgroundColor = ''; // Clear inline style
+                statusLed.classList.remove('parameter-mode');
+                statusLed.style.backgroundColor = '';
+                statusLed.className = 'status-led astro-j7pv25f6 green'; // Default state
             }
         });
         
@@ -1027,13 +1027,12 @@ class EchoplexDigitalPro {
                 this.recordingInterval = null;
             }
             
-            // Stop recording and update state IMMEDIATELY
-            this.state.isRecording = false; // Set state FIRST to prevent any race conditions
+            // Stop recording and update state
             this.stopRecording();
-            // ADOBE AI FIX: Use inline styles to bypass Astro CSS scoping
-            recordLed.style.backgroundColor = '#00ff00'; // Green - ready state
-            recordLed.style.boxShadow = '0 0 10px #00ff00, 0 0 20px #00ff00';
+            this.state.isRecording = false;
+            // HARDWARE-NATIVE: Use data attribute instead of scoped class
             recordLed.setAttribute('data-hw-state', 'ready');
+            recordLed.className = 'status-led astro-j7pv25f6';
             
             console.log('✅ Recording stopped, LED green');
         } else {
@@ -1043,10 +1042,9 @@ class EchoplexDigitalPro {
             this.state.isRecording = true;
             this.state.loopTime = 0;
             this.state.recordStartTime = Date.now();
-            // ADOBE AI FIX: Use inline styles to bypass Astro CSS scoping
-            recordLed.style.backgroundColor = '#ff0000'; // Red - recording state
-            recordLed.style.boxShadow = '0 0 10px #ff0000, 0 0 20px #ff0000';
+            // HARDWARE-NATIVE: Use data attribute instead of scoped class
             recordLed.setAttribute('data-hw-state', 'recording');
+            recordLed.className = 'status-led astro-j7pv25f6';
             
             // Start immediate LCD display updates
             this.recordingStartTime = Date.now() / 1000;
@@ -1067,10 +1065,9 @@ class EchoplexDigitalPro {
             this.stopRecording();
             this.state.controlValues.feedback = 127; // Set to maximum (100%)
             this.showDisplayMessage('SAF', 1000);
-            // ADOBE AI FIX: Use inline styles to bypass Astro CSS scoping
-            recordLed.style.backgroundColor = '#00ff00'; // Green - ready state
-            recordLed.style.boxShadow = '0 0 10px #00ff00, 0 0 20px #00ff00';
+            // HARDWARE-NATIVE: Use data attribute for state
             recordLed.setAttribute('data-hw-state', 'ready');
+            recordLed.className = 'status-led astro-j7pv25f6';
             console.log('Safe Record: Feedback set to 100%');
         } else {
             // Start recording
@@ -1113,54 +1110,13 @@ class EchoplexDigitalPro {
             // Update LCD display immediately
             this.updateLoopTimeDisplay();
             
-            // Check memory limits (Adobe AI spec: 198 seconds max)
-            if (this.state.loopTime >= 198) {
-                console.log('🚨 Memory limit reached: 198 seconds');
-                this.handleMemoryOverflow();
+            // Check memory limits
+            if (this.state.loopTime > 198) { // Max Echoplex memory
+                this.showDisplayMessage('MEM!', 2000);
+                this.stopRecording();
                 return;
             }
         }, 100); // 100ms updates for smooth visual feedback
-    }
-
-    /**
-     * Handle memory overflow when 198-second limit is reached
-     * Adobe AI spec: Overflow=STOP shows "---", Overflow=PLAY creates max-length loop
-     */
-    handleMemoryOverflow() {
-        console.log('🚨 Handling memory overflow at 198 seconds');
-        
-        // Stop recording immediately
-        this.state.isRecording = false;
-        
-        // Clear recording interval
-        if (this.recordingInterval) {
-            clearInterval(this.recordingInterval);
-            this.recordingInterval = null;
-        }
-        
-        // Check overflow mode (Adobe AI spec)
-        if (this.state.overflowMode === 'DISCARD') {
-            // Overflow=Stop: Recording canceled, loop erased, show "---"
-            console.log('Overflow=DISCARD: Recording canceled, loop erased');
-            this.resetCurrentLoop();
-            this.showDisplayMessage('---', 3000); // Show overflow indicator
-            
-            // Set LED back to green (ready state)
-            const recordLed = this.elements.recordBtn?.querySelector('.status-led');
-            if (recordLed) {
-                recordLed.style.backgroundColor = '#00ff00';
-                recordLed.style.boxShadow = '0 0 10px #00ff00, 0 0 20px #00ff00';
-                recordLed.setAttribute('data-hw-state', 'ready');
-            }
-        } else {
-            // Overflow=REPLACE: Recording stops, creates loop at max length (198s)
-            console.log('Overflow=REPLACE: Creating 198-second loop');
-            this.state.loopTime = 198.0; // Set to maximum
-            this.showDisplayMessage('198.0', 2000); // Show maximum loop time
-            
-            // Complete the recording with max length
-            this.stopRecording();
-        }
     }
 
     async startRecording(recordLed) {
@@ -7374,8 +7330,8 @@ class EchoplexDigitalPro {
         console.log('🎙️ Initializing RecordMode Variations System...');
         
         this.recordModeSystem = {
-            // Current record mode  
-            currentMode: 'TOGGLE', // Force TOGGLE mode as default
+            // Current record mode
+            currentMode: this.state.recordMode || 'TOGGLE', // TOGGLE, SUSTAIN, SAFE
             
             // Mode-specific state
             toggleState: {
@@ -12456,19 +12412,15 @@ class EchoplexDigitalPro {
                 this.recordingReady = false;
             });
             
-            // SYSTEMATIC FIX #13: Authentic startup display showing Loop IV firmware
-            this.showLoopIVStartup();
+            // SYSTEMATIC FIX #13: Authentic startup display sequence
+            this.updateLoopTimeDisplay('1.0');
             setTimeout(() => {
-                this.clearLoopIVStartup(); // Clear L and 4 from left/right displays
-                this.updateLoopTimeDisplay('1.0');
+                this.updateLoopTimeDisplay(this.state.maxMemory.toString());
                 setTimeout(() => {
-                    this.updateLoopTimeDisplay(this.state.maxMemory.toString());
-                    setTimeout(() => {
-                        this.updateLoopTimeDisplay('0.0');
-                        this.initializeDisplayUpdates();
-                    }, 2000);
-                }, 1000);
-            }, 1500);
+                    this.updateLoopTimeDisplay('0.0');
+                    this.initializeDisplayUpdates();
+                }, 2000);
+            }, 1000);
             
             // Initialize all LEDs to green (ready state)
             this.initializeLEDStates();
@@ -12508,16 +12460,16 @@ class EchoplexDigitalPro {
     }
     
     updateAllLevelLEDs() {
-        // ECHOPLEX HARDWARE FIX: Don't update level LEDs based on knob positions
-        // Level LEDs should only light up based on actual audio signal levels
-        // The proper audio level monitoring happens in setupMicrophoneMonitoring()
-        // Keep these LEDs black unless there's actual audio activity
+        // Update input level LED
         if (this.elements.inputLevel) {
-            this.updateLevelLED(this.elements.inputLevel, 0); // Keep dark
+            const inputValue = this.state.controlValues.input;
+            this.updateLevelLED(this.elements.inputLevel, inputValue / 127);
         }
         
+        // Update feedback level LED
         if (this.elements.feedbackLevel) {
-            this.updateLevelLED(this.elements.feedbackLevel, 0); // Keep dark
+            const feedbackValue = this.state.controlValues.feedback;
+            this.updateLevelLED(this.elements.feedbackLevel, feedbackValue / 127);
         }
     }
     
@@ -13624,9 +13576,9 @@ class EchoplexDigitalPro {
             const percentage = (newRotation + 135) / totalRotationRange;
             this.state.controlValues[param] = min + (max - min) * percentage;
             
-            // SYSTEMATIC FIX #8: Update feedback display with correct timing (Adobe AI spec: raw MIDI value 0-127, 2 second duration)
+            // SYSTEMATIC FIX #8: Update feedback display with correct timing
             if (param === 'feedback') {
-                this.showDisplayMessage(Math.round(this.state.controlValues[param]).toString(), 2000);
+                this.showDisplayMessage(Math.round(this.state.controlValues[param]).toString(), 1000);
             }
             
             this.updateValueDisplay(e.pageX, e.pageY, this.formatValue(param, this.state.controlValues[param]));
@@ -13654,22 +13606,38 @@ class EchoplexDigitalPro {
     }
 
     updateLevelLEDs(param) {
-        // ECHOPLEX HARDWARE FIX: Level LEDs should be BLACK unless there's actual audio signal
-        // They should NOT show colors based on knob positions - only actual audio levels
         if (param === 'input') {
             const inputLevel = this.elements.inputLevel;
             if (!inputLevel) return;
             
-            // Keep input level LED black unless there's actual microphone input
-            inputLevel.className = 'level-light';
+            const level = this.state.controlValues.input / 127;
+            
+            if (level > 0.8) {
+                inputLevel.className = 'level-light red';
+            } else if (level > 0.5) {
+                inputLevel.className = 'level-light yellow';
+            } else if (level > 0.1) {
+                inputLevel.className = 'level-light green';
+            } else {
+                inputLevel.className = 'level-light';
+            }
         }
         
         if (param === 'feedback') {
             const feedbackLevel = this.elements.feedbackLevel;
             if (!feedbackLevel) return;
             
-            // Keep feedback level LED black unless there's actual loop output
-            feedbackLevel.className = 'level-light';
+            const level = this.state.controlValues.feedback / 127;
+            
+            if (level > 0.9) {
+                feedbackLevel.className = 'level-light red';
+            } else if (level > 0.7) {
+                feedbackLevel.className = 'level-light yellow';
+            } else if (level > 0.3) {
+                feedbackLevel.className = 'level-light green';
+            } else {
+                feedbackLevel.className = 'level-light';
+            }
         }
     }
 
@@ -23229,16 +23197,16 @@ class EchoplexDigitalPro {
         // Cycle through parameter modes: 0 (play) → 1 (P1) → 2 (P2) → 3 (P3) → 4 (P4) → 0
         this.state.parameterMode = (this.state.parameterMode + 1) % 5;
         
-        const modeNames = ['', 'P1', 'P2', 'P3', 'P4']; // Empty string for PLAY mode
-        const currentModeDisplay = modeNames[this.state.parameterMode];
+        const modeNames = ['PLAY', 'P 1', 'P 2', 'P 3', 'P 4'];
+        const currentMode = modeNames[this.state.parameterMode];
         
-        // Update Multiple Display
-        this.updateMultipleDisplay(currentModeDisplay);
+        // Update LCD display
+        this.showDisplayMessage(currentMode, 1500);
         
         // Update parameter row visual indicators
         this.updateParameterLEDs();
         
-        console.log(`Parameters: Switched to ${currentModeDisplay || 'PLAY'} mode`);
+        console.log(`Parameters: Switched to ${currentMode} mode`);
     }
 
     /**
@@ -23247,7 +23215,7 @@ class EchoplexDigitalPro {
     handleParametersLongPress() {
         // Long press Parameters = Exit parameter mode
         this.state.parameterMode = 0;
-        this.updateMultipleDisplay(''); // Clear display
+        this.showDisplayMessage('PLAY', 1000);
         this.updateParameterLEDs();
         console.log('Parameters: Long press - returned to PLAY mode');
     }
@@ -23261,7 +23229,7 @@ class EchoplexDigitalPro {
         rowLEDs.forEach(ledId => {
             const led = document.getElementById(ledId);
             if (led) {
-                led.classList.remove('active', 'green', 'orange', 'red'); // Ensure all states are cleared
+                led.className = 'row-indicator status-led astro-j7pv25f6'; // OFF state
             }
         });
         
@@ -23278,7 +23246,7 @@ class EchoplexDigitalPro {
         if (activeLedId) {
             const activeLed = document.getElementById(activeLedId);
             if (activeLed) {
-                activeLed.classList.add('active', 'green'); // Set to active and green
+                activeLed.className = 'row-indicator status-led astro-j7pv25f6 green';
                 console.log(`Parameter LED: ${activeLedId} activated for mode P${this.state.parameterMode}`);
             }
         }
@@ -23289,10 +23257,9 @@ class EchoplexDigitalPro {
             const led = parameterBtn.querySelector('.status-led');
             if (led) {
                 if (this.state.parameterMode > 0) {
-                    led.classList.add('orange'); // Parameter editing mode
-                    led.classList.remove('green', 'red');
+                    led.className = 'status-led astro-j7pv25f6 orange'; // Parameter editing mode
                 } else {
-                    led.classList.remove('orange', 'green', 'red'); // PLAY mode, clear all color classes
+                    led.className = 'status-led astro-j7pv25f6'; // PLAY mode
                 }
             }
         }
@@ -24379,27 +24346,12 @@ class EchoplexDigitalPro {
                     // Direct value (for startup sequence like "1.0", "198", "0.0")
                     mainLCD.textContent = timeValue;
                 } else {
-                    // ECHOPLEX HARDWARE FIX: Proper decimal formatting and idle state
+                    // STRICT: Display in authentic single number format during recording
+                    // Real Echoplex shows just the loop time as single number: "25.2"
                     const loopTime = this.state.loopTime || 0;
                     
-                    // Show centered period (.) in idle state when no loop exists
-                    if (loopTime === 0 && !this.state.isRecording) {
-                        mainLCD.textContent = '.';
-                    } else {
-                        // Format time with proper decimal places based on hardware specification:
-                        // <10s = 2 decimals (e.g., 3.05)
-                        // 10-99s = 1 decimal (e.g., 23.0) 
-                        // >100s = 0 decimals (e.g., 123)
-                        let formattedTime;
-                        if (loopTime < 10) {
-                            formattedTime = loopTime.toFixed(2);
-                        } else if (loopTime < 100) {
-                            formattedTime = loopTime.toFixed(1);
-                        } else {
-                            formattedTime = Math.round(loopTime).toString();
-                        }
-                        mainLCD.textContent = formattedTime;
-                    }
+                    // Format time as seconds with 1 decimal place (authentic Echoplex style)
+                    mainLCD.textContent = loopTime.toFixed(1);
                 }
                 
             } else {
@@ -24411,55 +24363,13 @@ class EchoplexDigitalPro {
     }
 
     /**
-     * ECHOPLEX AUTHENTIC STARTUP: Show Loop IV firmware version
-     * Displays "L OOP 4" across the three-part display like real hardware
-     */
-    showLoopIVStartup() {
-        // Update the three-part display to show "L OOP 4"
-        const leftDisplay = document.getElementById('left-display');
-        const centerDisplay = document.getElementById('loop-display');
-        const rightDisplay = document.getElementById('multiple-display');
-        
-        if (leftDisplay) {
-            leftDisplay.textContent = 'L';
-            leftDisplay.style.color = '#0f0'; // Green
-        }
-        
-        if (centerDisplay) {
-            centerDisplay.textContent = 'OOP';
-            centerDisplay.style.color = '#f00'; // Red
-        }
-        
-        if (rightDisplay) {
-            rightDisplay.textContent = '4';
-            rightDisplay.style.color = '#0f0'; // Green
-        }
-    }
-
-    /**
-     * Clear the Loop IV startup display (remove L and 4 from left/right)
-     */
-    clearLoopIVStartup() {
-        const leftDisplay = document.getElementById('left-display');
-        const rightDisplay = document.getElementById('multiple-display');
-        
-        if (leftDisplay) {
-            leftDisplay.textContent = '';
-        }
-        
-        if (rightDisplay) {
-            rightDisplay.textContent = '';
-        }
-    }
-
-    /**
      * Show message on display
      */
     showDisplayMessage(message, duration = 2000) {
         try {
-            const display = document.getElementById('loop-display') || 
-                           document.querySelector('.loop-display') || 
-                           document.querySelector('.timer-display');
+            const display = document.getElementById('loop-time-display') || 
+                           document.querySelector('.timer-display') || 
+                           document.querySelector('.loop-display');
             
             if (display) {
                 const originalText = display.textContent;

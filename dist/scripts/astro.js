@@ -1,3 +1,4 @@
 import 'kleur/colors';
-import './astro/server.js';
+import 'html-escaper';
 import 'clsx';
+import './astro/server.js';
