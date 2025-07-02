@@ -5,6 +5,8 @@ import {
   LoopFunction,
   LoopSettings,
   UndoAction,
+  MemoryManager,
+  MemorySegment,
 } from './types'
 import { PlecoXALoopEngine } from './pleco-xa-loop-engine'
 
@@ -29,6 +31,7 @@ export class EchoplexAudioEngine {
   private playbackStartTime: number = 0
   private insertPosition: number = 0
   private plecoEngine: PlecoXALoopEngine
+  private autoUndoInterval: number | null = null
 
   constructor() {
     // Initialize Web Audio API context
@@ -55,6 +58,12 @@ export class EchoplexAudioEngine {
 
     // Initialize state
     this.state = this.getInitialState()
+
+    // Initialize memory management
+    this.initializeMemoryManager()
+
+    // Start AutoUndo monitoring
+    this.startAutoUndoMonitoring()
 
     // Load persisted settings if available
     if (typeof localStorage !== 'undefined') {
@@ -87,6 +96,13 @@ export class EchoplexAudioEngine {
       loops: [this.createEmptyLoop(0)],
       settings: this.getDefaultSettings(),
       undoHistory: [],
+      memoryManager: {
+        maxMemory: 198,
+        availableMemory: 198,
+        segments: new Map(),
+        autoUndoEnabled: true,
+        changesMade: false,
+      },
     }
   }
 
@@ -180,16 +196,35 @@ export class EchoplexAudioEngine {
     // Update the current loop
     const currentLoop = this.state.loops[this.state.currentLoopIndex]
 
+    // Check memory availability
+    const memoryRequired = this.calculateMemoryUsage(buffer.get())
+    if (!this.checkMemoryAvailable(memoryRequired)) {
+      console.warn('Insufficient memory for recording')
+      return
+    }
+
     // Save the previous state for undo
     this.addUndoAction({
       type: 'RECORD',
       loopId: currentLoop.id,
       previousState: { ...currentLoop },
+      timestamp: Date.now(),
+      memoryUsed: this.calculateMemoryUsage(currentLoop.buffer),
     })
 
     // Update the loop with the new buffer
     currentLoop.buffer = buffer.get()
     currentLoop.endPoint = buffer.duration
+
+    // Update memory manager
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    if (segment) {
+      segment.originalLoop = this.cloneAudioBuffer(currentLoop.buffer)
+      segment.memoryUsed += memoryRequired
+      segment.lastModified = Date.now()
+    }
+    this.state.memoryManager.availableMemory -= memoryRequired
+    this.state.memoryManager.changesMade = true
 
     // Create a player for the loop
     this.player = new Tone.Player(buffer)
@@ -253,6 +288,11 @@ export class EchoplexAudioEngine {
           this.player.stop()
           this.player.start('+0.01', start)
           this.playbackStartTime = this.context.currentTime + 0.01
+          
+          // Apply feedback evolution during each loop cycle
+          if (this.state.settings.feedback > 0 && this.state.settings.feedback < 1) {
+            this.applyFeedback(this.state.settings.feedback)
+          }
         }
       }, loopDuration * 1000)
     }
@@ -338,12 +378,29 @@ export class EchoplexAudioEngine {
     // Get the current loop
     const currentLoop = this.state.loops[this.state.currentLoopIndex]
 
+    // Check memory availability
+    const memoryRequired = this.calculateMemoryUsage(overdubBuffer.get())
+    if (!this.checkMemoryAvailable(memoryRequired)) {
+      console.warn('Insufficient memory for overdub')
+      return
+    }
+
     // Save the previous state for undo
     this.addUndoAction({
       type: 'OVERDUB',
       loopId: currentLoop.id,
       previousState: { buffer: currentLoop.buffer },
+      timestamp: Date.now(),
+      memoryUsed: this.calculateMemoryUsage(currentLoop.buffer),
     })
+
+    // Update memory segment with overdub layer
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    if (segment) {
+      segment.overdubLayers.push(this.cloneAudioBuffer(overdubBuffer.get()))
+      segment.memoryUsed += memoryRequired
+      segment.lastModified = Date.now()
+    }
 
     // If we're in replace mode, replace the audio
     if (this.state.settings.overdubMode === 'REP') {
@@ -387,6 +444,10 @@ export class EchoplexAudioEngine {
         currentLoop.buffer = renderedBuffer
       }
     }
+
+    // Update memory manager
+    this.state.memoryManager.availableMemory -= memoryRequired
+    this.state.memoryManager.changesMade = true
 
     // Update the player with the new buffer
     if (this.player) {
@@ -737,6 +798,15 @@ export class EchoplexAudioEngine {
     if (this.state.currentLoopIndex === this.state.loops.length - 1) {
       const newLoop = this.createEmptyLoop(this.state.loops.length)
       this.state.loops.push(newLoop)
+      
+      // Initialize memory segment for new loop
+      this.state.memoryManager.segments.set(newLoop.id, {
+        originalLoop: null,
+        overdubLayers: [],
+        undoBuffer: [],
+        memoryUsed: 0,
+        lastModified: Date.now(),
+      })
     }
 
     // Stop current playback
@@ -896,11 +966,409 @@ export class EchoplexAudioEngine {
    * Add an action to the undo history
    */
   private addUndoAction(action: UndoAction): void {
-    this.state.undoHistory.push(action)
+    const memoryUsed = this.calculateMemoryUsage(action.previousState.buffer)
+    const actionWithMemory: UndoAction = {
+      ...action,
+      timestamp: Date.now(),
+      memoryUsed,
+    }
 
-    // Limit undo history to 20 actions
-    if (this.state.undoHistory.length > 20) {
-      this.state.undoHistory.shift()
+    this.state.undoHistory.push(actionWithMemory)
+
+    // Update memory manager
+    this.state.memoryManager.changesMade = true
+
+    // Limit undo history based on available memory
+    this.cleanupUndoHistory()
+  }
+
+  /**
+   * Initialize the memory management system
+   */
+  private initializeMemoryManager(): void {
+    this.state.loops.forEach((loop) => {
+      this.state.memoryManager.segments.set(loop.id, {
+        originalLoop: null,
+        overdubLayers: [],
+        undoBuffer: [],
+        memoryUsed: 0,
+        lastModified: Date.now(),
+      })
+    })
+  }
+
+  /**
+   * Calculate memory usage for an audio buffer
+   */
+  private calculateMemoryUsage(buffer: AudioBuffer | null): number {
+    if (!buffer) return 0
+    return (buffer.length * buffer.numberOfChannels * 4) / (1024 * 1024)
+  }
+
+  /**
+   * Get available memory for a loop
+   */
+  private getAvailableMemoryForLoop(loopId: number): number {
+    const segment = this.state.memoryManager.segments.get(loopId)
+    if (!segment) return this.state.memoryManager.availableMemory
+    return this.state.memoryManager.availableMemory + segment.memoryUsed
+  }
+
+  /**
+   * Check if there's enough memory for an operation
+   */
+  private checkMemoryAvailable(requiredMemory: number): boolean {
+    if (this.state.memoryManager.availableMemory < requiredMemory) {
+      console.warn(`Memory is tight. Required: ${requiredMemory}MB, Available: ${this.state.memoryManager.availableMemory}MB. Undo may not be possible.`)
+      return false
+    }
+    return true
+  }
+
+  /**
+   * AutoUndo system - copies loop into memory during each pass if no changes made
+   */
+  private autoUndo(): void {
+    if (!this.state.memoryManager.autoUndoEnabled || !this.state.isPlaying) return
+
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    if (!currentLoop.buffer || this.state.memoryManager.changesMade) {
+      this.state.memoryManager.changesMade = false
+      return
+    }
+
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    if (!segment) return
+
+    const memoryRequired = this.calculateMemoryUsage(currentLoop.buffer)
+    if (this.checkMemoryAvailable(memoryRequired)) {
+      const bufferCopy = this.cloneAudioBuffer(currentLoop.buffer)
+      segment.undoBuffer.push(bufferCopy)
+      segment.memoryUsed += memoryRequired
+      this.state.memoryManager.availableMemory -= memoryRequired
+
+      this.updateAutoUndoLED()
+    }
+  }
+
+  /**
+   * Apply feedback to evolve loops over time
+   */
+  private applyFeedback(feedbackLevel: number): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    if (!currentLoop.buffer) return
+
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    if (!segment) return
+
+    // Store original buffer in memory segment before applying feedback
+    if (!segment.originalLoop) {
+      segment.originalLoop = this.cloneAudioBuffer(currentLoop.buffer)
+    }
+
+    // Apply feedback directly to current loop buffer for all channels
+    for (let ch = 0; ch < currentLoop.buffer.numberOfChannels; ch++) {
+      const data = currentLoop.buffer.getChannelData(ch)
+      for (let i = 0; i < data.length; i++) {
+        data[i] *= feedbackLevel
+      }
+    }
+
+    // Update player buffer if it exists
+    if (this.player) {
+      this.player.buffer.set(currentLoop.buffer)
+    }
+
+    segment.lastModified = Date.now()
+    this.state.memoryManager.changesMade = true
+    
+    console.log(`Feedback applied with level: ${feedbackLevel}`)
+  }
+
+  /**
+   * Clone an AudioBuffer
+   */
+  private cloneAudioBuffer(buffer: AudioBuffer): AudioBuffer {
+    const cloned = this.context.createBuffer(
+      buffer.numberOfChannels,
+      buffer.length,
+      buffer.sampleRate
+    )
+    for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+      cloned.copyToChannel(buffer.getChannelData(ch), ch)
+    }
+    return cloned
+  }
+
+  /**
+   * Update AutoUndo LED feedback
+   */
+  private updateAutoUndoLED(): void {
+    const autoUndoLED = document.getElementById('autoUndoLED')
+    if (autoUndoLED) {
+      autoUndoLED.style.visibility = this.state.memoryManager.changesMade ? 'hidden' : 'visible'
+      autoUndoLED.style.opacity = this.state.memoryManager.changesMade ? '0.3' : '1.0'
+    }
+  }
+
+  /**
+   * Start AutoUndo monitoring
+   */
+  private startAutoUndoMonitoring(): void {
+    this.autoUndoInterval = window.setInterval(() => {
+      this.autoUndo()
+    }, 1000)
+  }
+
+  /**
+   * Stop AutoUndo monitoring
+   */
+  private stopAutoUndoMonitoring(): void {
+    if (this.autoUndoInterval !== null) {
+      clearInterval(this.autoUndoInterval)
+      this.autoUndoInterval = null
+    }
+  }
+
+  /**
+   * Cleanup undo history based on available memory
+   */
+  private cleanupUndoHistory(): void {
+    const totalMemoryUsed = this.state.undoHistory.reduce((sum, action) => sum + action.memoryUsed, 0)
+    
+    while (totalMemoryUsed > this.state.memoryManager.availableMemory && this.state.undoHistory.length > 1) {
+      const removedAction = this.state.undoHistory.shift()
+      if (removedAction) {
+        this.state.memoryManager.availableMemory += removedAction.memoryUsed
+      }
+    }
+  }
+
+  /**
+   * Short undo - removes tail end of the last layer
+   */
+  shortUndo(): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    if (!currentLoop.buffer) return
+
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    if (!segment) return
+
+    const tailLength = Math.floor(currentLoop.buffer.length * 0.1)
+    const newBuffer = this.context.createBuffer(
+      currentLoop.buffer.numberOfChannels,
+      currentLoop.buffer.length - tailLength,
+      currentLoop.buffer.sampleRate
+    )
+
+    for (let ch = 0; ch < currentLoop.buffer.numberOfChannels; ch++) {
+      const oldData = currentLoop.buffer.getChannelData(ch)
+      const newData = newBuffer.getChannelData(ch)
+      newData.set(oldData.subarray(0, oldData.length - tailLength))
+    }
+
+    this.addUndoAction({
+      type: 'SHORT_UNDO',
+      loopId: currentLoop.id,
+      previousState: { buffer: currentLoop.buffer },
+      timestamp: Date.now(),
+      memoryUsed: this.calculateMemoryUsage(currentLoop.buffer),
+    })
+
+    currentLoop.buffer = newBuffer
+    currentLoop.endPoint = newBuffer.duration
+
+    if (this.player) {
+      this.player.buffer.set(newBuffer)
+    }
+
+    console.log('Short undo applied')
+  }
+
+  /**
+   * Long undo - erases entire last layer
+   */
+  longUndo(): void {
+    if (this.state.undoHistory.length === 0) return
+
+    const lastAction = this.state.undoHistory.pop()
+    if (!lastAction) return
+
+    const loop = this.state.loops.find((l) => l.id === lastAction.loopId)
+    if (!loop) return
+
+    Object.assign(loop, lastAction.previousState)
+
+    this.state.memoryManager.availableMemory += lastAction.memoryUsed
+    this.state.memoryManager.changesMade = true
+
+    if (this.player && loop.buffer) {
+      this.player.buffer.set(loop.buffer)
+    }
+
+    console.log('Long undo applied')
+
+    if (this.state.isPlaying) {
+      this.stopLoopPlayback()
+      this.startLoopPlayback()
+    }
+  }
+
+  /**
+   * Undo for stutter mode
+   */
+  stutterUndo(): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    
+    if (!segment || segment.undoBuffer.length === 0) return
+
+    const originalBuffer = segment.undoBuffer.pop()
+    if (originalBuffer) {
+      this.addUndoAction({
+        type: 'STUTTER_UNDO',
+        loopId: currentLoop.id,
+        previousState: { buffer: currentLoop.buffer },
+        timestamp: Date.now(),
+        memoryUsed: this.calculateMemoryUsage(currentLoop.buffer),
+      })
+
+      currentLoop.buffer = originalBuffer
+      currentLoop.endPoint = originalBuffer.duration
+
+      if (this.player) {
+        this.player.buffer.set(originalBuffer)
+      }
+
+      console.log('Stutter undo applied')
+    }
+  }
+
+  /**
+   * Undo during mute - unmutes and restores playback
+   */
+  undoMute(): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    
+    if (!currentLoop.isMuted) return
+
+    currentLoop.isMuted = false
+    currentLoop.startPoint = 0
+
+    if (this.player) {
+      this.player.volume.value = 0
+    }
+
+    if (!this.state.isPlaying) {
+      this.startLoopPlayback()
+    }
+
+    console.log('Mute undo applied - loop unmuted and playback restored')
+  }
+
+  /**
+   * Undo feedback reduction
+   */
+  undoFeedback(): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    
+    if (!segment || segment.undoBuffer.length === 0) return
+
+    const previousBuffer = segment.undoBuffer.pop()
+    if (previousBuffer) {
+      this.addUndoAction({
+        type: 'FEEDBACK_UNDO',
+        loopId: currentLoop.id,
+        previousState: { buffer: currentLoop.buffer },
+        timestamp: Date.now(),
+        memoryUsed: this.calculateMemoryUsage(currentLoop.buffer),
+      })
+
+      currentLoop.buffer = previousBuffer
+      currentLoop.endPoint = previousBuffer.duration
+
+      if (this.player) {
+        this.player.buffer.set(previousBuffer)
+      }
+
+      console.log('Feedback undo applied')
+    }
+  }
+
+  /**
+   * Layered undo - undo specific overdub layers
+   */
+  undoLayer(): void {
+    const currentLoop = this.state.loops[this.state.currentLoopIndex]
+    const segment = this.state.memoryManager.segments.get(currentLoop.id)
+    
+    if (!segment || segment.overdubLayers.length === 0) return
+
+    const removedLayer = segment.overdubLayers.pop()
+    if (removedLayer) {
+      const memoryFreed = this.calculateMemoryUsage(removedLayer)
+      segment.memoryUsed -= memoryFreed
+      this.state.memoryManager.availableMemory += memoryFreed
+
+      // Reconstruct loop without the last overdub layer
+      if (segment.originalLoop) {
+        if (segment.overdubLayers.length === 0) {
+          currentLoop.buffer = this.cloneAudioBuffer(segment.originalLoop)
+        } else {
+          // Mix remaining overdub layers with original
+          currentLoop.buffer = this.mixOverdubLayers(segment.originalLoop, segment.overdubLayers)
+        }
+
+        currentLoop.endPoint = currentLoop.buffer.duration
+
+        if (this.player) {
+          this.player.buffer.set(currentLoop.buffer)
+        }
+
+        console.log('Overdub layer removed')
+
+        if (this.state.isPlaying) {
+          this.stopLoopPlayback()
+          this.startLoopPlayback()
+        }
+      }
+    }
+  }
+
+  /**
+   * Mix multiple overdub layers with original loop
+   */
+  private mixOverdubLayers(originalBuffer: AudioBuffer, overdubLayers: AudioBuffer[]): AudioBuffer {
+    if (overdubLayers.length === 0) return this.cloneAudioBuffer(originalBuffer)
+
+    const mixedBuffer = this.cloneAudioBuffer(originalBuffer)
+    
+    for (const overdubBuffer of overdubLayers) {
+      const channels = Math.min(mixedBuffer.numberOfChannels, overdubBuffer.numberOfChannels)
+      const length = Math.min(mixedBuffer.length, overdubBuffer.length)
+
+      for (let ch = 0; ch < channels; ch++) {
+        const mixedData = mixedBuffer.getChannelData(ch)
+        const overdubData = overdubBuffer.getChannelData(ch)
+
+        for (let i = 0; i < length; i++) {
+          mixedData[i] += overdubData[i] * 0.5
+        }
+      }
+    }
+
+    return mixedBuffer
+  }
+
+  /**
+   * MIDI undo integration
+   */
+  midiUndo(command: 'ShortUndo' | 'LongUndo'): void {
+    if (command === 'ShortUndo') {
+      this.shortUndo()
+    } else if (command === 'LongUndo') {
+      this.longUndo()
     }
   }
 
@@ -950,6 +1418,7 @@ export class EchoplexAudioEngine {
    */
   dispose(): void {
     this.stopLoopPlayback()
+    this.stopAutoUndoMonitoring()
 
     if (this.microphone) {
       this.microphone.close()

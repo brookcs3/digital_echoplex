@@ -54,12 +54,31 @@ export interface EchoplexState {
   loops: Loop[]
   settings: LoopSettings
   undoHistory: UndoAction[]
+  memoryManager: MemoryManager
 }
 
 export interface UndoAction {
   type: string
   loopId: number
   previousState: Partial<Loop>
+  timestamp: number
+  memoryUsed: number
+}
+
+export interface MemorySegment {
+  originalLoop: AudioBuffer | null
+  overdubLayers: AudioBuffer[]
+  undoBuffer: AudioBuffer[]
+  memoryUsed: number
+  lastModified: number
+}
+
+export interface MemoryManager {
+  maxMemory: number
+  availableMemory: number
+  segments: Map<number, MemorySegment>
+  autoUndoEnabled: boolean
+  changesMade: boolean
 }
 
 export enum LoopFunction {

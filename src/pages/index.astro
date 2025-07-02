@@ -1242,6 +1242,9 @@
         <!-- Level indicator lights -->
         <div class="level-light astro-j7pv25f6" id="input-level" style="left: 13.15%; top: 73%; width: 0.7%; height: 6%;"></div>
         <div class="level-light astro-j7pv25f6" id="feedback-level" style="left: 17.05%; top: 73%; width: 0.7%; height: 6%;"></div>
+        
+        <!-- AutoUndo LED indicator -->
+        <div class="status-led astro-j7pv25f6" id="autoUndoLED" style="left: 35%; top: 65%; width: 0.8%; height: 6%; background-color: #0f0; border-radius: 50%; box-shadow: 0 0 6px #0f0; visibility: visible; opacity: 1.0;"></div>
 
         <!-- Display Section -->
         <div class="display-section" style="left: 32.8%; top:32%; width: 16.9%; height: 27%;">
@@ -1394,7 +1397,7 @@
   <script src="https://unpkg.com/tone@14.7.77/build/Tone.js" is:inline></script>
   
   <!-- Load the comprehensive Echoplex Digital Pro Plus implementation -->
-  <script src="/scripts/echoplex-pro.js" is:inline></script>
+  <script src="../src/scripts/echoplex-pro.js" is:inline type="module"></script>
   
   <!-- Initialize the Echoplex system after everything loads -->
   <script is:inline>

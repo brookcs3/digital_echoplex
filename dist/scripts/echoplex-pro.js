@@ -1,7 +1,300 @@
 // ECHOPLEX DIGITAL PRO PLUS - AUTHENTIC IMPLEMENTATION
 // Based on comprehensive documentation analysis
 
+import echoplexLayoutConfig from "../src/lib/echoplex-layout-config.ts"; // Updated import path for .ts
+
 class EchoplexDigitalPro {
+    constructor() {
+        // ECHOPLEX STATE MANAGEMENT
+        this.state = {
+            power: false,
+            loopTime: 0,
+            isRecording: false,
+            isOverdubbing: false,
+            isMultiplying: false,
+            isInserting: false,
+            isMuted: false,
+            isReversed: false,
+            isHalfSpeed: false,
+            isReplacing: false,
+            isSubstituting: false,
+            isUnroundedMultiplying: false,
+            isUnroundedInserting: false,
+            currentCycle: 0,
+            parameterMode: 0, // 0 = play mode, 1-4 = parameter rows
+            // PARAMETER MATRIX VALUES - TIMING ROW (P1)
+            loopDelayMode: 'LOOP', // LOOP, DELAY
+            quantizeMode: 'OFF', // OFF, CYCLE, LOOP, 8TH
+            eighthsPerCycle: 8, // 2-16 subdivisions
+            syncMode: 'INTERNAL', // INTERNAL, MIDI, BEAT
+            thresholdLevel: 0, // 0-127 recording trigger
+            reverseMode: false,
+            startPoint: 0,
+            startSong: false,
+            // PARAMETER MATRIX VALUES - SWITCHES ROW (P2)
+            recordMode: 'TOGGLE', // TOGGLE, SUSTAIN, SAFE
+            overdubMode: 'TOGGLE', // TOGGLE, SUSTAIN
+            roundMode: true, // true = ON, false = OFF
+            insertMode: 'INSERT', // INSERT, REVERSE, HALFSPEED, SUBSTITUTE
+            muteMode: 'CONTINUOUS', // CONTINUOUS, START
+            overflowMode: 'REPLACE', // REPLACE, DISCARD
+            presetMode: false,
+            autoUndo: false,
+            // PARAMETER MATRIX VALUES - MIDI ROW (P3)
+            midiChannel: 1, // 1-16
+            controlSource: 'OFF', // NOTES, CONTROLLERS, OFF
+            sourceNumber: 36, // Starting note/controller
+            volumeController: 7, // CC number for volume
+            feedbackController: 1, // CC number for feedback
+            dumpMode: false,
+            loadMode: false,
+            tempoSource: 'INTERNAL',
+            // PARAMETER MATRIX VALUES - LOOPS ROW (P4)
+            moreLoops: 1, // 1-16 number of loops
+            autoRecord: false,
+            loopCopy: 'OFF', // AUDIO, TIMING, OFF
+            switchQuantize: 'OFF', // OFF, CYCLE, LOOP
+            loopTrigger: 36, // MIDI note for loop trigger
+            velocityControl: false,
+            samplerStyle: 'CONTINUOUS', // ONCE, CONTINUOUS, START
+            interfaceMode: 'EXPERT', // EXPERT, STOMPBOX
+            currentLoop: 1,
+            controlValues: {
+                input: 64,
+                output: 64,
+                mix: 64,
+                feedback: 127
+            },
+            // ECHOPLEX MEMORY & BUFFERS
+            maxMemory: 198, // seconds
+            availableMemory: 198,
+            loops: [], // Will be initialized based on moreLoops
+            undoBuffer: null,
+            loopBuffers: {}, // Audio buffers for each loop
+            // TIMING & SYNC
+            tempo: 120,
+            cycleLength: 4.0,
+            eighthsPerCycle: 8,
+            syncSource: 'INTERNAL',
+            // VISUAL FEEDBACK STATE
+            displayMessage: '',
+            displayTimeout: null,
+            blinkStates: {
+                timing: false,
+                switches: false,
+                midi: false,
+                loops: false
+            }
+        };
+
+        // ECHOPLEX TIMERS & INTERVALS
+        this.recordingInterval = null;
+        this.displayUpdateInterval = null;
+        this.visualTempoInterval = null;
+        this.quantizeTimer = null;
+        this.longPressTimer = null;
+        this.buttonPressStart = 0;
+        this.cycleCountingInterval = null;
+        this.insertCycleInterval = null;
+        
+        // FEATURE #1: SUSTAIN ACTION MODE SYSTEM
+        this.sustainActionSystem = {
+            // Button press states for sustain mode
+            buttonStates: {
+                record: { pressed: false, startTime: 0, sustainActive: false },
+                overdub: { pressed: false, startTime: 0, sustainActive: false },
+                multiply: { pressed: false, startTime: 0, sustainActive: false },
+                insert: { pressed: false, startTime: 0, sustainActive: false },
+                mute: { pressed: false, startTime: 0, sustainActive: false },
+                nextloop: { pressed: false, startTime: 0, sustainActive: false },
+                undo: { pressed: false, startTime: 0, sustainActive: false }
+            },
+            
+            // Sustain mode configurations
+            sustainModes: {
+                record: false,      // SUSRecord - recording only while held
+                overdub: false,     // SUSOverdub - overdub only while held
+                multiply: false,    // SUSMultiply - multiply only while held
+                insert: false,      // SUSInsert - insert only while held
+                mute: false,        // SUSMute - mute only while held
+                nextloop: false,    // SUSNextLoop - next/prev while held
+                replace: false,     // SUSReplace - replace only while held
+                substitute: false   // SUSSubstitute - substitute only while held
+            },
+            
+            // Long press threshold (500ms like hardware)
+            longPressThreshold: 500,
+            
+            // Sustain action timers
+            sustainTimers: {},
+            
+            // Sustain action callbacks
+            sustainCallbacks: {}
+        };
+        
+        // QUANTIZE SYSTEM
+        this.quantizePendingFunction = null;
+        this.quantizePendingArgs = null;
+        this.quantizeStartTime = null;
+        
+        // INSERT MODE SYSTEM
+        this.reverseDirection = 1; // 1 = forward, -1 = reverse
+        
+        // ALTERNATE ENDINGS SYSTEM
+        this.alternateEndingActive = false;
+        this.alternateEndingFunction = null;
+        this.alternateEndingTarget = null;
+        
+        // RESET SYSTEM
+        this.awaitingResetConfirmation = false;
+        this.resetConfirmationTimer = null;
+
+        // DOM ELEMENT REFERENCES
+        this.elements = {};
+        this.valueDisplay = null;
+        
+        // SYSTEMATIC FIX #9: Audio system references
+        this.currentLoopPlayer = null;
+        this.loopPlayers = {}; // Store players for multiple loops
+        
+        // SYSTEMATIC FIX #12: Overdub system references
+        this.overdubRecorder = null;
+        this.overdubLayers = {}; // Store overdub layers for each loop
+        this.currentOverdubBuffer = null;
+        this.overdubMixBus = null;
+        this.isOverdubRecording = false;
+
+        this.initializeElements();
+        this.setupEventListeners();
+        
+        // Initialize audio system asynchronously with proper error handling
+        this.initializeAudioSystem().catch(error => {
+            console.error('❌ Audio system failed to initialize:', error);
+            this.safeShowError('Audio initialization failed. Please refresh and ensure microphone permissions.');
+        });
+        
+        this.initializeLoops();
+        this.initializePresetSystem();
+        this.initializeMidiCommunication();
+        this.initializeLoopWindowing();
+        this.initializeSynchronization();
+        this.initializeMidiVirtualButtonsSystem();
+        
+        // SYSTEMATIC FIX #14: Initialize multiple loop switching before advanced looping
+        this.initializeMultipleLoopSwitching();
+        
+        // SYSTEMATIC FIX #15: Initialize memory management system
+        this.initializeMemoryManagement();
+        
+        // SYSTEMATIC FIX #18: Initialize comprehensive error handling
+        this.initializeErrorHandling();
+        
+        // FEATURE #1: Initialize Sustain Action System
+        this.initializeSustainActionSystem();
+        
+        // FEATURE #2: Initialize MIDI VirtualButtons System
+        this.initializeMidiVirtualButtonsSystem();
+        
+        // FEATURE #9: Initialize Feedback Control System
+        this.initializeFeedbackSystem();
+        
+        // FEATURE #10: Initialize Sample Play Functions System
+        this.initializeSamplePlaySystem();
+        
+        // FEATURE #11: Initialize MIDI Clock/Sync System
+        this.initializeMidiClockSyncSystem();
+        
+        // FEATURE #12: Initialize StartPoint Management System
+        this.initializeStartPointManagement();
+        
+        // FEATURE #13: Initialize RecordMode Variations System
+        this.initializeRecordModeVariations();
+        
+        // FEATURE #14: Initialize MoreLoops Memory Management System
+        this.initializeMoreLoopsMemoryManagement();
+        
+        // FEATURE #15: Initialize Command Display System
+        this.initializeCommandDisplaySystem();
+        
+        // FEATURE #16: Initialize Quantizing Display System
+        this.initializeQuantizingDisplaySystem();
+        
+        // FEATURE #17: Initialize Visual Tempo Guide System
+        this.initializeVisualTempoGuide();
+        
+        // FEATURE #18: Initialize Parameter Editing System
+        this.initializeParameterEditingSystem();
+        
+        // FEATURE #19: Initialize MIDI Continuous Controllers System
+        this.initializeMidiContinuousControllers();
+        
+        this.initializeAdvancedLooping();
+        this.applyLayoutFromConfig(); // Call the new method here
+    }
+
+    // ... existing methods ...
+
+    applyLayoutFromConfig() {
+        console.log("Applying layout from configuration...");
+
+        // Apply styles for power button
+        const powerButtonConfig = echoplexLayoutConfig["power-button"];
+        const powerButton = document.querySelector(powerButtonConfig.selector);
+        if (powerButton) {
+            Object.assign(powerButton.style, powerButtonConfig.styles);
+        }
+
+        // Apply styles for knobs
+        echoplexLayoutConfig.knobs.forEach(knobConfig => {
+            const knobElement = document.querySelector(knobConfig.selector);
+            if (knobElement) {
+                Object.assign(knobElement.style, knobConfig.styles);
+            }
+        });
+
+        // Apply styles for level lights
+        echoplexLayoutConfig["level-lights"].forEach(lightConfig => {
+            const lightElement = document.querySelector(lightConfig.selector);
+            if (lightElement) {
+                Object.assign(lightElement.style, lightConfig.styles);
+            }
+        });
+
+        // Apply styles for display section
+        const displaySectionConfig = echoplexLayoutConfig["display-section"];
+        const displaySection = document.querySelector(displaySectionConfig.selector);
+        if (displaySection) {
+            Object.assign(displaySection.style, displaySectionConfig.styles);
+        }
+
+        // Apply styles for control buttons and their LEDs
+        echoplexLayoutConfig["control-buttons"].forEach(buttonConfig => {
+            const buttonElement = document.querySelector(buttonConfig.selector);
+            if (buttonElement) {
+                Object.assign(buttonElement.style, buttonConfig.styles);
+
+                // Apply LED styles if defined
+                if (buttonConfig.ledStyles) {
+                    const ledElement = buttonElement.querySelector('.status-led'); // Assuming .status-led is consistent
+                    if (ledElement) {
+                        Object.assign(ledElement.style, buttonConfig.ledStyles);
+                    }
+                }
+            }
+        });
+
+        // Apply styles for row indicator LEDs
+        echoplexLayoutConfig["row-indicator-leds"].forEach(ledConfig => {
+            const ledElement = document.querySelector(ledConfig.selector);
+            if (ledElement) {
+                Object.assign(ledElement.style, ledConfig.styles);
+            }
+        });
+
+        console.log("Layout applied from configuration.");
+    }
+}
+
     constructor() {
         // ECHOPLEX STATE MANAGEMENT
         this.state = {

@@ -22,6 +22,8 @@ const echoplexLayoutConfig: LayoutConfig = {
       top: "40%",
       width: "2.14%",
       height: "37.04%",
+      pointerEvents: "auto", // Use camelCase for JS style properties
+      zIndex: "1000",
     },
   },
   knobs: [

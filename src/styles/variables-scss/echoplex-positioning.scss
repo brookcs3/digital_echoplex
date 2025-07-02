@@ -1,0 +1,67 @@
+// ECHOPLEX DIGITAL PRO PLUS POSITIONING VARIABLES
+// 🚨 SACRED VALUES - NEVER CHANGE (like kernel32.dll) 🚨
+
+// Power Button
+$power-button-right: 2%;
+$power-button-top: 40%;
+$power-button-width: 2.14%;
+$power-button-height: 37.04%;
+
+// Control Knobs (4 physical knobs)
+$input-knob-left: 1.3%;
+$output-knob-left: 7.5%;
+$mix-knob-left: 21.2%;
+$feedback-knob-left: 26.95%;
+$knobs-top: 56%;
+$knobs-width: 2.8%;
+$knobs-height: 22.5%;
+
+// Level LED Indicators (2 LEDs between knobs)
+$input-led-left: 13.15%;     // Between Input & Output knobs
+$feedback-led-left: 17.05%;  // Between Mix & Feedback knobs
+$level-leds-top: 73%;
+$level-leds-width: 6.421875px;
+$level-leds-height: 6.609375px;
+
+// Control Buttons (8 buttons)
+$parameters-btn-left: 54.3%;
+$record-btn-left: 61%;
+$overdub-btn-left: 65.5%;
+$multiply-btn-left: 70%;
+$insert-btn-left: 74.5%;
+$mute-btn-left: 79.2%;
+$undo-btn-left: 83.6%;
+$nextloop-btn-left: 88.3%;
+$buttons-top: 10.3%;
+$buttons-width: 2.6%;
+$buttons-height: 21%;
+
+// Button LEDs (inside each button)
+$button-led-left: 46.5%;
+$button-led-top: 36.125px;
+$button-led-width: 6.90625px;
+$button-led-height: 5.34375px;
+
+// Display Section
+$display-left: 32.8%;
+$display-top: 32%;
+$display-width: 16.9%;
+$display-height: 27%;
+
+// Row Indicator LEDs
+$loops-led-left: 56.5%;
+$loops-led-top: 52%;
+$midi-led-left: 57.7%;
+$midi-led-top: 62.5%;
+$switches-led-left: 58.8%;
+$switches-led-top: 72%;
+$timing-led-left: 60.0%;
+$timing-led-top: 82%;
+$row-leds-width: 0.7%;
+$row-leds-height: 6%;
+
+// AutoUndo LED (our addition)
+$auto-undo-left: 35%;
+$auto-undo-top: 65%;
+$auto-undo-width: 0.8%;
+$auto-undo-height: 6%;
