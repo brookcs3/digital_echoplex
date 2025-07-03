@@ -1,0 +1,117 @@
+// ECHOPLEX DISPLAY SECTION COMPONENT
+// LCD display area for loop information, timing, and status
+
+@use '../variables-scss/echoplex-positioning' as pos;
+@use '../variables-scss/echoplex-colors' as colors;
+@use '../helpers/echoplex-mixins' as mixins;
+@use '../helpers/positioning-helpers' as helpers;
+
+// Main display container
+#display-section {
+  @include mixins.lcd-display();
+  left: pos.$display-left;
+  top: pos.$display-top;
+  width: pos.$display-width;
+  height: pos.$display-height;
+  z-index: helpers.get-z-index('display');
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+// Timer display within main display
+.timer-display {
+  background-color: colors.$lcd-background;
+  color: colors.$lcd-text-green;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 3px;
+  margin: 2px 0;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #333;
+  
+  .timer-value {
+    font-weight: bold;
+  }
+  
+  .timer-label {
+    font-size: 10px;
+    opacity: 0.8;
+  }
+}
+
+// Loop information display
+.loop-info {
+  font-size: 10px;
+  color: colors.$lcd-text-green;
+  text-align: center;
+  margin: 1px 0;
+  
+  &.current-loop {
+    color: colors.$lcd-text-green;
+    font-weight: bold;
+  }
+  
+  &.error {
+    color: colors.$lcd-text-red;
+  }
+}
+
+// Status messages
+.status-message {
+  font-size: 9px;
+  color: colors.$lcd-text-green;
+  text-align: center;
+  margin: 1px 0;
+  
+  &.warning {
+    color: colors.$led-amber;
+  }
+  
+  &.error {
+    color: colors.$lcd-text-red;
+  }
+}
+
+// Display states
+#display-section {
+  &.starting {
+    animation: lcd-startup 2s ease-in-out;
+  }
+  
+  &.error {
+    border-color: colors.$lcd-text-red;
+    animation: error-flash 0.5s infinite;
+  }
+  
+  &.powered-off {
+    background: #111;
+    color: #222;
+    border-color: #222;
+  }
+}
+
+// Animation keyframes
+@keyframes lcd-startup {
+  0% {
+    opacity: 0;
+    background: #111;
+  }
+  50% {
+    opacity: 0.5;
+    background: #001;
+  }
+  100% {
+    opacity: 1;
+    background: colors.$lcd-background;
+  }
+}
+
+@keyframes error-flash {
+  0%, 100% { border-color: colors.$lcd-text-red; }
+  50% { border-color: darken(colors.$lcd-text-red, 30%); }
+}

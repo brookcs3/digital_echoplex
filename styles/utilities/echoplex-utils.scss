@@ -1,0 +1,124 @@
+// ECHOPLEX UTILITY CLASSES
+// Common utility classes for the Echoplex interface
+
+@use '../variables-scss/echoplex-colors' as colors;
+@use '../variables-scss/echoplex-dimensions' as dims;
+@use '../helpers/echoplex-mixins' as mixins;
+
+// Power states
+.powered-off {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.powered-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.powering {
+  animation: power-pulse dims.$standard-transition infinite alternate;
+}
+
+// Recording states
+.recording-active {
+  .timer-display {
+    background-color: #300;
+    border-color: colors.$led-red;
+    animation: recording-pulse 1s infinite alternate;
+  }
+}
+
+// LED state utilities
+.led-green {
+  background: colors.$led-green !important;
+  @include mixins.led-glow(colors.$led-green);
+}
+
+.led-red {
+  background: colors.$led-red !important;
+  @include mixins.led-glow(colors.$led-red);
+}
+
+.led-amber {
+  background: colors.$led-amber !important;
+  @include mixins.led-glow(colors.$led-amber);
+}
+
+.led-off {
+  background: colors.$led-off !important;
+  box-shadow: none !important;
+}
+
+// Button states
+.button-active {
+  background: linear-gradient(to bottom, colors.$led-green, darken(colors.$led-green, 20%)) !important;
+  @include mixins.led-glow(colors.$led-green, 0.5);
+}
+
+.button-recording {
+  background: linear-gradient(to bottom, colors.$led-red, darken(colors.$led-red, 20%)) !important;
+  @include mixins.led-glow(colors.$led-red, 0.5);
+}
+
+.button-disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+// Display states
+.display-error {
+  color: colors.$lcd-text-red !important;
+  border-color: colors.$lcd-text-red !important;
+}
+
+.display-normal {
+  color: colors.$lcd-text-green !important;
+  border-color: lighten(colors.$lcd-background, 20%) !important;
+}
+
+// Animation utilities
+.no-transition {
+  transition: none !important;
+}
+
+.fast-transition {
+  transition: dims.$fast-transition !important;
+}
+
+.slow-transition {
+  transition: dims.$slow-transition !important;
+}
+
+// Visibility utilities
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden !important;
+}
+
+.visible {
+  visibility: visible !important;
+}
+
+// Animation keyframes
+@keyframes power-pulse {
+  0% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes recording-pulse {
+  from {
+    box-shadow: 0 0 5px colors.$led-red;
+  }
+  to {
+    box-shadow: 0 0 15px colors.$led-red;
+  }
+}
+
+@keyframes led-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
