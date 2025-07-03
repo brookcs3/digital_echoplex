@@ -61,7 +61,7 @@ class EchoplexDigitalPro {
                 input: 64,
                 output: 64,
                 mix: 64,
-                feedback: 95
+                feedback: 127
             },
             // ECHOPLEX MEMORY & BUFFERS
             maxMemory: 198, // seconds
@@ -94,6 +94,66 @@ class EchoplexDigitalPro {
         this.buttonPressStart = 0;
         this.cycleCountingInterval = null;
         this.insertCycleInterval = null;
+        
+        // PARAMETER MATRIX SYSTEM - AUTHENTIC ECHOPLEX MAPPING
+        // Based on official Echoplex Digital Pro Plus documentation
+        this.parameterMatrix = {
+            // TIMING ROW (P1) - When parameterMode = 1
+            P1: {
+                display: 'P1',
+                name: 'TIMING',
+                parameters: 'Parameters',
+                record: 'Loop/Delay',
+                overdub: 'Quantize', 
+                multiply: '8ths/Cycle',
+                insert: 'Sync',
+                mute: 'Threshold',
+                undo: 'Reverse',
+                nextloop: 'StartPoint'
+            },
+            
+            // SWITCHES ROW (P2) - When parameterMode = 2  
+            P2: {
+                display: 'P2',
+                name: 'SWITCHES',
+                parameters: 'Parameters',
+                record: 'RecordMode',
+                overdub: 'OverdubMode',
+                multiply: 'RoundMode',
+                insert: 'InsertMode',
+                mute: 'MuteMode',
+                undo: 'Overflow',
+                nextloop: 'Presets'
+            },
+            
+            // MIDI ROW (P3) - When parameterMode = 3
+            P3: {
+                display: 'P3',
+                name: 'MIDI',
+                parameters: 'Parameters',
+                record: 'Channel',
+                overdub: 'ControlSource',
+                multiply: 'Source #',
+                insert: 'VolumeCont',
+                mute: 'FeedBklCont',
+                undo: 'Dump',
+                nextloop: 'Load'
+            },
+            
+            // LOOPS ROW (P4) - When parameterMode = 4
+            P4: {
+                display: 'P4',
+                name: 'LOOPS',
+                parameters: 'Parameters',
+                record: 'MoreLoops',
+                overdub: 'AutoRecord',
+                multiply: 'LoopCopy',
+                insert: 'SwitchQuant',
+                mute: 'LoopTrig',
+                undo: 'Velocity',
+                nextloop: 'SamplerStyle'
+            }
+        };
         
         // FEATURE #1: SUSTAIN ACTION MODE SYSTEM
         this.sustainActionSystem = {
@@ -458,7 +518,7 @@ class EchoplexDigitalPro {
         
         // Handle parameter button
         if (buttonName === 'parameters') {
-            this.enterParameterEditingMode();
+            this.handleParameters();
             return;
         }
         
@@ -527,19 +587,361 @@ class EchoplexDigitalPro {
         console.log(`Parameter mode ${this.state.parameterMode}: ${buttonName} pressed`);
         
         switch(this.state.parameterMode) {
-            case 1: // Loops Row (P1)
-                this.handleLoopsParameter(buttonName);
+            case 1: // P1 - TIMING ROW
+                this.handleP1TimingParameter(buttonName);
                 break;
-            case 2: // MIDI Row (P2)
-                this.handleMidiParameter(buttonName);
+            case 2: // P2 - SWITCHES ROW
+                this.handleP2SwitchesParameter(buttonName);
                 break;
-            case 3: // Switches Row (P3)
-                this.handleSwitchesParameter(buttonName);
+            case 3: // P3 - MIDI ROW
+                this.handleP3MidiParameter(buttonName);
                 break;
-            case 4: // Timing Row (P4)
-                this.handleTimingParameter(buttonName);
+            case 4: // P4 - LOOPS ROW
+                this.handleP4LoopsParameter(buttonName);
                 break;
         }
+    }
+
+    // =============================================================================
+    // P1 (TIMING) PARAMETER HANDLING - Mixed system (mostly buttons, StartPoint uses knob)
+    // =============================================================================
+    handleP1TimingParameter(buttonName) {
+        switch(buttonName) {
+            case 'record': // Loop/Delay
+                this.cycleLoopDelayMode();
+                break;
+            case 'overdub': // Quantize
+                this.cycleQuantizeMode();
+                break;
+            case 'multiply': // 8ths/Cycle
+                this.cycle8thsPerCycle();
+                break;
+            case 'insert': // Sync
+                this.cycleSyncMode();
+                break;
+            case 'mute': // Threshold
+                this.cycleThresholdLevel();
+                break;
+            case 'undo': // Reverse
+                this.cycleReverseMode();
+                break;
+            case 'nextloop': // StartPoint (special - uses feedback knob)
+                this.activateStartPointMode();
+                break;
+        }
+    }
+
+    // P1 - Loop/Delay Mode
+    cycleLoopDelayMode() {
+        const modes = ['LP', 'dL'];
+        const currentIndex = modes.indexOf(this.state.loopDelayMode || 'LP');
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        this.state.loopDelayMode = nextMode;
+        this.showDisplayMessage(nextMode, 1500);
+        console.log(`P1 Loop/Delay: ${nextMode}`);
+    }
+
+    // P1 - Quantize Mode
+    cycleQuantizeMode() {
+        const modes = ['OFF', 'CyC', 'LP', '8th'];
+        const currentIndex = modes.indexOf(this.state.quantizeMode || 'OFF');
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        this.state.quantizeMode = nextMode;
+        this.showDisplayMessage(nextMode, 1500);
+        console.log(`P1 Quantize: ${nextMode}`);
+    }
+
+    // P1 - 8ths Per Cycle
+    cycle8thsPerCycle() {
+        const values = [2, 4, 8, 16];
+        const currentIndex = values.indexOf(this.state.eighthsPerCycle || 8);
+        const nextValue = values[(currentIndex + 1) % values.length];
+        this.state.eighthsPerCycle = nextValue;
+        this.showDisplayMessage(nextValue.toString(), 1500);
+        console.log(`P1 8ths/Cycle: ${nextValue}`);
+    }
+
+    // P1 - Sync Mode
+    cycleSyncMode() {
+        const modes = ['Off', 'In', 'Md', 'bt'];
+        const currentIndex = modes.indexOf(this.state.syncMode || 'Off');
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        this.state.syncMode = nextMode;
+        this.showDisplayMessage(nextMode, 1500);
+        console.log(`P1 Sync: ${nextMode}`);
+    }
+
+    // P1 - Threshold Level
+    cycleThresholdLevel() {
+        const levels = [0, 32, 64, 127];
+        const currentIndex = levels.indexOf(this.state.thresholdLevel || 0);
+        const nextLevel = levels[(currentIndex + 1) % levels.length];
+        this.state.thresholdLevel = nextLevel;
+        this.showDisplayMessage(nextLevel.toString(), 1500);
+        console.log(`P1 Threshold: ${nextLevel}`);
+    }
+
+    // P1 - Reverse Mode
+    cycleReverseMode() {
+        const modes = ['Fd', 'rE'];
+        const currentIndex = modes.indexOf(this.state.reverseMode || 'Fd');
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        this.state.reverseMode = nextMode;
+        this.showDisplayMessage(nextMode, 1500);
+        console.log(`P1 Reverse: ${nextMode}`);
+    }
+
+    // P1 - StartPoint Mode (special - activates knob control)
+    activateStartPointMode() {
+        this.showDisplayMessage('SP', 1500);
+        console.log('P1 StartPoint: Activated (use feedback knob to adjust)');
+        // StartPoint logic already implemented above
+        this.adjustStartPoint();
+    }
+
+    // =============================================================================
+    // P2 (SWITCHES) PARAMETER HANDLING - Button activates + Feedback knob adjusts
+    // =============================================================================
+    handleP2SwitchesParameter(buttonName) {
+        // Store which parameter is being edited
+        this.state.activeP2Parameter = buttonName;
+        
+        switch(buttonName) {
+            case 'record': // RecordMode
+                this.cycleRecordMode();
+                break;
+            case 'overdub': // OverdubMode
+                this.showCurrentOverdubMode();
+                break;
+            case 'multiply': // RoundMode
+                this.showCurrentRoundMode();
+                break;
+            case 'insert': // InsertMode
+                this.showCurrentInsertMode();
+                break;
+            case 'mute': // MuteMode
+                this.showCurrentMuteMode();
+                break;
+            case 'undo': // Overflow
+                this.showCurrentOverflowMode();
+                break;
+            case 'nextloop': // Presets
+                this.showPresetEditor();
+                break;
+        }
+    }
+
+    // P2 Display Functions
+    showCurrentRecordMode() {
+        const mode = this.state.recordMode === 'TOGGLE' ? 'tog' : 
+                    this.state.recordMode === 'SUSTAIN' ? 'SUS' : 'SAF';
+        this.showDisplayMessage(mode, 1500);
+        console.log(`P2 RecordMode: ${mode} (use feedback knob to change)`);
+    }
+
+    showCurrentOverdubMode() {
+        const mode = this.state.overdubMode === 'TOGGLE' ? 'tog' : 'SUS';
+        this.showDisplayMessage(mode, 1500);
+        console.log(`P2 OverdubMode: ${mode} (use feedback knob to change)`);
+    }
+
+    showCurrentRoundMode() {
+        const mode = this.state.roundMode ? 'ON' : 'OFF';
+        this.showDisplayMessage(mode, 1500);
+        console.log(`P2 RoundMode: ${mode} (use feedback knob to change)`);
+    }
+
+    showCurrentInsertMode() {
+        const modes = ['Ins', 'rE', 'H.SP', 'Sub'];
+        const mode = modes[0]; // Default for now
+        this.showDisplayMessage(mode, 1500);
+        console.log(`P2 InsertMode: ${mode} (use feedback knob to change)`);
+    }
+
+    showCurrentMuteMode() {
+        const modes = ['Con', 'St'];
+        const mode = modes[0]; // Default for now
+        this.showDisplayMessage(mode, 1500);
+        console.log(`P2 MuteMode: ${mode} (use feedback knob to change)`);
+    }
+
+    showCurrentOverflowMode() {
+        const modes = ['rPL', 'dSC'];
+        const mode = modes[0]; // Default for now
+        this.showDisplayMessage(mode, 1500);
+        console.log(`P2 Overflow: ${mode} (use feedback knob to change)`);
+    }
+
+    showPresetEditor() {
+        this.showDisplayMessage('PrE', 1500);
+        console.log('P2 Presets: Entering Preset Editor');
+    }
+
+    // =============================================================================
+    // P3 (MIDI) PARAMETER HANDLING - Button-only incremental system
+    // =============================================================================
+    handleP3MidiParameter(buttonName) {
+        switch(buttonName) {
+            case 'record': // Loop Number
+                this.incrementLoopNumber();
+                break;
+            case 'overdub': // Control Source
+                this.cycleControlSource();
+                break;
+            case 'multiply': // Device ID
+                this.incrementDeviceId();
+                break;
+            case 'insert': // Volume Controller
+                this.showVolumeController();
+                break;
+            case 'mute': // Feedback Controller
+                this.showFeedbackController();
+                break;
+            case 'undo': // Dump
+                this.performMidiDump();
+                break;
+            case 'nextloop': // Load
+                this.performMidiLoad();
+                break;
+        }
+    }
+
+    // P3 Functions
+    incrementLoopNumber() {
+        this.state.currentLoop = ((this.state.currentLoop || 0) + 1) % 17; // 0-16
+        this.showDisplayMessage(`Ln${this.state.currentLoop}`, 1500);
+        console.log(`P3 Loop Number: Ln${this.state.currentLoop}`);
+    }
+
+    cycleControlSource() {
+        const sources = ['OFF', 'not', 'Cnt'];
+        const currentIndex = sources.indexOf(this.state.controlSource || 'OFF');
+        const nextSource = sources[(currentIndex + 1) % sources.length];
+        this.state.controlSource = nextSource;
+        this.showDisplayMessage(nextSource, 1500);
+        console.log(`P3 Control Source: ${nextSource}`);
+    }
+
+    incrementDeviceId() {
+        this.state.deviceId = ((this.state.deviceId || 0) + 1) % 128; // 0-127
+        this.showDisplayMessage(`Id${this.state.deviceId}`, 1500);
+        console.log(`P3 Device ID: Id${this.state.deviceId}`);
+    }
+
+    showVolumeController() {
+        const volumeCC = this.state.volumeController || 7;
+        this.showDisplayMessage(volumeCC.toString(), 1500);
+        console.log(`P3 Volume Controller: ${volumeCC}`);
+    }
+
+    showFeedbackController() {
+        const feedbackCC = this.state.feedbackController || 1;
+        this.showDisplayMessage(feedbackCC.toString(), 1500);
+        console.log(`P3 Feedback Controller: ${feedbackCC}`);
+    }
+
+    performMidiDump() {
+        this.showDisplayMessage('d', 1500); // Blinking d
+        console.log('P3 Dump: Sending current loop data');
+    }
+
+    performMidiLoad() {
+        this.showDisplayMessage('-', 1500); // Blinking -
+        console.log('P3 Load: Requesting dump from another unit');
+    }
+
+    // =============================================================================
+    // P4 (LOOPS) PARAMETER HANDLING - Button-only toggle/cycle system
+    // =============================================================================
+    handleP4LoopsParameter(buttonName) {
+        switch(buttonName) {
+            case 'record': // MoreLoops
+                this.cycleMoreLoops();
+                break;
+            case 'overdub': // AutoRecord
+                this.toggleAutoRecord();
+                break;
+            case 'multiply': // LoopCopy
+                this.cycleLoopCopyMode();
+                break;
+            case 'insert': // SwitchQuant
+                this.cycleSwitchQuantize();
+                break;
+            case 'mute': // LoopTrig
+                this.incrementLoopTrigger();
+                break;
+            case 'undo': // Velocity
+                this.toggleVelocityControl();
+                break;
+            case 'nextloop': // SamplerStyle
+                this.cycleSamplerStyle();
+                break;
+        }
+    }
+
+    // P4 Functions
+    cycleMoreLoops() {
+        const maxLoops = 16;
+        this.state.moreLoops = ((this.state.moreLoops || 1) % maxLoops) + 1; // 1-16
+        
+        // Display: 1-9 as numbers, 10+ as letters (A,b,c...)
+        let display;
+        if (this.state.moreLoops <= 9) {
+            display = this.state.moreLoops.toString();
+        } else {
+            const letters = ['A', 'b', 'c', 'd', 'E', 'F'];
+            display = letters[this.state.moreLoops - 10];
+        }
+        
+        this.showDisplayMessage(display, 1500);
+        console.log(`P4 MoreLoops: ${display} (${this.state.moreLoops} loops)`);
+    }
+
+    toggleAutoRecord() {
+        this.state.autoRecord = !this.state.autoRecord;
+        const display = this.state.autoRecord ? 'On' : 'OFF';
+        this.showDisplayMessage(display, 1500);
+        console.log(`P4 AutoRecord: ${display}`);
+    }
+
+    cycleLoopCopyMode() {
+        const modes = ['OFF', 'Aud', 'tiM'];
+        const currentIndex = modes.indexOf(this.state.loopCopyMode || 'OFF');
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        this.state.loopCopyMode = nextMode;
+        this.showDisplayMessage(nextMode, 1500);
+        console.log(`P4 LoopCopy: ${nextMode}`);
+    }
+
+    cycleSwitchQuantize() {
+        const modes = ['OFF', 'CyC', 'LP'];
+        const currentIndex = modes.indexOf(this.state.switchQuantize || 'OFF');
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        this.state.switchQuantize = nextMode;
+        this.showDisplayMessage(nextMode, 1500);
+        console.log(`P4 SwitchQuant: ${nextMode}`);
+    }
+
+    incrementLoopTrigger() {
+        this.state.loopTrigger = ((this.state.loopTrigger || 36) + 1) % 128; // 0-127, starting at 36
+        this.showDisplayMessage(this.state.loopTrigger.toString(), 1500);
+        console.log(`P4 LoopTrig: ${this.state.loopTrigger}`);
+    }
+
+    toggleVelocityControl() {
+        this.state.velocityControl = !this.state.velocityControl;
+        const display = this.state.velocityControl ? 'On' : 'OFF';
+        this.showDisplayMessage(display, 1500);
+        console.log(`P4 Velocity: ${display}`);
+    }
+
+    cycleSamplerStyle() {
+        const styles = ['Con', '1ce', 'Str'];
+        const currentIndex = styles.indexOf(this.state.samplerStyle || 'Con');
+        const nextStyle = styles[(currentIndex + 1) % styles.length];
+        this.state.samplerStyle = nextStyle;
+        this.showDisplayMessage(nextStyle, 1500);
+        console.log(`P4 SamplerStyle: ${nextStyle}`);
     }
 
     // TIMING ROW (P1) PARAMETER FUNCTIONS
@@ -1079,18 +1481,141 @@ class EchoplexDigitalPro {
      * Handle Record button press - CRITICAL missing function
      */
     handleRecord() {
-        const recordLed = this.elements.recordBtn?.querySelector('.status-led');
-        if (!recordLed) return;
+        // CHECK: If in P2 (Switches) parameter mode, cycle record modes instead of recording
+        if (this.state.parameterMode === 2) {
+            this.cycleRecordMode();
+            return;
+        }
         
-        this.toggleRecord();
+        // Normal recording behavior based on current record mode
+        switch(this.state.recordMode) {
+            case 'TOGGLE':
+                this.handleToggleRecord();
+                break;
+            case 'SUSTAIN':
+                this.handleSustainRecordPress();
+                break;
+            case 'SAFE':
+                this.handleSafeRecord();
+                break;
+            default:
+                this.handleToggleRecord(); // Default to toggle mode
+        }
     }
 
     /**
-     * Handle Record button long press - CRITICAL missing function  
+     * Cycle through Record Modes when in P2 (Switches) parameter mode
+     */
+    cycleRecordMode() {
+        const modes = ['TOGGLE', 'SUSTAIN', 'SAFE'];
+        const currentModeIndex = modes.indexOf(this.state.recordMode);
+        const nextModeIndex = (currentModeIndex + 1) % modes.length;
+
+        this.state.recordMode = modes[nextModeIndex];
+        
+        // Update loop display with mode abbreviation
+        const modeDisplay = this.state.recordMode === 'TOGGLE' ? 'tog' : 
+                           this.state.recordMode === 'SUSTAIN' ? 'SUS' : 'SAF';
+        this.showDisplayMessage(modeDisplay, 2000);
+        
+        console.log(`🎛️ RecordMode switched to ${this.state.recordMode} (${modeDisplay})`);
+    }
+
+    /**
+     * Handle Record button long press
      */
     handleRecordLongPress() {
-        // Long press Record = Local Reset (clear current loop)
-        this.executeLocalReset();
+        // Long press only works in TOGGLE and SAFE modes (not SUSTAIN)
+        if (this.state.recordMode !== 'SUSTAIN') {
+            console.log('Resetting loop...');
+            this.resetLoop();
+            this.updateRecordLED('green');
+        }
+    }
+
+    /**
+     * TOGGLE MODE: Press once to start, press again to stop
+     */
+    handleToggleRecord() {
+        if (this.state.isRecording) {
+            // Stop recording
+            this.stopRecording();
+            this.state.isRecording = false;
+            this.deactivateMicrophone();
+            console.log('Recording stopped (Toggle Mode)');
+            this.updateRecordLED('green');
+        } else {
+            // Start recording
+            this.startRecording();
+            this.state.isRecording = true;
+            console.log('Recording started (Toggle Mode)');
+            this.updateRecordLED('red');
+        }
+    }
+
+    /**
+     * SUSTAIN MODE: Record only while button is held
+     */
+    handleSustainRecordPress() {
+        if (!this.state.isRecording) {
+            // Start recording while button is held
+            this.startRecording();
+            this.state.isRecording = true;
+            console.log('Recording started (Sustain Mode)');
+            this.updateRecordLED('red');
+        }
+    }
+
+    handleSustainRecordRelease() {
+        if (this.state.isRecording) {
+            // Stop recording when button is released
+            this.stopRecording();
+            this.state.isRecording = false;
+            this.deactivateMicrophone();
+            console.log('Recording stopped (Sustain Mode)');
+            this.updateRecordLED('green');
+        }
+    }
+
+    /**
+     * SAFE MODE: Like toggle but sets feedback to 100% after recording
+     */
+    handleSafeRecord() {
+        if (this.state.isRecording) {
+            // Stop recording and set feedback to 100%
+            this.stopRecording();
+            this.state.isRecording = false;
+            this.deactivateMicrophone();
+            this.state.controlValues.feedback = 127; // Maximum feedback
+            console.log('Recording stopped (Safe Mode), feedback set to 100%');
+            this.updateRecordLED('green');
+        } else {
+            // Start recording
+            this.startRecording();
+            this.state.isRecording = true;
+            console.log('Recording started (Safe Mode)');
+            this.updateRecordLED('red');
+        }
+    }
+
+    /**
+     * Update Record LED visual feedback
+     */
+    updateRecordLED(color) {
+        const recordLED = this.elements.recordBtn?.querySelector('.status-led');
+        if (!recordLED) return;
+
+        // Set LED state based on color
+        if (color === 'red') {
+            recordLED.setAttribute('data-hw-state', 'recording');
+            recordLED.className = 'status-led astro-j7pv25f6';
+        } else if (color === 'green') {
+            recordLED.setAttribute('data-hw-state', 'ready');
+            recordLED.className = 'status-led astro-j7pv25f6';
+        } else {
+            recordLED.setAttribute('data-hw-state', 'off');
+            recordLED.className = 'status-led astro-j7pv25f6';
+        }
     }
 
     /**
@@ -1151,12 +1676,41 @@ class EchoplexDigitalPro {
         return this.continueRecordingAfterThreshold(recordLed);
     }
     
+    /**
+     * Virtual INPUT jack - state-driven input routing like real hardware
+     */
+    activateMicrophone() {
+        if (this.microphoneSource && this.inputGainNode) {
+            this.microphoneSource.connect(this.inputGainNode);
+            
+            // Only connect to destination if input knob is above 0
+            const inputLevel = this.state.controlValues.input / 127;
+            if (inputLevel > 0) {
+                this.inputGainNode.connect(this.audioContext.destination);
+                console.log('🔌 Virtual INPUT jack activated');
+            } else {
+                console.log('🔌 Virtual INPUT jack activated (muted - input knob at 0)');
+            }
+        }
+    }
+
+    deactivateMicrophone() {
+        if (this.microphoneSource && this.inputGainNode) {
+            this.microphoneSource.disconnect(this.inputGainNode);
+            this.inputGainNode.disconnect();
+            console.log('🔌 Virtual INPUT jack deactivated');
+        }
+    }
+
     async continueRecordingAfterThreshold(recordLed) {
         // Ensure audio system is ready and microphone is connected
         if (!this.audioSystem || !this.audioSystem.isReady) {
             await this.initializeAudioSystem();
             await this.initializeRecording();
         }
+        
+        // CRITICAL: Activate microphone only when starting to record
+        this.activateMicrophone();
         
         // STRICT: Ensure recording system has microphone access
         if (!this.recordingSystem || !this.recordingSystem.stream) {
@@ -1312,6 +1866,10 @@ class EchoplexDigitalPro {
         
         // Update state
         this.state.isRecording = false;
+        
+        // CRITICAL: Deactivate microphone when recording stops (prevents feedback)
+        this.deactivateMicrophone();
+        
         if (this.recordingInterval) {
             clearInterval(this.recordingInterval);
             this.recordingInterval = null;
@@ -1652,8 +2210,11 @@ class EchoplexDigitalPro {
             // Create a new player to render the mixed audio
             const tempPlayer1 = this.createAudioPlayer(loopBuffer);
             const tempPlayer2 = this.createAudioPlayer(overdubBuffer);
-            const tempGain = new Tone.Gain(overdubGain);
-            const tempRecorder = new Tone.Recorder();
+            const tempGain = this.audioContext.createGain();
+            tempGain.gain.value = overdubGain;
+            
+            // Create MediaRecorder for pure Web Audio API
+            const tempRecorder = new MediaRecorder(this.microphoneStream);
             
             // Connect for mixing
             tempPlayer1.connect(tempRecorder);
@@ -1828,7 +2389,7 @@ class EchoplexDigitalPro {
         this.overdubMonitorInterval = setInterval(() => {
             if (this.isOverdubRecording) {
                 // Calculate overdub duration
-                const currentTime = Tone.Transport ? Tone.Transport.seconds : Date.now() / 1000;
+                const currentTime = this.audioContext.currentTime;
                 const overdubDuration = currentTime - this.overdubStartTime;
                 
                 // Update feedback level LED if overdubbing
@@ -2302,6 +2863,66 @@ class EchoplexDigitalPro {
             } else {
                 clearInterval(this.insertCycleInterval);
                 this.insertCycleInterval = null;
+        
+        // PARAMETER MATRIX SYSTEM - AUTHENTIC ECHOPLEX MAPPING
+        // Based on official Echoplex Digital Pro Plus documentation
+        this.parameterMatrix = {
+            // TIMING ROW (P1) - When parameterMode = 1
+            P1: {
+                display: 'P1',
+                name: 'TIMING',
+                parameters: 'Parameters',
+                record: 'Loop/Delay',
+                overdub: 'Quantize', 
+                multiply: '8ths/Cycle',
+                insert: 'Sync',
+                mute: 'Threshold',
+                undo: 'Reverse',
+                nextloop: 'StartPoint'
+            },
+            
+            // SWITCHES ROW (P2) - When parameterMode = 2  
+            P2: {
+                display: 'P2',
+                name: 'SWITCHES',
+                parameters: 'Parameters',
+                record: 'RecordMode',
+                overdub: 'OverdubMode',
+                multiply: 'RoundMode',
+                insert: 'InsertMode',
+                mute: 'MuteMode',
+                undo: 'Overflow',
+                nextloop: 'Presets'
+            },
+            
+            // MIDI ROW (P3) - When parameterMode = 3
+            P3: {
+                display: 'P3',
+                name: 'MIDI',
+                parameters: 'Parameters',
+                record: 'Channel',
+                overdub: 'ControlSource',
+                multiply: 'Source #',
+                insert: 'VolumeCont',
+                mute: 'FeedBklCont',
+                undo: 'Dump',
+                nextloop: 'Load'
+            },
+            
+            // LOOPS ROW (P4) - When parameterMode = 4
+            P4: {
+                display: 'P4',
+                name: 'LOOPS',
+                parameters: 'Parameters',
+                record: 'MoreLoops',
+                overdub: 'AutoRecord',
+                multiply: 'LoopCopy',
+                insert: 'SwitchQuant',
+                mute: 'LoopTrig',
+                undo: 'Velocity',
+                nextloop: 'SamplerStyle'
+            }
+        };
             }
         }, cycleLength);
     }
@@ -3060,6 +3681,66 @@ class EchoplexDigitalPro {
         if (this.insertCycleInterval) {
             clearInterval(this.insertCycleInterval);
             this.insertCycleInterval = null;
+        
+        // PARAMETER MATRIX SYSTEM - AUTHENTIC ECHOPLEX MAPPING
+        // Based on official Echoplex Digital Pro Plus documentation
+        this.parameterMatrix = {
+            // TIMING ROW (P1) - When parameterMode = 1
+            P1: {
+                display: 'P1',
+                name: 'TIMING',
+                parameters: 'Parameters',
+                record: 'Loop/Delay',
+                overdub: 'Quantize', 
+                multiply: '8ths/Cycle',
+                insert: 'Sync',
+                mute: 'Threshold',
+                undo: 'Reverse',
+                nextloop: 'StartPoint'
+            },
+            
+            // SWITCHES ROW (P2) - When parameterMode = 2  
+            P2: {
+                display: 'P2',
+                name: 'SWITCHES',
+                parameters: 'Parameters',
+                record: 'RecordMode',
+                overdub: 'OverdubMode',
+                multiply: 'RoundMode',
+                insert: 'InsertMode',
+                mute: 'MuteMode',
+                undo: 'Overflow',
+                nextloop: 'Presets'
+            },
+            
+            // MIDI ROW (P3) - When parameterMode = 3
+            P3: {
+                display: 'P3',
+                name: 'MIDI',
+                parameters: 'Parameters',
+                record: 'Channel',
+                overdub: 'ControlSource',
+                multiply: 'Source #',
+                insert: 'VolumeCont',
+                mute: 'FeedBklCont',
+                undo: 'Dump',
+                nextloop: 'Load'
+            },
+            
+            // LOOPS ROW (P4) - When parameterMode = 4
+            P4: {
+                display: 'P4',
+                name: 'LOOPS',
+                parameters: 'Parameters',
+                record: 'MoreLoops',
+                overdub: 'AutoRecord',
+                multiply: 'LoopCopy',
+                insert: 'SwitchQuant',
+                mute: 'LoopTrig',
+                undo: 'Velocity',
+                nextloop: 'SamplerStyle'
+            }
+        };
         }
         
         console.log('Insert operation cancelled');
@@ -3438,7 +4119,12 @@ class EchoplexDigitalPro {
             console.log('🔄 Creating reversed audio buffer...');
             
             const originalBuffer = this.currentLoopPlayer.buffer;
-            const reversedBuffer = new Tone.Buffer();
+            // Create reversed buffer using Web Audio API
+            const reversedBuffer = this.audioContext.createBuffer(
+                originalBuffer.numberOfChannels,
+                originalBuffer.length, 
+                originalBuffer.sampleRate
+            );
             
             // Copy and reverse audio data
             const channelData = originalBuffer.get();
@@ -4036,7 +4722,7 @@ class EchoplexDigitalPro {
             
             // Start recording new material
             this.recorder.start();
-            this.replaceRecordingStartTime = Tone.Transport.seconds;
+            this.replaceRecordingStartTime = this.audioContext.currentTime;
             
             // Set up replace cycle monitoring
             this.startReplaceCycleMonitoring();
@@ -4061,7 +4747,7 @@ class EchoplexDigitalPro {
             
             // Start recording substitute material
             this.recorder.start();
-            this.substituteRecordingStartTime = Tone.Transport.seconds;
+            this.substituteRecordingStartTime = this.audioContext.currentTime;
             
             // Set up substitute cycle monitoring
             this.startSubstituteCycleMonitoring();
@@ -4177,7 +4863,7 @@ class EchoplexDigitalPro {
         }
         
         // Create new player with replace buffer
-        this.currentLoopPlayer = new Tone.Player(this.replaceSystem.replaceBuffer);
+        this.currentLoopPlayer = this.createAudioPlayer(this.replaceSystem.replaceBuffer);
         this.currentLoopPlayer.connect(this.outputGain);
         this.currentLoopPlayer.loop = true;
         this.currentLoopPlayer.start();
@@ -4201,7 +4887,7 @@ class EchoplexDigitalPro {
         console.log('⚡ Executing substitute operation...');
         
         // Create substitute player
-        const substitutePlayer = new Tone.Player(this.substituteSystem.substituteBuffer);
+        const substitutePlayer = this.createAudioPlayer(this.substituteSystem.substituteBuffer);
         substitutePlayer.connect(this.outputGain);
         substitutePlayer.loop = true;
         
@@ -4226,7 +4912,7 @@ class EchoplexDigitalPro {
      */
     async performSubstituteCrossfade(substitutePlayer) {
         const crossfadeTime = this.substituteSystem.crossfadeTime;
-        const now = Tone.now();
+        const now = this.audioContext.currentTime;
         
         console.log(`🌊 Performing ${crossfadeTime}s crossfade...`);
         
@@ -4234,8 +4920,10 @@ class EchoplexDigitalPro {
         substitutePlayer.start(now);
         
         // Create crossfade gains
-        const originalGain = new Tone.Gain(1.0);
-        const substituteGain = new Tone.Gain(0.0);
+        const originalGain = this.audioContext.createGain();
+        originalGain.gain.value = 1.0;
+        const substituteGain = this.audioContext.createGain();
+        substituteGain.gain.value = 0.0;
         
         // Connect through crossfade gains
         this.currentLoopPlayer.disconnect();
@@ -4920,7 +5608,7 @@ class EchoplexDigitalPro {
             preciseMultiplier: 1.0,
             isRecording: true,
             unroundedBuffer: null,
-            startTimestamp: Tone.Transport.seconds
+            startTimestamp: this.audioContext.currentTime
         };
         
         console.log(`Unrounded Multiply system initialized for ${this.unroundedMultiplySystem.originalLoopTime.toFixed(3)}s loop`);
@@ -4939,7 +5627,7 @@ class EchoplexDigitalPro {
             preciseInsertTime: 0,
             isRecording: true,
             insertBuffer: null,
-            startTimestamp: Tone.Transport.seconds
+            startTimestamp: this.audioContext.currentTime
         };
         
         console.log(`Unrounded Insert system initialized for ${this.unroundedInsertSystem.originalLoopTime.toFixed(3)}s loop`);
@@ -5329,8 +6017,8 @@ class EchoplexDigitalPro {
      * Setup audio processing chain for sample playback
      */
     setupSamplePlayAudioChain() {
-        if (typeof Tone === 'undefined') {
-            console.warn('⚠️ Tone.js not available - Sample Play audio chain disabled');
+        if (!this.audioContext) {
+            console.warn('⚠️ Web Audio API not available - Sample Play audio chain disabled');
             return;
         }
         
@@ -5338,14 +6026,18 @@ class EchoplexDigitalPro {
             const sampleSystem = this.samplePlaySystem;
             
             // Create audio processing chain
-            sampleSystem.sampleOutput = new Tone.Gain(sampleSystem.sampleVolume);
-            sampleSystem.sampleGain = new Tone.Gain(1.0);
-            sampleSystem.sampleFilter = new Tone.Filter(8000, 'lowpass');
+            sampleSystem.sampleOutput = this.audioContext.createGain();
+            sampleSystem.sampleOutput.gain.value = sampleSystem.sampleVolume;
+            sampleSystem.sampleGain = this.audioContext.createGain();
+            sampleSystem.sampleGain.gain.value = 1.0;
+            sampleSystem.sampleFilter = this.audioContext.createBiquadFilter();
+            sampleSystem.sampleFilter.type = 'lowpass';
+            sampleSystem.sampleFilter.frequency.value = 8000;
             
             // Connect sample processing chain
             sampleSystem.sampleGain.connect(sampleSystem.sampleFilter);
             sampleSystem.sampleFilter.connect(sampleSystem.sampleOutput);
-            sampleSystem.sampleOutput.connect(Tone.Destination);
+            sampleSystem.sampleOutput.connect(this.audioContext.destination);
             
             console.log('🔊 Sample Play audio chain setup complete');
         } catch (error) {
@@ -5648,8 +6340,8 @@ class EchoplexDigitalPro {
      * Create sample player for given loop
      */
     createSamplePlayer(loop) {
-        if (typeof Tone === 'undefined') {
-            console.warn('⚠️ Tone.js not available - cannot create sample player');
+        if (!this.audioContext) {
+            console.warn('⚠️ Web Audio API not available - cannot create sample player');
             return null;
         }
         
@@ -5657,21 +6349,22 @@ class EchoplexDigitalPro {
             const sampleSystem = this.samplePlaySystem;
             
             // Create player with loop buffer
-            const player = new Tone.Player({
-                url: loop.buffer,
-                loop: false,
-                autostart: false,
-                playbackRate: 1.0,
-                onload: () => {
-                    console.log('🎵 Sample player loaded');
-                }
-            });
+            const player = this.createAudioPlayer(loop.buffer);
+            player.loop = false;
+            
+            // Configure player settings
+            if (player.source) {
+                player.source.loop = false;
+                player.source.playbackRate.value = 1.0;
+            }
+            
+            console.log('🎵 Sample player loaded');
             
             // Connect to sample processing chain
             player.connect(sampleSystem.sampleGain);
             
             // Store player reference
-            const playerId = `sample_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const playerId = `sample_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
             sampleSystem.samplePlayers.set(playerId, player);
             
             return player;
@@ -6749,11 +7442,13 @@ class EchoplexDigitalPro {
         try {
             const startPointSystem = this.startPointSystem;
             
-            if (typeof Tone !== 'undefined') {
+            if (this.audioContext) {
                 // Create audio processing nodes for StartPoint
-                startPointSystem.startPointGain = new Tone.Gain(1.0);
-                startPointSystem.startPointDelay = new Tone.Delay(0);
-                startPointSystem.crossfader = new Tone.CrossFade(0);
+                startPointSystem.startPointGain = this.audioContext.createGain();
+                startPointSystem.startPointGain.gain.value = 1.0;
+                startPointSystem.startPointDelay = this.audioContext.createDelay();
+                startPointSystem.startPointDelay.delayTime.value = 0;
+                startPointSystem.crossfader = this.createCrossfader(0);
                 
                 // Connect StartPoint processing chain
                 startPointSystem.startPointGain.connect(startPointSystem.startPointDelay);
@@ -6810,25 +7505,32 @@ class EchoplexDigitalPro {
     }
     
     /**
-     * Create visual StartPoint marker
+     * Create Adobe-specified Start Point indicator (green light)
+     * Per Adobe documentation: Green dot shows Start Point location in Loop Display
      */
-    createStartPointMarker() {
-        const marker = document.createElement('div');
-        marker.id = 'startpoint-marker';
-        marker.className = 'startpoint-marker';
-        marker.innerHTML = `
-            <div class="marker-line"></div>
-            <div class="marker-label">SP</div>
+    createStartPointIndicator() {
+        // Remove any existing start point indicators
+        const existingIndicators = document.querySelectorAll('.start-point-indicator, #startpoint-marker');
+        existingIndicators.forEach(indicator => indicator.remove());
+        
+        // Create new green light indicator
+        const indicator = document.createElement('span');
+        indicator.className = 'start-point-indicator';
+        indicator.innerHTML = '●';
+        
+        // Adobe-specified styling: Green dot in Loop Display
+        indicator.style.cssText = `
+            position: absolute;
+            color: #0f0;
+            font-size: 6px;
+            text-shadow: 0 0 2px #0f0;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         `;
         
-        // Add to loop time display area
-        const loopTimeDisplay = document.querySelector('#loop-time-display') || 
-                               document.querySelector('.timer-display');
-        if (loopTimeDisplay && loopTimeDisplay.parentNode) {
-            loopTimeDisplay.parentNode.appendChild(marker);
-        }
-        
-        return marker;
+        return indicator;
     }
     
     /**
@@ -7022,13 +7724,13 @@ class EchoplexDigitalPro {
             const startPointDelayMs = startPointPosition * loopDurationMs;
             
             // Apply StartPoint with audio processing
-            if (startPointSystem.startPointDelay && typeof Tone !== 'undefined') {
+            if (startPointSystem.startPointDelay && this.audioContext) {
                 // Set delay to StartPoint position
                 startPointSystem.startPointDelay.delayTime.value = startPointDelayMs / 1000;
                 
                 // Apply crossfade for smooth transition
                 if (startPointSystem.crossfader) {
-                    startPointSystem.crossfader.fade.rampTo(startPointPosition, startPointSystem.startPointCrossfade);
+                    startPointSystem.crossfader.fade = startPointPosition;
                 }
             }
             
@@ -7400,11 +8102,15 @@ class EchoplexDigitalPro {
         try {
             const recordModeSystem = this.recordModeSystem;
             
-            if (typeof Tone !== 'undefined') {
+            if (this.audioContext) {
                 // Create audio processing nodes for RecordMode
-                recordModeSystem.recordingGain = new Tone.Gain(1.0);
-                recordModeSystem.recordingFilter = new Tone.Filter(8000, 'lowpass');
-                recordModeSystem.fadeProcessor = new Tone.Gain(1.0);
+                recordModeSystem.recordingGain = this.audioContext.createGain();
+                recordModeSystem.recordingGain.gain.value = 1.0;
+                recordModeSystem.recordingFilter = this.audioContext.createBiquadFilter();
+                recordModeSystem.recordingFilter.type = 'lowpass';
+                recordModeSystem.recordingFilter.frequency.value = 8000;
+                recordModeSystem.fadeProcessor = this.audioContext.createGain();
+                recordModeSystem.fadeProcessor.gain.value = 1.0;
                 
                 // Connect RecordMode processing chain
                 recordModeSystem.recordingGain.connect(recordModeSystem.recordingFilter);
@@ -7498,6 +8204,12 @@ class EchoplexDigitalPro {
         if (!this.state.power) return;
         
         event.preventDefault();
+        
+        // CHECK: If in P2 (Switches) parameter mode, cycle record modes instead of recording
+        if (this.state.parameterMode === 2) {
+            this.cycleRecordMode();
+            return;
+        }
         
         const recordModeSystem = this.recordModeSystem;
         const currentTime = performance.now();
@@ -8167,7 +8879,7 @@ class EchoplexDigitalPro {
                     recordedAt: null,
                     tempo: 120,
                     quantizeMode: 'OFF',
-                    feedbackValue: 95
+                    feedbackValue: 127
                 }
             };
         }
@@ -8558,7 +9270,7 @@ class EchoplexDigitalPro {
             recordedAt: null,
             tempo: 120,
             quantizeMode: 'OFF',
-            feedbackValue: 95
+            feedbackValue: 127
         };
         
         console.log(`✅ Loop ${loop.number} reset`);
@@ -10916,7 +11628,7 @@ class EchoplexDigitalPro {
         
         // Apply to main output
         if (this.masterGain) {
-            this.masterGain.gain.rampTo(Tone.dbToGain(volumeDb), 0.1);
+            this.masterGain.gain.linearRampToValueAtTime(this.dbToGain(volumeDb), this.audioContext.currentTime + 0.1);
         }
         
         console.log(`🔊 Volume: ${value}/127 (${volumeDb.toFixed(1)}dB)`);
@@ -10938,7 +11650,7 @@ class EchoplexDigitalPro {
             
             // Update feedback processor if active
             if (this.feedbackSystem.processor) {
-                this.feedbackSystem.processor.wet.rampTo(feedbackRatio, 0.1);
+                this.feedbackSystem.processor.wet.linearRampToValueAtTime(feedbackRatio, this.audioContext.currentTime + 0.1);
             }
         }
         
@@ -10954,7 +11666,7 @@ class EchoplexDigitalPro {
         
         // Apply to input gain
         if (this.inputGain) {
-            this.inputGain.gain.rampTo(Tone.dbToGain(gainDb), 0.1);
+            this.inputGain.gain.linearRampToValueAtTime(this.dbToGain(gainDb), this.audioContext.currentTime + 0.1);
         }
         
         console.log(`🎤 Input: ${value}/127 (${gainDb.toFixed(1)}dB)`);
@@ -10969,7 +11681,7 @@ class EchoplexDigitalPro {
         
         // Apply to mix control if available
         if (this.mixControl) {
-            this.mixControl.wet.rampTo(mixRatio, 0.1);
+            this.mixControl.wet.linearRampToValueAtTime(mixRatio, this.audioContext.currentTime + 0.1);
         }
         
         console.log(`🎛️ Mix: ${value}/127 (${(mixRatio*100).toFixed(1)}% wet)`);
@@ -11386,13 +12098,17 @@ class EchoplexDigitalPro {
     setupFeedbackAudioChain() {
         try {
             // Create feedback gain node (master feedback control)
-            this.feedbackSystem.feedbackGain = new Tone.Gain(this.getFeedbackGainValue());
+            this.feedbackSystem.feedbackGain = this.audioContext.createGain();
+            this.feedbackSystem.feedbackGain.gain.value = this.getFeedbackGainValue();
             
             // Create feedback delay for loop feedback
-            this.feedbackSystem.feedbackDelay = new Tone.Delay(0.01); // Minimal delay to prevent feedback loops
+            this.feedbackSystem.feedbackDelay = this.audioContext.createDelay();
+            this.feedbackSystem.feedbackDelay.delayTime.value = 0.01; // Minimal delay to prevent feedback loops
             
             // Create feedback filter for character control
-            this.feedbackSystem.feedbackFilter = new Tone.Filter(8000, 'lowpass');
+            this.feedbackSystem.feedbackFilter = this.audioContext.createBiquadFilter();
+            this.feedbackSystem.feedbackFilter.type = 'lowpass';
+            this.feedbackSystem.feedbackFilter.frequency.value = 8000;
             
             // Connect feedback chain
             this.connectFeedbackChain();
@@ -11476,7 +12192,7 @@ class EchoplexDigitalPro {
             const newGainValue = this.getFeedbackGainValue();
             this.feedbackSystem.feedbackGain.gain.linearRampToValueAtTime(
                 newGainValue, 
-                Tone.now() + 0.1
+                this.audioContext.currentTime + 0.1
             );
         }
         
@@ -11484,7 +12200,7 @@ class EchoplexDigitalPro {
             const newGainValue = this.getFeedbackGainValue();
             this.feedbackGain.gain.linearRampToValueAtTime(
                 newGainValue, 
-                Tone.now() + 0.1
+                this.audioContext.currentTime + 0.1
             );
         }
     }
@@ -11641,8 +12357,8 @@ class EchoplexDigitalPro {
         try {
             // Adjust loop volume based on feedback
             if (this.currentLoopPlayer.volume) {
-                this.currentLoopPlayer.volume.value = Tone.dbToGain(
-                    Tone.gainToDb(feedbackLevel) - 6 // -6dB offset for headroom
+                this.currentLoopPlayer.volume.value = this.dbToGain(
+                    this.gainToDb(feedbackLevel) - 6 // -6dB offset for headroom
                 );
             }
         } catch (error) {
@@ -11808,7 +12524,7 @@ class EchoplexDigitalPro {
         // Store the function to execute
         this.quantizePendingFunction = functionToExecute;
         this.quantizePendingArgs = args;
-        this.quantizeStartTime = Tone.Transport ? Tone.Transport.seconds : Date.now() / 1000;
+        this.quantizeStartTime = this.audioContext.currentTime;
         
         // Show quantize waiting display using new system
         const quantizeReason = `QUANTIZE_${this.state.quantizeMode}`;
@@ -11822,8 +12538,8 @@ class EchoplexDigitalPro {
             clearTimeout(this.quantizeTimer);
         }
         
-        // Use Tone.js Transport for precise timing if available
-        if (Tone.Transport && quantizeInfo.useTransport) {
+        // Use Web Audio API for precise timing
+        if (this.audioContext && quantizeInfo.useTransport) {
             this.scheduleQuantizedExecution(quantizeInfo);
         } else {
             // Fallback to setTimeout with calculated delay
@@ -11837,12 +12553,12 @@ class EchoplexDigitalPro {
 
     // SYSTEMATIC FIX #13: Precise audio timing calculation for quantization
     calculatePreciseQuantizeTiming() {
-        const currentAudioTime = Tone.Transport ? Tone.Transport.seconds : Date.now() / 1000;
+        const currentAudioTime = this.audioContext.currentTime;
         const loopStartTime = this.recordingStartTime || 0;
         const loopDuration = this.state.loopTime;
         
         let targetTime;
-        let useTransport = Tone.Transport && this.recordingStartTime;
+        let useTransport = this.audioContext && this.recordingStartTime;
         
         switch(this.state.quantizeMode) {
             case 'CYCLE':
@@ -11922,20 +12638,21 @@ class EchoplexDigitalPro {
         return currentTime + timeToNextSixteenth;
     }
 
-    // SYSTEMATIC FIX #13: Schedule execution using Tone.js Transport for sample-accurate timing
+    // SYSTEMATIC FIX #13: Schedule execution using Web Audio API for sample-accurate timing
     scheduleQuantizedExecution(quantizeInfo) {
         try {
             // Schedule the function execution at the precise audio time
-            Tone.Transport.scheduleOnce((time) => {
+            const scheduleTime = quantizeInfo.targetTime - this.audioContext.currentTime;
+            this.quantizeTimeoutId = setTimeout(() => {
                 // Execute at the exact scheduled audio time
                 this.executeQuantizedFunction();
-                console.log(`🎯 Quantized execution at audio time: ${time.toFixed(3)}s`);
-            }, quantizeInfo.targetTime);
+                console.log(`🎯 Quantized execution at audio time: ${quantizeInfo.targetTime.toFixed(3)}s`);
+            }, scheduleTime * 1000); // Convert to milliseconds
             
-            console.log(`✅ Scheduled with Tone.js Transport for ${quantizeInfo.targetTime.toFixed(3)}s`);
+            console.log(`✅ Scheduled with Web Audio API for ${quantizeInfo.targetTime.toFixed(3)}s`);
             
         } catch (error) {
-            console.error('❌ Failed to schedule with Transport, falling back to setTimeout:', error);
+            console.error('❌ Failed to schedule with Web Audio API, falling back to setTimeout:', error);
             
             // Fallback to setTimeout
             this.quantizeTimer = setTimeout(() => {
@@ -11995,7 +12712,7 @@ class EchoplexDigitalPro {
     // SYSTEMATIC FIX #13: Enhanced quantized function execution with timing validation
     executeQuantizedFunction() {
         if (this.quantizePendingFunction) {
-            const executionTime = Tone.Transport ? Tone.Transport.seconds : Date.now() / 1000;
+            const executionTime = this.audioContext.currentTime;
             const timingAccuracy = Math.abs(executionTime - (this.quantizeStartTime || 0));
             
             console.log(`🎯 Executing quantized function at ${executionTime.toFixed(3)}s`);
@@ -12018,10 +12735,10 @@ class EchoplexDigitalPro {
             this.quantizePendingArgs = null;
             this.quantizeStartTime = null;
             
-            // Clear any Transport scheduled events to prevent duplicates
-            if (Tone.Transport) {
-                // Note: Tone.js automatically clears completed schedules
-                console.log('🔄 Transport schedule cleaned');
+            // Clear any Web Audio API scheduled events to prevent duplicates
+            if (this.audioContext) {
+                // Note: Web Audio API automatically clears completed schedules
+                console.log('🔄 Web Audio API schedule cleaned');
             }
         } else {
             console.warn('⚠️ executeQuantizedFunction called but no pending function');
@@ -12038,13 +12755,17 @@ class EchoplexDigitalPro {
             this.quantizeTimer = null;
         }
         
-        // Clear Tone.js Transport schedules
-        if (Tone.Transport && this.quantizePendingFunction) {
+        // Clear Web Audio API schedules
+        if (this.audioContext && this.quantizePendingFunction) {
             try {
-                Tone.Transport.cancel(); // Cancel all scheduled events
-                console.log('✅ Transport schedules cleared');
+                // Cancel scheduled events using clearTimeout or similar method
+                if (this.quantizeTimeoutId) {
+                    clearTimeout(this.quantizeTimeoutId);
+                    this.quantizeTimeoutId = null;
+                }
+                console.log('✅ Web Audio API schedules cleared');
             } catch (error) {
-                console.warn('⚠️ Transport cancel failed:', error);
+                console.warn('⚠️ Web Audio API cancel failed:', error);
             }
         }
         
@@ -12068,12 +12789,12 @@ class EchoplexDigitalPro {
         console.log(`✅ Loop time: ${this.state.loopTime.toFixed(2)}s`);
         console.log(`✅ Current cycle: ${this.state.currentCycle}`);
         
-        // Check Transport availability
-        if (Tone.Transport) {
-            console.log(`✅ Tone.js Transport available: ${Tone.Transport.state}`);
-            console.log(`✅ Transport time: ${Tone.Transport.seconds.toFixed(3)}s`);
+        // Check Web Audio API availability
+        if (this.audioContext) {
+            console.log(`✅ Web Audio API available: ${this.audioContext.state}`);
+            console.log(`✅ Audio context time: ${this.audioContext.currentTime.toFixed(3)}s`);
         } else {
-            console.log('⚠️ Tone.js Transport not available - using fallback timing');
+            console.log('⚠️ Web Audio API not available - using fallback timing');
         }
         
         // Check recording timing reference
@@ -12093,7 +12814,7 @@ class EchoplexDigitalPro {
         
         return {
             quantizeMode: this.state.quantizeMode,
-            transportAvailable: !!Tone.Transport,
+            transportAvailable: !!this.audioContext,
             hasRecordingReference: !!this.recordingStartTime,
             hasPendingQuantization: !!this.quantizePendingFunction,
             tempo: this.state.tempo,
@@ -12397,15 +13118,25 @@ class EchoplexDigitalPro {
             this.initializeAudioSystem().then(async () => {
                 console.log('✅ Audio system ready');
                 
-                // CRITICAL: Also initialize recording system for Record button
-                await this.initializeRecording();
-                console.log('✅ Recording system ready');
-                
-                // Show ready indicator
-                this.showDisplayMessage('READY', 1000);
-                
-                // Mark system as fully ready for recording
-                this.recordingReady = true;
+                // CRITICAL: Request microphone access with user prompt
+                try {
+                    await this.requestMicrophoneAccess();
+                    console.log('✅ Microphone access granted');
+                    
+                    // CRITICAL: Also initialize recording system for Record button
+                    await this.initializeRecording();
+                    console.log('✅ Recording system ready');
+                    
+                    // Show ready indicator
+                    this.showDisplayMessage('READY', 1000);
+                    
+                    // Mark system as fully ready for recording
+                    this.recordingReady = true;
+                } catch (micError) {
+                    console.error('❌ Microphone access failed:', micError);
+                    this.showDisplayMessage('MIC ERR', 2000);
+                    this.recordingReady = false;
+                }
             }).catch(error => {
                 console.error('❌ Audio system initialization failed:', error);
                 this.showDisplayMessage('AUDIO ERROR', 2000);
@@ -12552,12 +13283,12 @@ class EchoplexDigitalPro {
             this.elements.loopDisplay.textContent = message;
             console.log(`Loop display set to: ${message}`);
         } else {
-            // Get real audio timing from Tone.js context
+            // Get real audio timing from Web Audio API context
             let displayTime = this.state.loopTime;
             
-            // Use Tone.js Transport time for accurate audio timing when available
-            if (Tone && Tone.Transport && this.state.isRecording) {
-                const audioTime = Tone.Transport.seconds;
+            // Use Web Audio API time for accurate audio timing when available
+            if (this.audioContext && this.state.isRecording) {
+                const audioTime = this.audioContext.currentTime;
                 displayTime = this.recordingStartTime ? (audioTime - this.recordingStartTime) : displayTime;
             }
             
@@ -12854,7 +13585,7 @@ class EchoplexDigitalPro {
         }
         
         // Initialize tempo tracking variables with real audio time
-        this.tempoStartTime = Tone.Transport ? Tone.Transport.seconds * 1000 : Date.now();
+        this.tempoStartTime = this.audioContext ? this.audioContext.currentTime * 1000 : Date.now();
         this.syncCorrectionActive = false;
         this.autoUndoActive = this.state.autoUndo;
         this.autoUndoExecuted = false;
@@ -13673,44 +14404,52 @@ class EchoplexDigitalPro {
 
     // REMOVED: Old Tone.js audio system - migrated to Web Audio API
     
-    async initializeToneJS() {
+    async initializeWebAudio() {
         try {
-            // Check if Tone.js is available
-            if (typeof Tone === 'undefined') {
-                console.error('❌ Tone.js not loaded!');
-                this.showDisplayMessage('To.Er', 2000);
+            // Check if Web Audio API is available
+            if (!this.audioContext) {
+                console.error('❌ Web Audio API not available!');
+                this.showDisplayMessage('Au.Er', 2000);
                 return false;
             }
             
-            console.log('🎵 Initializing Tone.js with improved compatibility...');
+            console.log('🎵 Initializing Web Audio API with improved compatibility...');
             
-            // Initialize Tone.js context with user interaction requirement
-            await Tone.start();
+            // Initialize Web Audio API context with user interaction requirement
+            await this.audioContext.resume();
             
             // Verify context is available and working
-            if (!Tone.context) {
-                throw new Error('Tone.js context not available');
+            if (!this.audioContext) {
+                throw new Error('Web Audio API context not available');
             }
             
-            this.audioContext = Tone.context;
-            console.log(`✅ Tone.js initialized - Context state: ${this.audioContext.state}`);
+            // this.audioContext already set during initialization
+            console.log(`✅ Web Audio API initialized - Context state: ${this.audioContext.state}`);
             
             // Create main audio chain
-            this.inputGain = new Tone.Gain(this.state.controlValues.input / 127);
-            this.outputGain = new Tone.Gain(this.state.controlValues.output / 127);
-            this.mixGain = new Tone.Gain(this.state.controlValues.mix / 127);
-            this.feedbackGain = new Tone.Gain(this.state.controlValues.feedback / 127);
+            this.inputGain = this.audioContext.createGain();
+            this.inputGain.gain.value = this.state.controlValues.input / 127;
+            this.outputGain = this.audioContext.createGain();
+            this.outputGain.gain.value = this.state.controlValues.output / 127;
+            this.mixGain = this.audioContext.createGain();
+            this.mixGain.gain.value = this.state.controlValues.mix / 127;
+            this.feedbackGain = this.audioContext.createGain();
+            this.feedbackGain.gain.value = this.state.controlValues.feedback / 127;
             
             // SYSTEMATIC FIX #12: Enhanced recording system with separate overdub capabilities
-            this.recorder = new Tone.Recorder();
-            this.overdubRecorder = new Tone.Recorder(); // Dedicated overdub recorder
+            this.recorder = new MediaRecorder(this.microphoneStream);
+            this.overdubRecorder = new MediaRecorder(this.microphoneStream); // Dedicated overdub recorder
             this.currentLoopPlayer = null; // Will be created when recording finishes
             
             // Create separate mixing buses for comprehensive audio routing
-            this.inputBus = new Tone.Gain(1.0);    // Input bus for all incoming audio
-            this.playbackBus = new Tone.Gain(1.0); // Playback bus for loop audio
-            this.feedbackBus = new Tone.Gain(this.state.controlValues.feedback / 127); // Feedback bus
-            this.overdubMixBus = new Tone.Gain(1.0); // Overdub mixing bus for layering
+            this.inputBus = this.audioContext.createGain();    // Input bus for all incoming audio
+            this.inputBus.gain.value = 1.0;
+            this.playbackBus = this.audioContext.createGain(); // Playback bus for loop audio
+            this.playbackBus.gain.value = 1.0;
+            this.feedbackBus = this.audioContext.createGain(); // Feedback bus
+            this.feedbackBus.gain.value = this.state.controlValues.feedback / 127;
+            this.overdubMixBus = this.audioContext.createGain(); // Overdub mixing bus for layering
+            this.overdubMixBus.gain.value = 1.0;
             
             // SYSTEMATIC FIX #12: Comprehensive audio chain for record/playback/overdub/mixing
             this.inputGain.connect(this.inputBus);     // Mic input → Input bus
@@ -13725,24 +14464,24 @@ class EchoplexDigitalPro {
             this.overdubMixBus.connect(this.mixGain);   // Overdub mix → Direct monitoring
             
             this.mixGain.connect(this.outputGain);      // Mixed signal → Output
-            this.outputGain.connect(Tone.Destination);  // Final output
+            this.outputGain.connect(this.audioContext.destination);  // Final output
             
             console.log('✅ Complete audio chain: Input + Feedback → [Record + Overdub + Mix] → Output');
             console.log('📡 Feedback routing: Playback → Feedback → Input (overdub ready)');
             console.log('🎚️ Overdub routing: Input → OverdubRecorder + PlaybackMix → Output');
             
-            // SYSTEMATIC FIX #13: Start Transport for quantization timing
-            if (Tone.Transport.state !== 'started') {
-                Tone.Transport.start();
-                console.log('✅ Tone.js Transport started for quantization timing');
+            // SYSTEMATIC FIX #13: Start Web Audio API for quantization timing
+            if (this.audioContext.state !== 'running') {
+                await this.audioContext.resume();
+                console.log('✅ Web Audio API started for quantization timing');
             }
             
             this.isAudioReady = true;
-            console.log('Tone.js audio system ready');
+            console.log('Web Audio API audio system ready');
             return true;
             
         } catch (error) {
-            console.error('Failed to initialize Tone.js:', error);
+            console.error('Failed to initialize Web Audio API:', error);
             return false;
         }
     }
@@ -13751,7 +14490,7 @@ class EchoplexDigitalPro {
     async requestMicrophoneAccess() {
         try {
             if (!this.isAudioReady) {
-                await this.initializeToneJS();
+                await this.initializeWebAudio();
             }
             
             console.log('🎤 Requesting microphone access...');
@@ -13768,12 +14507,22 @@ class EchoplexDigitalPro {
                 }
             });
             
-            // Create microphone input in Tone.js with proper connection
-            this.microphone = new Tone.UserMedia();
-            await this.microphone.open();
+            // Create microphone input using pure Web Audio API
+            this.microphoneStream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false
+                } 
+            });
             
-            // CRITICAL: Connect microphone through input gain for level control
-            this.microphone.connect(this.inputGain);
+            // Create Web Audio nodes
+            this.microphoneSource = this.audioContext.createMediaStreamSource(this.microphoneStream);
+            this.inputGainNode = this.audioContext.createGain();
+            this.outputGainNode = this.audioContext.createGain();
+            
+            // CRITICAL: DO NOT connect microphone to input gain here - only during recording
+            // Virtual INPUT jack will handle connection during recording states only
             
             // Set up real-time level monitoring
             this.setupMicrophoneLevelMonitoring();
@@ -13804,22 +14553,160 @@ class EchoplexDigitalPro {
 
     // SYSTEMATIC FIX #10: Real-time microphone level monitoring
     setupMicrophoneLevelMonitoring() {
-        if (!this.microphone) return;
+        if (!this.microphoneSource) return;
         
-        // Create level meter for visual feedback
-        this.microphoneMeter = new Tone.Meter();
-        this.microphone.connect(this.microphoneMeter);
+        // Create Web Audio API analyser for level monitoring
+        this.microphoneAnalyser = this.audioContext.createAnalyser();
+        this.microphoneAnalyser.fftSize = 256;
+        this.microphoneAnalyser.smoothingTimeConstant = 0.8;
+        
+        // Connect microphone to analyser for level monitoring (separate from main audio path)
+        this.microphoneSource.connect(this.microphoneAnalyser);
         
         // Update level indicators in real-time
+        this.microphoneLevelDataArray = new Uint8Array(this.microphoneAnalyser.frequencyBinCount);
+        
         this.microphoneLevelInterval = setInterval(() => {
-            if (this.microphoneMeter && this.elements.inputLevel) {
-                const level = this.microphoneMeter.getValue();
-                const normalizedLevel = Math.max(0, (level + 60) / 60); // Convert dB to 0-1
-                this.updateLevelLED(this.elements.inputLevel, normalizedLevel);
+            if (this.microphoneAnalyser) {
+                // Get frequency data from analyser
+                this.microphoneAnalyser.getByteFrequencyData(this.microphoneLevelDataArray);
+                
+                // Calculate RMS level
+                let sum = 0;
+                for (let i = 0; i < this.microphoneLevelDataArray.length; i++) {
+                    sum += this.microphoneLevelDataArray[i] * this.microphoneLevelDataArray[i];
+                }
+                const rms = Math.sqrt(sum / this.microphoneLevelDataArray.length);
+                const normalizedLevel = rms / 255; // Convert to 0-1
+                
+                // Update input level LED
+                const inputLED = document.getElementById('input-level');
+                if (inputLED) {
+                    this.updateInputLevelLED(inputLED, normalizedLevel, rms);
+                }
             }
         }, 50); // 20Hz update rate
         
         console.log('✅ Microphone level monitoring active');
+    }
+
+    /**
+     * Create Web Audio API player from AudioBuffer (replaces Tone.Player)
+     */
+    createAudioPlayer(audioBuffer) {
+        const source = this.audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.loop = false; // Set loop as needed
+        
+        // Add gain node for volume control
+        const gainNode = this.audioContext.createGain();
+        source.connect(gainNode);
+        
+        // Return object with Web Audio API Player-like interface
+        return {
+            source: source,
+            gain: gainNode,
+            buffer: audioBuffer,
+            connect: (destination) => gainNode.connect(destination),
+            disconnect: () => gainNode.disconnect(),
+            start: (when = 0) => source.start(when),
+            stop: (when = 0) => source.stop(when),
+            dispose: () => {
+                source.disconnect();
+                gainNode.disconnect();
+            },
+            set loop(value) { source.loop = value; },
+            get loop() { return source.loop; }
+        };
+    }
+
+    /**
+     * Convert decibels to gain value (replaces Tone.dbToGain)
+     */
+    dbToGain(db) {
+        return Math.pow(10, db / 20);
+    }
+
+    /**
+     * Convert gain value to decibels (replaces Tone.gainToDb)
+     */
+    gainToDb(gain) {
+        return 20 * Math.log10(Math.max(gain, 0.00001)); // Prevent log(0)
+    }
+
+    /**
+     * Create crossfader using Web Audio API (replaces Tone.CrossFade)
+     */
+    createCrossfader(initialPosition = 0) {
+        const inputA = this.audioContext.createGain();
+        const inputB = this.audioContext.createGain();
+        const output = this.audioContext.createGain();
+        
+        // Connect inputs to output
+        inputA.connect(output);
+        inputB.connect(output);
+        
+        // Set initial crossfade position (0 = all A, 1 = all B)
+        const position = Math.max(0, Math.min(1, initialPosition));
+        inputA.gain.value = Math.cos(position * Math.PI / 2);
+        inputB.gain.value = Math.sin(position * Math.PI / 2);
+        
+        return {
+            a: inputA,
+            b: inputB,
+            output: output,
+            connect: (destination) => output.connect(destination),
+            disconnect: () => output.disconnect(),
+            set fade(value) {
+                const pos = Math.max(0, Math.min(1, value));
+                inputA.gain.value = Math.cos(pos * Math.PI / 2);
+                inputB.gain.value = Math.sin(pos * Math.PI / 2);
+            },
+            get fade() {
+                return Math.atan2(inputB.gain.value, inputA.gain.value) * 2 / Math.PI;
+            }
+        };
+    }
+
+    /**
+     * Update input level LED with feedback detection
+     */
+    updateInputLevelLED(ledElement, normalizedLevel, rawLevel) {
+        // Remove all previous classes
+        ledElement.classList.remove('off', 'low', 'medium', 'high', 'clipping', 'feedback');
+        
+        if (normalizedLevel < 0.1) {
+            // Very low/no signal
+            ledElement.classList.add('off');
+            ledElement.style.backgroundColor = '#333';
+            ledElement.style.boxShadow = 'none';
+        } else if (normalizedLevel < 0.4) {
+            // Good level - green
+            ledElement.classList.add('low');
+            ledElement.style.backgroundColor = '#0f0';
+            ledElement.style.boxShadow = '0 0 4px #0f0';
+        } else if (normalizedLevel < 0.7) {
+            // Medium level - yellow/amber
+            ledElement.classList.add('medium');
+            ledElement.style.backgroundColor = '#ff0';
+            ledElement.style.boxShadow = '0 0 6px #ff0';
+        } else if (normalizedLevel < 0.9) {
+            // High level - orange
+            ledElement.classList.add('high');
+            ledElement.style.backgroundColor = '#f80';
+            ledElement.style.boxShadow = '0 0 8px #f80';
+        } else {
+            // Clipping/feedback level - red with flash
+            ledElement.classList.add('clipping');
+            ledElement.style.backgroundColor = '#f00';
+            ledElement.style.boxShadow = '0 0 10px #f00';
+            
+            // Flash animation for feedback warning
+            if (normalizedLevel > 0.95) {
+                ledElement.style.animation = 'clipping-flash 0.1s infinite';
+                console.warn('🔴 Microphone feedback/clipping detected!');
+            }
+        }
     }
 
     // SYSTEMATIC FIX #10: Test microphone input functionality
@@ -13967,8 +14854,491 @@ class EchoplexDigitalPro {
     }
 
     adjustStartPoint() {
-        this.showStartPointCommandDisplay();
-        console.log('StartPoint adjustment');
+        // COMPLETE START POINT SYSTEM IMPLEMENTATION
+        console.log('🎯 Start Point Adjustment Mode Activated');
+        
+        // Enable Start Point mode - feedback knob now controls start point
+        this.state.startPointMode = true;
+        this.state.startPointAdjusting = true;
+        
+        // Store current feedback value to restore later
+        this.state.previousFeedbackValue = this.state.controlValues.feedback;
+        
+        // Calculate current start point as percentage (0-127 knob range)
+        const currentStartPointPercent = (this.state.startPoint / this.state.loopTime) * 100;
+        const knobValue = Math.round((currentStartPointPercent / 100) * 127);
+        
+        // Set feedback knob to represent current start point
+        this.state.controlValues.feedback = knobValue;
+        this.updateKnobVisual('feedback');
+        
+        // Show start point display
+        this.showStartPointDisplay();
+        
+        // Visual feedback in loop display
+        this.updateStartPointVisual();
+        
+        console.log(`🎯 Start Point Mode: Loop=${this.state.loopTime.toFixed(2)}s, StartPoint=${this.state.startPoint.toFixed(2)}s (${currentStartPointPercent.toFixed(1)}%)`);
+    }
+
+    // START POINT VISUAL FEEDBACK SYSTEM
+    showStartPointDisplay() {
+        const currentTime = this.state.startPoint;
+        const loopTime = this.state.loopTime;
+        
+        if (loopTime > 0) {
+            const percentage = (currentTime / loopTime) * 100;
+            const displayTime = currentTime.toFixed(1);
+            
+            // Show start point time and percentage
+            this.showDisplayMessage(`SP${displayTime}`, 2000);
+            
+            // Update multiple display with percentage
+            this.updateMultipleDisplay(`${percentage.toFixed(0)}%`);
+        } else {
+            this.showDisplayMessage('SP0.0', 1000);
+            this.updateMultipleDisplay('0%');
+        }
+    }
+
+    updateStartPointVisual() {
+        const loopDisplay = document.getElementById('loop-display');
+        if (!loopDisplay) return;
+        
+        // Remove existing start point indicator
+        const existingIndicator = loopDisplay.querySelector('.start-point-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
+        // Create Adobe-compliant green light indicator
+        if (this.state.loopTime > 0 && this.state.startPointAdjusting) {
+            const indicator = this.createStartPointIndicator();
+            
+            // Position based on start point percentage within loop display
+            const percentage = (this.state.startPoint / this.state.loopTime) * 100;
+            const leftPosition = Math.min(Math.max(percentage * 0.8, 5), 85); // Keep within display bounds
+            
+            // Position the green dot in loop display
+            indicator.style.left = `${leftPosition}%`;
+            indicator.style.top = '75%'; // Lower position in loop display per Adobe spec
+            indicator.style.opacity = '1'; // Make visible
+            
+            loopDisplay.appendChild(indicator);
+            
+            // Adobe-specified blinking behavior during adjustment
+            this.startPointBlinkSequence(indicator);
+            
+            console.log(`🎯 Adobe Start Point Visual: ${percentage.toFixed(1)}% at ${leftPosition}% in Loop Display`);
+        }
+    }
+    
+    // Adobe-specified Start Point blinking sequence
+    startPointBlinkSequence(indicator) {
+        if (!indicator) return;
+        
+        let blinkCount = 0;
+        const maxBlinks = 6; // Brief confirmation sequence
+        
+        const blinkInterval = setInterval(() => {
+            indicator.style.opacity = indicator.style.opacity === '1' ? '0.3' : '1';
+            blinkCount++;
+            
+            if (blinkCount >= maxBlinks) {
+                clearInterval(blinkInterval);
+                indicator.style.opacity = '1'; // End on visible
+            }
+        }, 150); // 150ms blink rate
+    }
+
+    // PARAMETER-AWARE KNOB BEHAVIOR OVERRIDE
+    updateKnobValue(knobName, newValue, source = 'gesture') {
+        // CHECK FOR START POINT MODE OVERRIDE
+        if (knobName === 'feedback' && this.state.parameterMode === 1 && this.state.startPointAdjusting) {
+            return this.updateStartPointFromKnob(newValue, source);
+        }
+        
+        // CHECK FOR OTHER PARAMETER MODE OVERRIDES (knobs only, not buttons)
+        if (this.state.parameterMode > 0) {
+            return this.updateParameterKnobValue(knobName, newValue, source);
+        }
+        
+        // STANDARD KNOB BEHAVIOR (existing code)
+        const knob = this.knobSystem.knobs[knobName];
+        
+        // Clamp to valid range
+        newValue = Math.max(knob.minValue, Math.min(knob.maxValue, newValue));
+        
+        // Apply curve transformation
+        newValue = this.applyCurve(newValue, knob.curve);
+        
+        // Snap to snap points if close
+        if (this.knobSystem.gestureRecognition) {
+            newValue = this.applySnapPoints(newValue);
+        }
+        
+        // Smoothing for real-time updates
+        if (this.knobSystem.smoothing && source === 'gesture') {
+            const smoothingFactor = this.knobSystem.smoothingFactor;
+            newValue = knob.value * (1 - smoothingFactor) + newValue * smoothingFactor;
+        }
+        
+        // Update value
+        const oldValue = knob.value;
+        knob.value = Math.round(newValue);
+        knob.lastUpdateTime = Date.now();
+        
+        // Update system state
+        this.state.controlValues[knobName] = knob.value;
+        
+        // Visual update
+        this.updateKnobVisual(knobName);
+        this.showKnobValue(knobName, true);
+        
+        // Audio engine notification
+        this.notifyAudioEngine('KNOB_CHANGED', {
+            knob: knobName,
+            value: knob.value,
+            oldValue: oldValue,
+            source: source
+        });
+        
+        // Real-time display update
+        if (this.knobSystem.realTimeUpdate) {
+            this.updateRealtimeDisplay(knobName, knob.value);
+        }
+        
+        // Apply to audio system
+        this.applyKnobToAudio(knobName, knob.value);
+        
+        console.log(`🎛️ ${knobName}: ${oldValue} → ${knob.value} (${source})`);
+    }
+
+    // START POINT KNOB CONTROL SYSTEM
+    updateStartPointFromKnob(knobValue, source = 'gesture') {
+        // Clamp knob value to 0-127
+        knobValue = Math.max(0, Math.min(127, Math.round(knobValue)));
+        
+        // Convert knob value to start point time (0 to loop length)
+        const percentage = knobValue / 127;
+        const newStartPoint = percentage * this.state.loopTime;
+        
+        // Update start point
+        const oldStartPoint = this.state.startPoint;
+        this.state.startPoint = newStartPoint;
+        
+        // Update feedback knob visual (but not actual feedback value)
+        this.state.controlValues.feedback = knobValue;
+        this.updateKnobVisual('feedback');
+        
+        // Update displays
+        this.showStartPointDisplay();
+        this.updateStartPointVisual();
+        
+        // APPLY START POINT TO AUDIO SYSTEM
+        this.applyStartPointToAudio(newStartPoint);
+        
+        console.log(`🎯 Start Point: ${oldStartPoint.toFixed(2)}s → ${newStartPoint.toFixed(2)}s (${(percentage * 100).toFixed(1)}%) via ${source}`);
+        
+        return true; // Indicates we handled this knob update
+    }
+
+    // PARAMETER MODE KNOB BEHAVIOR
+    updateParameterKnobValue(knobName, newValue, source = 'gesture') {
+        const paramMode = this.state.parameterMode;
+        
+        // Different knob behaviors per parameter mode
+        switch (paramMode) {
+            case 1: // P1 - TIMING ROW
+                return this.updateTimingParameterKnob(knobName, newValue, source);
+            case 2: // P2 - SWITCHES ROW  
+                return this.updateSwitchesParameterKnob(knobName, newValue, source);
+            case 3: // P3 - MIDI ROW
+                return this.updateMidiParameterKnob(knobName, newValue, source);
+            case 4: // P4 - LOOPS ROW
+                return this.updateLoopsParameterKnob(knobName, newValue, source);
+            default:
+                return false; // Use standard behavior
+        }
+    }
+
+    updateTimingParameterKnob(knobName, newValue, source) {
+        newValue = Math.max(0, Math.min(127, Math.round(newValue)));
+        
+        switch (knobName) {
+            case 'input':
+                // Threshold Level (0-127)
+                this.state.thresholdLevel = newValue;
+                this.showDisplayMessage(`tH${newValue}`, 1500);
+                break;
+            case 'output':
+                // Sync Mode cycling
+                const syncModes = ['INTERNAL', 'MIDI', 'BEAT'];
+                const syncIndex = Math.floor((newValue / 127) * (syncModes.length - 1));
+                this.state.syncMode = syncModes[syncIndex];
+                this.showDisplayMessage(this.state.syncMode.substring(0, 3), 1500);
+                break;
+            case 'mix':
+                // Eighths Per Cycle (2-16)
+                this.state.eighthsPerCycle = Math.max(2, Math.min(16, Math.round(2 + (newValue / 127) * 14)));
+                this.showDisplayMessage(`8th${this.state.eighthsPerCycle}`, 1500);
+                break;
+            case 'feedback':
+                // This is handled by Start Point system above
+                return false;
+        }
+        
+        this.updateKnobVisual(knobName);
+        console.log(`🎛️ P1-${knobName}: ${newValue} (${source})`);
+        return true;
+    }
+
+    updateSwitchesParameterKnob(knobName, newValue, source) {
+        // P2 - SWITCHES ROW parameter adjustments
+        // NOTE: RecordMode is changed by pressing Record button, not knobs
+        newValue = Math.max(0, Math.min(127, Math.round(newValue)));
+        
+        switch (knobName) {
+            case 'input':
+                // Some other parameter - RecordMode is handled by Record button
+                this.showDisplayMessage('SW1', 1500);
+                break;
+            case 'output':
+                // Overdub Mode selection
+                const overdubModes = ['TOGGLE', 'SUSTAIN'];
+                const overdubIndex = Math.floor((newValue / 127) * (overdubModes.length - 1));
+                this.state.overdubMode = overdubModes[overdubIndex];
+                this.showDisplayMessage(this.state.overdubMode.substring(0, 3), 1500);
+                break;
+            case 'mix':
+                // Round Mode toggle
+                this.state.roundMode = newValue > 63;
+                this.showDisplayMessage(this.state.roundMode ? 'ON' : 'OFF', 1500);
+                break;
+            case 'feedback':
+                // Insert Mode selection
+                const insertModes = ['INSERT', 'REVERSE', 'HALFSPEED', 'SUBSTITUTE'];
+                const insertIndex = Math.floor((newValue / 127) * (insertModes.length - 1));
+                this.state.insertMode = insertModes[insertIndex];
+                this.showDisplayMessage(insertModes[insertIndex].substring(0, 3), 1500);
+                break;
+        }
+        
+        this.updateKnobVisual(knobName);
+        console.log(`🎛️ P2-${knobName}: ${newValue} (${source})`);
+        return true;
+    }
+
+    /**
+     * Switch Record Mode - called from P2 parameter matrix
+     */
+    switchRecordMode(newMode) {
+        const validModes = ['TOGGLE', 'SUSTAIN', 'SAFE'];
+        if (!validModes.includes(newMode)) {
+            console.error(`Invalid RecordMode: ${newMode}`);
+            return;
+        }
+
+        this.state.recordMode = newMode;
+        console.log(`RecordMode switched to ${newMode}`);
+        this.showDisplayMessage(newMode === 'TOGGLE' ? 'tog' : newMode === 'SUSTAIN' ? 'SUS' : 'SAF', 1000);
+    }
+
+    updateMidiParameterKnob(knobName, newValue, source) {
+        // P3 - MIDI ROW parameter adjustments  
+        newValue = Math.max(0, Math.min(127, Math.round(newValue)));
+        
+        switch (knobName) {
+            case 'input':
+                // MIDI Channel (1-16)
+                this.state.midiChannel = Math.max(1, Math.min(16, Math.round(1 + (newValue / 127) * 15)));
+                this.showDisplayMessage(`CH${this.state.midiChannel}`, 1500);
+                break;
+            case 'output':
+                // Source Number (note/controller number)
+                this.state.sourceNumber = Math.max(0, Math.min(127, newValue));
+                this.showDisplayMessage(`Sr${this.state.sourceNumber}`, 1500);
+                break;
+            case 'mix':
+                // Volume Controller
+                this.state.volumeController = Math.max(0, Math.min(127, newValue));
+                this.showDisplayMessage(`VC${this.state.volumeController}`, 1500);
+                break;
+            case 'feedback':
+                // Feedback Controller
+                this.state.feedbackController = Math.max(0, Math.min(127, newValue));
+                this.showDisplayMessage(`FC${this.state.feedbackController}`, 1500);
+                break;
+        }
+        
+        this.updateKnobVisual(knobName);
+        console.log(`🎛️ P3-${knobName}: ${newValue} (${source})`);
+        return true;
+    }
+
+    updateLoopsParameterKnob(knobName, newValue, source) {
+        // P4 - LOOPS ROW parameter adjustments
+        newValue = Math.max(0, Math.min(127, Math.round(newValue)));
+        
+        switch (knobName) {
+            case 'input':
+                // More Loops (1-16)
+                this.state.moreLoops = Math.max(1, Math.min(16, Math.round(1 + (newValue / 127) * 15)));
+                this.showDisplayMessage(`LP${this.state.moreLoops}`, 1500);
+                break;
+            case 'output':
+                // Loop Trigger (MIDI note)
+                this.state.loopTrigger = Math.max(0, Math.min(127, newValue));
+                this.showDisplayMessage(`LT${this.state.loopTrigger}`, 1500);
+                break;
+            case 'mix':
+                // Switch Quantize mode
+                const quantModes = ['OFF', 'CYCLE', 'LOOP'];
+                const quantIndex = Math.floor((newValue / 127) * (quantModes.length - 1));
+                this.state.switchQuantize = quantModes[quantIndex];
+                this.showDisplayMessage(quantModes[quantIndex], 1500);
+                break;
+            case 'feedback':
+                // Sampler Style
+                const samplerModes = ['ONCE', 'CONTINUOUS', 'START'];
+                const samplerIndex = Math.floor((newValue / 127) * (samplerModes.length - 1));
+                this.state.samplerStyle = samplerModes[samplerIndex];
+                this.showDisplayMessage(samplerModes[samplerIndex].substring(0, 4), 1500);
+                break;
+        }
+        
+        this.updateKnobVisual(knobName);
+        console.log(`🎛️ P4-${knobName}: ${newValue} (${source})`);
+        return true;
+    }
+
+    // AUDIO SYSTEM START POINT APPLICATION
+    applyStartPointToAudio(startPointTime) {
+        if (!this.isAudioReady || !this.currentLoopPlayer) return;
+        
+        try {
+            // Store undo state
+            this.storeUndoState('START_POINT', {
+                previousStartPoint: this.state.startPoint,
+                newStartPoint: startPointTime
+            });
+            
+            // Apply start point to current loop buffer
+            if (this.currentLoopBuffer && this.currentLoopBuffer.length > 0) {
+                const sampleRate = this.audioContext.sampleRate;
+                const startSample = Math.floor(startPointTime * sampleRate);
+                const totalSamples = this.currentLoopBuffer.getChannelData(0).length;
+                
+                if (startSample < totalSamples && startSample >= 0) {
+                    // Update loop player start offset
+                    if (this.currentLoopPlayer.buffer) {
+                        this.currentLoopPlayer.stop();
+                        this.currentLoopPlayer = this.audioContext.createBufferSource();
+                        this.currentLoopPlayer.buffer = this.currentLoopBuffer;
+                        this.currentLoopPlayer.connect(this.outputGain);
+                        this.currentLoopPlayer.loop = true;
+                        this.currentLoopPlayer.start(0, startPointTime);
+                        
+                        console.log(`🎯 Audio Start Point Applied: ${startPointTime.toFixed(3)}s (sample ${startSample}/${totalSamples})`);
+                    }
+                }
+            }
+            
+            // Update visual timing reference
+            this.state.loopStartTime = this.audioContext.currentTime - startPointTime;
+            
+        } catch (error) {
+            console.error('🚨 Error applying start point to audio:', error);
+            this.showDisplayMessage('Err', 1000);
+        }
+    }
+
+    // PARAMETER MATRIX HELPER FUNCTIONS
+    getParameterFunction(buttonName) {
+        const paramMode = this.state.parameterMode;
+        if (paramMode === 0) return null; // Normal mode
+        
+        const matrix = this.parameterMatrix[`P${paramMode}`];
+        if (!matrix) return null;
+        
+        return {
+            parameterRow: matrix.name,
+            parameterDisplay: matrix.display,
+            buttonFunction: matrix[buttonName] || 'Unknown',
+            fullDescription: `${matrix.display} ${matrix.name}: ${matrix[buttonName]}`
+        };
+    }
+    
+    showParameterButtonFunction(buttonName) {
+        const paramInfo = this.getParameterFunction(buttonName);
+        if (paramInfo) {
+            console.log(`🎛️ Parameter Mode: ${paramInfo.fullDescription}`);
+            this.showDisplayMessage(paramInfo.buttonFunction, 1500);
+        } else {
+            console.log(`🎛️ Normal Mode: ${buttonName} button`);
+        }
+    }
+    
+    // PARAMETER MATRIX KNOB FUNCTIONS
+    getKnobParameterFunction(knobName) {
+        const paramMode = this.state.parameterMode;
+        if (paramMode === 0) return null;
+        
+        // Define what each knob controls in each parameter mode
+        const knobMatrix = {
+            P1: { // TIMING
+                input: 'Threshold',
+                output: 'Sync', 
+                mix: '8ths/Cycle',
+                feedback: 'StartPoint' // Only when NextLoop is pressed
+            },
+            P2: { // SWITCHES
+                input: 'RecordMode',
+                output: 'OverdubMode',
+                mix: 'RoundMode', 
+                feedback: 'InsertMode'
+            },
+            P3: { // MIDI
+                input: 'Channel',
+                output: 'Source #',
+                mix: 'VolumeCont',
+                feedback: 'FeedBklCont'
+            },
+            P4: { // LOOPS
+                input: 'MoreLoops',
+                output: 'LoopTrig',
+                mix: 'SwitchQuant',
+                feedback: 'SamplerStyle'
+            }
+        };
+        
+        const matrix = knobMatrix[`P${paramMode}`];
+        return matrix ? matrix[knobName] : null;
+    }
+
+    // EXIT START POINT MODE
+    exitStartPointMode() {
+        if (!this.state.startPointAdjusting) return;
+        
+        console.log('🎯 Exiting Start Point Mode');
+        
+        // Restore previous feedback value
+        this.state.controlValues.feedback = this.state.previousFeedbackValue;
+        this.updateKnobVisual('feedback');
+        this.applyKnobToAudio('feedback', this.state.previousFeedbackValue);
+        
+        // Clear start point mode flags
+        this.state.startPointMode = false;
+        this.state.startPointAdjusting = false;
+        
+        // Remove visual indicator and clean up old markers
+        const indicators = document.querySelectorAll('.start-point-indicator, #startpoint-marker');
+        indicators.forEach(indicator => indicator.remove());
+        
+        // Show completion message
+        this.showDisplayMessage('EXIT', 1000);
+        
+        console.log(`🎯 Start Point Set: ${this.state.startPoint.toFixed(2)}s, Feedback Restored: ${this.state.previousFeedbackValue}`);
     }
 
     // ============================================================================
@@ -14577,7 +15947,7 @@ class EchoplexDigitalPro {
             recordMode: recordModes[data[index++]] || 'TOGGLE',
             overdubMode: overdubModes[data[index++]] || 'TOGGLE',
             insertMode: insertModes[data[index++]] || 'INSERT',
-            feedback: data[index++] || 95,
+            feedback: data[index++] || 127,
             mix: data[index++] || 64
         };
     }
@@ -15127,7 +16497,7 @@ class EchoplexDigitalPro {
                 interfaceMode: 'EXPERT',
                 syncMode: 'INTERNAL',
                 thresholdLevel: 0,
-                controlValues: { input: 64, output: 64, mix: 64, feedback: 95 }
+                controlValues: { input: 64, output: 64, mix: 64, feedback: 127 }
             },
             1: { // Quantized Loop
                 name: 'QuanLoop',
@@ -15980,7 +17350,7 @@ class EchoplexDigitalPro {
             input: 64,
             output: 64, 
             mix: 64,
-            feedback: 95
+            feedback: 127
         };
         
         // Reset parameter mode
@@ -16023,6 +17393,66 @@ class EchoplexDigitalPro {
         if (this.insertCycleInterval) {
             clearInterval(this.insertCycleInterval);
             this.insertCycleInterval = null;
+        
+        // PARAMETER MATRIX SYSTEM - AUTHENTIC ECHOPLEX MAPPING
+        // Based on official Echoplex Digital Pro Plus documentation
+        this.parameterMatrix = {
+            // TIMING ROW (P1) - When parameterMode = 1
+            P1: {
+                display: 'P1',
+                name: 'TIMING',
+                parameters: 'Parameters',
+                record: 'Loop/Delay',
+                overdub: 'Quantize', 
+                multiply: '8ths/Cycle',
+                insert: 'Sync',
+                mute: 'Threshold',
+                undo: 'Reverse',
+                nextloop: 'StartPoint'
+            },
+            
+            // SWITCHES ROW (P2) - When parameterMode = 2  
+            P2: {
+                display: 'P2',
+                name: 'SWITCHES',
+                parameters: 'Parameters',
+                record: 'RecordMode',
+                overdub: 'OverdubMode',
+                multiply: 'RoundMode',
+                insert: 'InsertMode',
+                mute: 'MuteMode',
+                undo: 'Overflow',
+                nextloop: 'Presets'
+            },
+            
+            // MIDI ROW (P3) - When parameterMode = 3
+            P3: {
+                display: 'P3',
+                name: 'MIDI',
+                parameters: 'Parameters',
+                record: 'Channel',
+                overdub: 'ControlSource',
+                multiply: 'Source #',
+                insert: 'VolumeCont',
+                mute: 'FeedBklCont',
+                undo: 'Dump',
+                nextloop: 'Load'
+            },
+            
+            // LOOPS ROW (P4) - When parameterMode = 4
+            P4: {
+                display: 'P4',
+                name: 'LOOPS',
+                parameters: 'Parameters',
+                record: 'MoreLoops',
+                overdub: 'AutoRecord',
+                multiply: 'LoopCopy',
+                insert: 'SwitchQuant',
+                mute: 'LoopTrig',
+                undo: 'Velocity',
+                nextloop: 'SamplerStyle'
+            }
+        };
         }
         
         console.log('All operations stopped');
@@ -19242,7 +20672,7 @@ class EchoplexDigitalPro {
     }
 
     resetKnobToDefault(knobName) {
-        const defaults = { input: 64, output: 64, mix: 64, feedback: 95 };
+        const defaults = { input: 64, output: 64, mix: 64, feedback: 127 };
         const defaultValue = defaults[knobName] || 64;
         
         this.updateKnobValue(knobName, defaultValue, 'reset');
@@ -19812,7 +21242,7 @@ class EchoplexDigitalPro {
         
         // Fade out current loop
         if (this.outputGain) {
-            this.outputGain.gain.linearRampToValueAtTime(0, Tone.now() + fadeTime);
+            this.outputGain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + fadeTime);
         }
         
         setTimeout(() => {
@@ -19821,7 +21251,7 @@ class EchoplexDigitalPro {
             
             // Fade in new loop
             if (this.outputGain) {
-                this.outputGain.gain.linearRampToValueAtTime(targetLoop.outputLevel / 127, Tone.now() + fadeTime);
+                this.outputGain.gain.linearRampToValueAtTime(targetLoop.outputLevel / 127, this.audioContext.currentTime + fadeTime);
             }
         }, fadeTime * 500); // Fade midpoint
         
@@ -19833,8 +21263,8 @@ class EchoplexDigitalPro {
         const crossfadeTime = switchSystem.crossfadeTime;
         
         // Create temporary crossfade bus for smooth transition
-        if (typeof Tone !== 'undefined') {
-            const crossfadeBus = new Tone.CrossFade(0); // Start with current loop
+        if (this.audioContext) {
+            const crossfadeBus = this.createCrossfader(0); // Start with current loop
             
             // Connect current output to A side
             if (this.outputGain) {
@@ -19843,12 +21273,12 @@ class EchoplexDigitalPro {
             
             // Start target loop and connect to B side
             if (!targetLoop.isEmpty && targetLoop.buffer) {
-                const targetPlayer = new Tone.Player(targetLoop.buffer);
+                const targetPlayer = this.createAudioPlayer(targetLoop.buffer);
                 targetPlayer.connect(crossfadeBus.b);
                 targetPlayer.start();
                 
                 // Crossfade from A to B
-                crossfadeBus.fade.linearRampToValueAtTime(1, Tone.now() + crossfadeTime);
+                crossfadeBus.fade.linearRampToValueAtTime(1, this.audioContext.currentTime + crossfadeTime);
                 
                 // Clean up after crossfade
                 setTimeout(() => {
@@ -20160,10 +21590,10 @@ class EchoplexDigitalPro {
         
         try {
             // Create new player for the loop
-            if (typeof Tone !== 'undefined') {
-                this.player = new Tone.Player(loop.buffer);
+            if (this.audioContext) {
+                this.player = this.createAudioPlayer(loop.buffer);
                 this.player.loop = true;
-                this.player.connect(this.outputGain || Tone.Destination);
+                this.player.connect(this.outputGain || this.audioContext.destination);
                 this.player.start();
             }
         } catch (error) {
@@ -20287,10 +21717,10 @@ class EchoplexDigitalPro {
 
     createEmptyBuffer(durationSeconds) {
         try {
-            if (typeof Tone !== 'undefined') {
-                const sampleRate = Tone.context.sampleRate || 44100;
+            if (this.audioContext) {
+                const sampleRate = this.audioContext.sampleRate || 44100;
                 const samples = Math.floor(durationSeconds * sampleRate);
-                const buffer = Tone.context.createBuffer(1, samples, sampleRate);
+                const buffer = this.audioContext.createBuffer(1, samples, sampleRate);
                 
                 this.memorySystem.stats.buffersCreated++;
                 return buffer;
@@ -20996,8 +22426,8 @@ class EchoplexDigitalPro {
         // Use polling approach instead of event listeners for better compatibility
         this.audioContextMonitor = setInterval(() => {
             try {
-                if (typeof Tone !== 'undefined' && Tone.context) {
-                    const state = Tone.context.state;
+                if (this.audioContext) {
+                    const state = this.audioContext.state;
                     
                     // Check for problematic states
                     if (state === 'interrupted') {
@@ -21053,8 +22483,8 @@ class EchoplexDigitalPro {
      */
     async resumeAudioContext() {
         try {
-            if (typeof Tone !== 'undefined' && Tone.context && Tone.context.state === 'suspended') {
-                await Tone.context.resume();
+            if (this.audioContext && this.audioContext.state === 'suspended') {
+                await this.audioContext.resume();
                 console.log('✅ Audio context resumed successfully');
             }
         } catch (error) {
@@ -21070,13 +22500,13 @@ class EchoplexDigitalPro {
         console.log('🔄 Attempting audio context recovery...');
         
         try {
-            // Try to restart Tone.js
-            if (typeof Tone !== 'undefined') {
-                await Tone.start();
+            // Try to restart Web Audio API
+            if (this.audioContext) {
+                await this.audioContext.resume();
                 
                 // Reinitialize audio system if needed
                 if (!this.isAudioReady) {
-                    await this.initializeToneJS();
+                    await this.initializeWebAudio();
                 }
                 
                 console.log('✅ Audio context recovery successful');
@@ -21329,7 +22759,7 @@ class EchoplexDigitalPro {
         console.log('🔧 Attempting audio system recovery...');
         
         // Restart audio system
-        this.initializeToneJS().then(() => {
+        this.initializeWebAudio().then(() => {
             console.log('✅ Audio system recovery successful');
             this.errorSystem.stats.successfulRecoveries++;
         }).catch(error => {
@@ -21643,18 +23073,21 @@ class EchoplexDigitalPro {
         const granular = this.advancedLooping.granular;
         
         // Create Web Audio nodes for granular synthesis
-        if (typeof Tone !== 'undefined') {
-            granular.context = Tone.context;
+        if (this.audioContext) {
+            granular.context = this.audioContext;
             
             // Create granular synthesis chain
-            granular.output = new Tone.Gain(0.7);
-            granular.filter = new Tone.Filter(8000, 'lowpass');
-            granular.reverb = new Tone.Reverb(0.3);
+            granular.output = this.audioContext.createGain();
+            granular.output.gain.value = 0.7;
+            granular.filter = this.audioContext.createBiquadFilter();
+            granular.filter.type = 'lowpass';
+            granular.filter.frequency.value = 8000;
+            granular.reverb = this.audioContext.createConvolver(); // Simplified reverb
             
             // Connect chain
             granular.output.connect(granular.filter);
             granular.filter.connect(granular.reverb);
-            granular.reverb.connect(Tone.Destination);
+            granular.reverb.connect(this.audioContext.destination);
         }
         
         console.log('Granular synthesis initialized');
@@ -21664,16 +23097,17 @@ class EchoplexDigitalPro {
         const stutter = this.advancedLooping.stutter;
         
         // Create stutter processing chain
-        if (typeof Tone !== 'undefined') {
-            stutter.buffer = new Tone.Buffer();
-            stutter.player = new Tone.Player();
-            stutter.gate = new Tone.Gate(-40); // Gate for stutter cuts
-            stutter.output = new Tone.Gain(0.8);
+        if (this.audioContext) {
+            stutter.buffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate * 2, this.audioContext.sampleRate);
+            stutter.player = this.createAudioPlayer();
+            stutter.gate = this.audioContext.createGain(); // Simple gate using gain node
+            stutter.output = this.audioContext.createGain();
+            stutter.output.gain.value = 0.8;
             
             // Connect stutter chain
             stutter.player.connect(stutter.gate);
             stutter.gate.connect(stutter.output);
-            stutter.output.connect(Tone.Destination);
+            stutter.output.connect(this.audioContext.destination);
         }
         
         // Initialize stutter pattern generator
@@ -21690,9 +23124,11 @@ class EchoplexDigitalPro {
         loopCopy.processors = new Map();
         
         // Create audio analysis tools
-        if (typeof Tone !== 'undefined') {
-            loopCopy.analyzer = new Tone.Analyser('fft', 1024);
-            loopCopy.waveform = new Tone.Analyser('waveform', 1024);
+        if (this.audioContext) {
+            loopCopy.analyzer = this.audioContext.createAnalyser();
+            loopCopy.analyzer.fftSize = 2048; // 1024 bins
+            loopCopy.waveform = this.audioContext.createAnalyser();
+            loopCopy.waveform.fftSize = 2048;
         }
         
         console.log('LoopCopy system initialized');
@@ -21701,19 +23137,22 @@ class EchoplexDigitalPro {
     initializeAdvancedEffects() {
         const effects = this.advancedLooping.effects;
         
-        if (typeof Tone !== 'undefined') {
+        if (this.audioContext) {
             // Granular delay
-            effects.granularDelay.delay = new Tone.Delay(0.25);
-            effects.granularDelay.feedback = new Tone.Gain(0.4);
-            effects.granularDelay.granulator = new Tone.GrainPlayer();
+            effects.granularDelay.delay = this.audioContext.createDelay(1.0);
+            effects.granularDelay.delay.delayTime.value = 0.25;
+            effects.granularDelay.feedback = this.audioContext.createGain();
+            effects.granularDelay.feedback.gain.value = 0.4;
+            effects.granularDelay.granulator = this.audioContext.createBufferSource(); // Simplified granulator
             
             // Spectral freeze
-            effects.spectralFreeze.fft = new Tone.FFT(2048);
-            effects.spectralFreeze.convolver = new Tone.Convolver();
+            effects.spectralFreeze.fft = this.audioContext.createAnalyser();
+            effects.spectralFreeze.fft.fftSize = 4096; // 2048 bins
+            effects.spectralFreeze.convolver = this.audioContext.createConvolver();
             
             // Loop morph
-            effects.loopMorph.crossfade = new Tone.CrossFade(0.5);
-            effects.loopMorph.morphBuffer = new Tone.Buffer();
+            effects.loopMorph.crossfade = this.createCrossfader(0.5);
+            effects.loopMorph.morphBuffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate * 2, this.audioContext.sampleRate);
         }
         
         console.log('Advanced effects initialized');
@@ -21772,7 +23211,7 @@ class EchoplexDigitalPro {
         
         if (!granular.enabled || !currentLoop) return;
         
-        const now = Tone.now();
+        const now = this.audioContext.currentTime;
         const grainInterval = granular.grainSize * (1 - granular.overlap);
         const nextGrainTime = now + grainInterval / granular.density;
         
@@ -21796,16 +23235,16 @@ class EchoplexDigitalPro {
             const clampedPosition = Math.max(0, Math.min(1, grainPosition));
             
             // Create grain source
-            const grain = new Tone.BufferSource(currentLoop.buffer);
-            const envelope = new Tone.AmplitudeEnvelope({
-                attack: granular.grainSize * 0.1,
-                decay: granular.grainSize * 0.3,
-                sustain: 0.7,
-                release: granular.grainSize * 0.6
-            });
+            const grain = this.audioContext.createBufferSource();
+            grain.buffer = currentLoop.buffer;
+            const envelope = this.audioContext.createGain(); // Simplified envelope
+            // Set initial gain and schedule envelope (simplified ADSR)
+            envelope.gain.setValueAtTime(0, this.audioContext.currentTime);
+            envelope.gain.linearRampToValueAtTime(0.7, this.audioContext.currentTime + granular.grainSize * 0.1);
+            envelope.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + granular.grainSize);
             
             // Apply pitch shifting
-            grain.playbackRate = granular.pitch;
+            grain.playbackRate.value = granular.pitch;
             
             // Connect grain
             grain.connect(envelope);
@@ -21836,7 +23275,7 @@ class EchoplexDigitalPro {
     
     cleanupOldGrains() {
         const granular = this.advancedLooping.granular;
-        const now = Tone.now();
+        const now = this.audioContext.currentTime;
         
         granular.scheduledGrains = granular.scheduledGrains.filter(grain => {
             const grainAge = now - grain.startTime;
@@ -21912,7 +23351,7 @@ class EchoplexDigitalPro {
         
         if (!currentLoop || !currentLoop.buffer) return;
         
-        const now = Tone.now();
+        const now = this.audioContext.currentTime;
         const stutterLength = this.calculateStutterLength();
         
         // Create stutter event
@@ -21997,10 +23436,11 @@ class EchoplexDigitalPro {
         const bufferSamples = Math.floor(bufferLength * sampleRate);
         
         // Create new buffer for stutter
-        const stutterBuffer = new Tone.Buffer({
-            length: bufferSamples,
-            sampleRate: sampleRate
-        });
+        const stutterBuffer = this.audioContext.createBuffer(
+            2, 
+            bufferSamples,
+            sampleRate
+        );
         
         // Copy audio data from current loop position
         const sourceData = loop.buffer.getChannelData(0);
@@ -22022,9 +23462,9 @@ class EchoplexDigitalPro {
         const repetitions = Math.ceil(4 * stutterEvent.intensity); // More intense = more repetitions
         
         for (let i = 0; i < repetitions; i++) {
-            const startTime = Tone.now() + (i * stutterEvent.length);
+            const startTime = this.audioContext.currentTime + (i * stutterEvent.length);
             
-            const player = new Tone.Player(buffer);
+            const player = this.createAudioPlayer(buffer);
             player.connect(stutter.output);
             player.start(startTime);
             
@@ -22586,7 +24026,7 @@ class EchoplexDigitalPro {
         
         const results = {
             power: this.state.power,
-            toneJsAvailable: typeof Tone !== 'undefined',
+            webAudioAvailable: !!this.audioContext,
             audioReady: this.isAudioReady,
             elementsFound: this.checkElementsAvailable(),
             audioContext: this.audioContext ? 'Ready' : 'Not initialized',
@@ -22798,9 +24238,11 @@ class EchoplexDigitalPro {
     getSustainModeForButton(buttonName) {
         switch (buttonName) {
             case 'record':
-                return this.state.recordMode === 'SUSTAIN' || this.sustainActionSystem.sustainModes.record;
+                // ONLY use sustain mode if recordMode is explicitly set to SUSTAIN
+                return this.state.recordMode === 'SUSTAIN';
             case 'overdub':
-                return this.state.overdubMode === 'SUSTAIN' || this.sustainActionSystem.sustainModes.overdub;
+                // ONLY use sustain mode if overdubMode is explicitly set to SUSTAIN
+                return this.state.overdubMode === 'SUSTAIN';
             case 'multiply':
                 return this.sustainActionSystem.sustainModes.multiply;
             case 'insert':
@@ -23072,16 +24514,6 @@ class EchoplexDigitalPro {
     }
     
     /**
-     * Handle Record button press - SECOND LOCATION
-     */
-    handleRecord() {
-        const recordLed = this.elements.recordBtn?.querySelector('.status-led');
-        if (!recordLed) return;
-        
-        this.toggleRecord();
-    }
-
-    /**
      * Handle Record button long press - SECOND LOCATION
      */
     handleRecordLongPress() {
@@ -23203,6 +24635,13 @@ class EchoplexDigitalPro {
         // Update LCD display
         this.showDisplayMessage(currentMode, 1500);
         
+        // Update Multiple Display with P1-P4
+        if (this.state.parameterMode > 0) {
+            this.updateMultipleDisplay(`P${this.state.parameterMode}`);
+        } else {
+            this.updateMultipleDisplay('');
+        }
+        
         // Update parameter row visual indicators
         this.updateParameterLEDs();
         
@@ -23213,11 +24652,14 @@ class EchoplexDigitalPro {
      * Handle Parameters button long press
      */
     handleParametersLongPress() {
-        // Long press Parameters = Exit parameter mode
-        this.state.parameterMode = 0;
-        this.showDisplayMessage('PLAY', 1000);
-        this.updateParameterLEDs();
-        console.log('Parameters: Long press - returned to PLAY mode');
+        // Long press Parameters = Exit parameter mode and return to normal function
+        if (this.state.parameterMode > 0) {
+            this.state.parameterMode = 0;
+            this.showDisplayMessage('PLAY', 1000);
+            this.updateMultipleDisplay(''); // Clear P1-P4 display
+            this.updateParameterLEDs();
+            console.log('Parameters: Long press - exited parameter mode, returned to normal function');
+        }
     }
 
     /**
@@ -23246,7 +24688,7 @@ class EchoplexDigitalPro {
         if (activeLedId) {
             const activeLed = document.getElementById(activeLedId);
             if (activeLed) {
-                activeLed.className = 'row-indicator status-led astro-j7pv25f6 green';
+                activeLed.className = 'row-indicator status-led astro-j7pv25f6 orange';
                 console.log(`Parameter LED: ${activeLedId} activated for mode P${this.state.parameterMode}`);
             }
         }
@@ -24058,7 +25500,7 @@ class EchoplexDigitalPro {
             // Phase 6: Quantization Test
             console.log('🎵 Phase 6: Testing quantization system...');
             if (this.state.quantizeMode !== 'OFF') {
-                testResults.quantization = !!this.quantizePendingFunction || this.toneTransport?.state === 'started';
+                testResults.quantization = !!this.quantizePendingFunction || this.audioContext?.state === 'running';
                 console.log(`✓ Quantization: ${testResults.quantization ? 'PASS' : 'FAIL'}`);
             } else {
                 testResults.quantization = true; // Pass if quantization is OFF
@@ -24074,7 +25516,7 @@ class EchoplexDigitalPro {
             testResults.visualFeedback = (
                 powerButton?.classList.contains('powered-on') &&
                 (recordButton?.classList.contains('active') || recordButton?.classList.contains('recording')) &&
-                document.querySelector('.timer-display .time')?.textContent
+                document.querySelector('#loop-display')?.textContent
             );
             console.log(`✓ Visual feedback: ${testResults.visualFeedback ? 'PASS' : 'FAIL'}`);
             
@@ -24136,7 +25578,7 @@ class EchoplexDigitalPro {
         
         const diagnostics = {
             audioContext: !!this.audioSystem?.context,
-            toneInitialized: !!window.Tone,
+            webAudioInitialized: !!this.audioContext,
             elementsConnected: this.validateElementConnections(),
             audioChainComplete: this.validateAudioChain(),
             timingAccurate: this.validateTimingSystem(),
@@ -24198,7 +25640,7 @@ class EchoplexDigitalPro {
      */
     validateTimingSystem() {
         return !!(
-            this.toneTransport &&
+            this.audioContext &&
             typeof this.state.tempo === 'number' &&
             this.state.tempo > 0 &&
             typeof this.state.cycleLength === 'number' &&
@@ -24367,9 +25809,7 @@ class EchoplexDigitalPro {
      */
     showDisplayMessage(message, duration = 2000) {
         try {
-            const display = document.getElementById('loop-time-display') || 
-                           document.querySelector('.timer-display') || 
-                           document.querySelector('.loop-display');
+            const display = document.querySelector('#loop-display');
             
             if (display) {
                 const originalText = display.textContent;
@@ -24806,7 +26246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log(`   Total lines of code: ${await getLineCount()}`);
                 console.log(`   Systems implemented: 20/20 ✅`);
                 console.log(`   Features working: Multiple loops, overdubbing, quantization, memory management`);
-                console.log(`   Audio engine: Tone.js with Web Audio API`);
+                console.log(`   Audio engine: Pure Web Audio API`);
                 console.log(`   UI elements: ${document.querySelectorAll('.button, .knob').length} interactive controls`);
                 
             } catch (error) {

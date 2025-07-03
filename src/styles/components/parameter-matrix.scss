@@ -1,0 +1,93 @@
+// ECHOPLEX PARAMETER MATRIX COMPONENT
+// Parameter selection matrix with hidden labels
+
+@use '../variables-scss/echoplex-positioning' as pos;
+@use '../variables-scss/echoplex-colors' as colors;
+@use '../helpers/echoplex-mixins' as mixins;
+@use '../helpers/positioning-helpers' as helpers;
+
+// Parameter matrix container
+.parameter-matrix {
+  position: absolute;
+  left: 32%;
+  top: 58%;
+  width: 20%;
+  height: 15%;
+  z-index: helpers.get-z-index('hardware');
+}
+
+// Parameter buttons grid
+.param-button {
+  @include mixins.hardware-button();
+  width: 18%;
+  height: 45%;
+  font-size: 8px;
+  margin: 1%;
+  
+  // Remove text/labels (keep hidden for matrix)
+  color: transparent;
+  
+  &.active {
+    background: linear-gradient(to bottom, colors.$led-green, darken(colors.$led-green, 20%));
+    @include mixins.led-glow(colors.$led-green, 0.3);
+  }
+  
+  &.selected {
+    background: linear-gradient(to bottom, colors.$led-amber, darken(colors.$led-amber, 20%));
+    @include mixins.led-glow(colors.$led-amber, 0.3);
+  }
+}
+
+// Parameter matrix labels (hidden but kept for functionality)
+.param-label {
+  display: none; // Hidden as requested
+  position: absolute;
+  font-size: 7px;
+  color: colors.$lcd-text-green;
+  pointer-events: none;
+  
+  // Keep structure for potential future use
+  &.loop-params {
+    top: -15px;
+  }
+  
+  &.timing-params {
+    bottom: -15px;
+  }
+}
+
+// Parameter grid layout
+.parameter-matrix {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2%;
+  
+  // Individual parameter buttons
+  .param-1 { grid-area: 1 / 1; }
+  .param-2 { grid-area: 1 / 2; }
+  .param-3 { grid-area: 1 / 3; }
+  .param-4 { grid-area: 1 / 4; }
+  .param-5 { grid-area: 1 / 5; }
+  .param-6 { grid-area: 2 / 1; }
+  .param-7 { grid-area: 2 / 2; }
+  .param-8 { grid-area: 2 / 3; }
+  .param-9 { grid-area: 2 / 4; }
+  .param-10 { grid-area: 2 / 5; }
+}
+
+// Parameter states
+.param-button {
+  &:hover {
+    background: linear-gradient(to bottom, lighten(colors.$button-background, 10%), colors.$button-background);
+  }
+  
+  &:active {
+    transform: scale(0.9);
+  }
+  
+  &.disabled {
+    opacity: 0.2;
+    pointer-events: none;
+  }
+}

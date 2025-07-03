@@ -88,9 +88,9 @@ class EchoplexAudioEngine {
       throw new Error('Audio context not initialized')
     }
     
-    // Verify Tone.js is available
-    if (typeof Tone === 'undefined') {
-      throw new Error('Tone.js library not loaded')
+    // Verify Web Audio API is available
+    if (!window.AudioContext && !window.webkitAudioContext) {
+      throw new Error('Web Audio API not supported')
     }
 
     try {
@@ -104,14 +104,18 @@ class EchoplexAudioEngine {
         },
       })
 
-      // Create Tone.js input system using Tone.UserMedia
-      this.micInput = new Tone.UserMedia()
-      await this.micInput.open()
+      // Create Web Audio API input system
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      this.micInput = this.audioContext.createMediaStreamSource(this.micStream)
       
-      // Create Tone.js channels for mixing
-      this.channel1 = new Tone.Channel(this.state.settings.inputGain, 0) // Mic channel
-      this.channel2 = new Tone.Channel(0.8, 0) // Sample channel (initially muted)
-      this.masterGain = new Tone.Gain(this.state.settings.outputGain)
+      // Create Web Audio API channels for mixing
+      this.channel1 = this.audioContext.createGain() // Mic channel
+      this.channel1.gain.value = this.state.settings.inputGain
+      this.channel2 = this.audioContext.createGain() // Sample channel (initially muted)
+      this.channel2.gain.value = 0.8
+      this.masterGain = this.audioContext.createGain()
+      this.masterGain.gain.value = this.state.settings.outputGain
       
       // Connect microphone to channel 1
       this.micInput.connect(this.channel1)
@@ -119,7 +123,7 @@ class EchoplexAudioEngine {
       // Mix both channels to master gain
       this.channel1.connect(this.masterGain)
       this.channel2.connect(this.masterGain)
-      this.masterGain.toDestination()
+      this.masterGain.connect(this.audioContext.destination)
       
       // Store references for backward compatibility with existing code
       this.inputGain = this.channel1
@@ -217,8 +221,9 @@ class EchoplexAudioEngine {
       this.samplePlayer.dispose()
     }
     
-    // Create Tone.js Player for the sample
-    this.samplePlayer = new Tone.Player(audioBuffer)
+    // Create Web Audio API Player for the sample
+    this.samplePlayer = this.audioContext.createBufferSource()
+    this.samplePlayer.buffer = audioBuffer
     this.samplePlayer.loop = true
     
     // Connect sample player to channel 2
@@ -273,7 +278,7 @@ class EchoplexAudioEngine {
       this.playbackTimer = null
     }
     
-    // Dispose Tone.js objects
+    // Dispose Web Audio API objects
     if (this.micInput) {
       this.micInput.close()
       this.micInput.dispose()
@@ -303,7 +308,7 @@ class EchoplexAudioEngine {
 
     // Apply settings to audio nodes
     if (this.inputGain && newSettings.inputGain !== undefined) {
-      this.inputGain.volume.value = Tone.gainToDb(newSettings.inputGain)
+      this.inputGain.gain.value = newSettings.inputGain
     }
 
     if (this.outputGain && newSettings.outputGain !== undefined) {

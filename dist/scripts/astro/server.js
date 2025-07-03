@@ -5,13 +5,6 @@ import { decodeBase64 } from '@oslojs/encoding';
 import { z } from 'zod';
 import 'cssesc';
 
-const InvalidComponentArgs = {
-  name: "InvalidComponentArgs",
-  title: "Invalid component arguments.",
-  message: (name) => `Invalid arguments passed to${name ? ` <${name}>` : ""} component.`,
-  hint: "Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`."
-};
-
 function normalizeLF(code) {
   return code.replace(/\r\n|\r(?!\n)|\n/g, "\n");
 }
@@ -81,6 +74,13 @@ class AstroError extends Error {
     return err.type === "AstroError";
   }
 }
+
+const InvalidComponentArgs = {
+  name: "InvalidComponentArgs",
+  title: "Invalid component arguments.",
+  message: (name) => `Invalid arguments passed to${name ? ` <${name}>` : ""} component.`,
+  hint: "Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`."
+};
 
 function validateArgs(args) {
   if (args.length !== 3) return false;

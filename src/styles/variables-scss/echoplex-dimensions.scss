@@ -1,0 +1,45 @@
+// ECHOPLEX DIGITAL PRO PLUS DIMENSION VARIABLES
+// Hardware dimensions and sizing values
+
+// Power Button dimensions
+$power-button-border-radius: 5px;
+$power-button-border-width: 2px;
+$power-button-box-shadow-spread: 3px;
+$power-button-glow-spread: 15px;
+
+// Control Knob dimensions
+$knob-border-radius: 50%;
+$knob-border-width: 2px;
+$knob-inner-circle-size: 60%;
+$knob-indicator-size: 3px;
+
+// Button dimensions
+$button-border-radius: 3px;
+$button-border-width: 1px;
+$button-padding: 2px;
+$button-font-size: 10px;
+
+// LED dimensions
+$led-border-radius: 50%;
+$led-glow-blur: 4px;
+$led-shadow-spread: 2px;
+
+// Display dimensions
+$display-border-radius: 5px;
+$display-border-width: 2px;
+$display-padding: 5px;
+$display-font-size: 12px;
+$display-line-height: 1.2;
+
+// Transition timing
+$standard-transition: 0.3s ease;
+$fast-transition: 0.1s ease;
+$slow-transition: 0.5s ease;
+
+// Z-index layers
+$z-background: 1;
+$z-hardware: 100;
+$z-leds: 200;
+$z-display: 300;
+$z-buttons: 400;
+$z-power: 1000;

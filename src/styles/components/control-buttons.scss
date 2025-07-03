@@ -1,0 +1,120 @@
+// ECHOPLEX CONTROL BUTTONS COMPONENT
+// The 8 main control buttons: Parameters, Record, Overdub, Multiply, Insert, Mute, Undo, NextLoop
+
+@use '../variables-scss/echoplex-positioning' as pos;
+@use '../variables-scss/echoplex-colors' as colors;
+@use '../helpers/echoplex-mixins' as mixins;
+@use '../helpers/positioning-helpers' as helpers;
+
+// Base button styling
+.control-button {
+  @include mixins.hardware-button();
+  position: absolute !important;
+  top: pos.$buttons-top !important;
+  width: pos.$buttons-width !important;
+  height: pos.$buttons-height !important;
+  z-index: helpers.get-z-index('buttons') !important;
+  
+  // Button text styling
+  color: #333 !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  font-size: 9px !important;
+  
+  // Remove any hover effects (per user request)
+  &:hover {
+    background: linear-gradient(to bottom, colors.$button-background, darken(colors.$button-background, 20%)) !important;
+    transform: none !important;
+  }
+}
+
+// Individual button positions
+#parameters-btn {
+  @extend .control-button;
+  left: pos.$parameters-btn-left !important;
+}
+
+#record-btn {
+  @extend .control-button;
+  left: pos.$record-btn-left !important;
+  
+  // Record button special styling
+  &.recording {
+    background: linear-gradient(to bottom, colors.$led-red, darken(colors.$led-red, 20%)) !important;
+    color: white !important;
+    @include mixins.led-glow(colors.$led-red, 0.3);
+  }
+}
+
+#overdub-btn {
+  @extend .control-button;
+  left: pos.$overdub-btn-left !important;
+  
+  // Overdub button special styling
+  &.overdubbing {
+    background: linear-gradient(to bottom, colors.$led-amber, darken(colors.$led-amber, 20%)) !important;
+    color: #333 !important;
+    @include mixins.led-glow(colors.$led-amber, 0.3);
+  }
+}
+
+#multiply-btn {
+  @extend .control-button;
+  left: pos.$multiply-btn-left !important;
+}
+
+#insert-btn {
+  @extend .control-button;
+  left: pos.$insert-btn-left !important;
+}
+
+#mute-btn {
+  @extend .control-button;
+  left: pos.$mute-btn-left !important;
+  
+  // Mute button special styling
+  &.muted {
+    background: linear-gradient(to bottom, #666, #333) !important;
+    color: colors.$led-red !important;
+  }
+}
+
+#undo-btn {
+  @extend .control-button;
+  left: pos.$undo-btn-left !important;
+}
+
+#nextloop-btn {
+  @extend .control-button;
+  left: pos.$nextloop-btn-left !important;
+}
+
+// Button LED indicators (inside each button)
+.button-led {
+  position: absolute !important;
+  left: pos.$button-led-left !important;
+  top: pos.$button-led-top !important;
+  width: pos.$button-led-width !important;
+  height: pos.$button-led-height !important;
+  @include mixins.led-indicator();
+  z-index: helpers.get-z-index('leds') !important;
+  pointer-events: none !important;
+}
+
+// Button states
+.control-button {
+  &.active {
+    background: linear-gradient(to bottom, colors.$led-green, darken(colors.$led-green, 20%)) !important;
+    color: white !important;
+    @include mixins.led-glow(colors.$led-green, 0.3);
+  }
+  
+  &.disabled {
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+  }
+  
+  &:active {
+    transform: scale(0.95) !important;
+  }
+}

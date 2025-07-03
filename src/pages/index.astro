@@ -8,8 +8,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Echo Plex</title>
-  <link rel="stylesheet" href="/styles/main.css">
-  <link rel="stylesheet" href="/styles/power.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
     
@@ -558,6 +556,129 @@
       box-shadow: none;
     }
     
+    /* Button-embedded LED positioning - exact positioning from HTML */
+    .status-led[data-function="record"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    .status-led[data-function="overdub"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    .status-led[data-function="multiply"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    .status-led[data-function="insert"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    .status-led[data-function="mute"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    .status-led[data-function="undo"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    .status-led[data-function="nextloop"] {
+      left: 33.5% !important;
+      position: absolute !important;
+      top: 162% !important;
+    }
+    
+    /* Green LED default state for ready buttons */
+    .status-led.green {
+      background-color: #00ff00;
+      box-shadow: 0 0 4px #00ff00, inset 0 0 2px #44ff44;
+    }
+    
+    .status-led.orange {
+      background-color: #ff8000;
+      box-shadow: 0 0 4px #ff8000, inset 0 0 2px #ffaa44;
+    }
+    
+    .level-light#input-level {
+      left: 13.15% !important;
+      top: 73% !important;
+      position: absolute !important;
+      width: 0.7% !important;
+      height: 6% !important;
+    }
+    
+    .level-light#feedback-level {
+      left: 17.05% !important;
+      top: 73% !important;
+      width: 0.7% !important;
+      height: 6% !important;
+      position: absolute !important;
+    }
+    
+    .row-indicator.status-led#loops-led {
+      left: 56.3% !important;
+      top: 52% !important;
+      position: absolute !important;
+      width: 0.7%;
+      height: 6%;
+    }
+    
+    .row-indicator.status-led#midi-led {
+      left: 57.5% !important;
+      top: 62.5% !important;
+      position: absolute !important;
+      width: 0.7%;
+      height: 6%;
+    }
+    
+    .row-indicator.status-led#switches-led {
+      left: 58.5% !important;
+      top: 72% !important;
+      position: absolute !important;
+      width: 0.7%;
+      height: 6%;
+    }
+    
+    .row-indicator.status-led#timing-led {
+      left: 59.7% !important;
+      top: 82% !important;
+      position: absolute !important;
+      width: 0.7%;
+      height: 6%;
+    }
+    
+    /* Row indicator LED visibility and default styling */
+    .row-indicator.status-led {
+      background-color: #333;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      z-index: 1000 !important;
+      pointer-events: none;
+    }
+    
+    /* Row indicator LED active states */
+    .row-indicator.status-led.active {
+      background-color: #00ff00;
+      box-shadow: 0 0 4px #00ff00;
+    }
+    
+    /* Orange row indicators for parameter mode - higher specificity */
+    .row-indicator.status-led.orange {
+      background-color: #ff8000 !important;
+      box-shadow: 0 0 4px #ff8000 !important;
+    }
+
     .status-led.error {
       background-color: #ff0000;
       animation: error-flash 0.2s infinite;
@@ -889,7 +1010,7 @@
         aspect-ratio: 1400 / 162;
         border: 2px solid #111;
         user-select: none;
-        background: url('https://i.ibb.co/0jtXdtfz/axa.png') no-repeat center;
+        background: url('https://echoplex-js.com/images/axa.png') no-repeat center;
         background-size: cover;
         margin: 20px auto;
     }
@@ -1149,6 +1270,86 @@
         z-index: 1000;
         border: 1px solid #0ff;
     }
+
+    /* AutoUndo LED - positioned as lower right dot in Loop Display */
+    .auto-undo-led {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 10px;
+        height: 10px;
+        background-color: orange;
+        border-radius: 50%;
+        opacity: 0.3;
+        visibility: hidden;
+        box-shadow: 0 0 6px orange;
+        animation: autoUndoBlink 2s infinite;
+    }
+
+    @keyframes autoUndoBlink {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.1; }
+    }
+
+    /* Multiple Display tempo dots */
+    .tempo-dot-left,
+    .tempo-dot-right {
+        position: absolute;
+        bottom: 5px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        opacity: 0.2;
+    }
+
+    .tempo-dot-left {
+        left: 5px;
+        background-color: #0f0;
+    }
+
+    .tempo-dot-right {
+        right: 15px;
+        background-color: orange;
+    }
+
+    .tempo-dot-left.bright {
+        opacity: 1.0;
+        box-shadow: 0 0 6px #0f0;
+    }
+
+    .tempo-dot-left.faint {
+        opacity: 0.3;
+    }
+
+    .tempo-dot-right.orange {
+        opacity: 1.0;
+        box-shadow: 0 0 6px orange;
+    }
+
+    .tempo-dot-left.off,
+    .tempo-dot-right.off {
+        opacity: 0.1;
+        box-shadow: none;
+    }
+
+    /* Level LED dynamic color transition - Input and Feedback LEDs */
+    .level-light {
+        border-radius: 50%;
+        transition: all 0.1s ease;
+        background-color: #333;
+        box-shadow: none;
+    }
+
+    /* Dynamic level LED colors will be set via JavaScript based on actual levels */
+    .level-light.active {
+        /* Colors will be dynamically calculated:
+           Level 0.0-0.3: Green (#0f0)
+           Level 0.3-0.6: Green to Yellow gradient  
+           Level 0.6-0.8: Yellow to Orange gradient
+           Level 0.8-1.0: Orange to Red gradient
+           Level >1.0: Red with clipping flash
+        */
+    }
   </style>
 </head>
 <body>
@@ -1189,23 +1390,13 @@
 
   
   <div id="main-interface" class="main-interface powered-off">
-    <div class="timer-display">
-      <div>
-        <span class="label">Recording Time:</span>
-        <span id="recording-time" class="time">0.0</span>s
-      </div>
-      <div>
-        <span class="label">Loop Length:</span>
-        <span id="loop-length" class="time">0.0</span>s
-      </div>
-    </div>
     
     <div class="waveform-display">
       <canvas id="waveform-canvas"></canvas>
     </div>
     
     <!-- ECHOPLEX DIGITAL PRO PLUS INTERFACE -->
-    <div class="echoplex-container">
+    <div id="echoplex-container" class="echoplex-container">
         <!-- Power Button (small red button like real hardware) -->
         <div class="power-button" style="right: 2%; top: 40%;" id="power-button"></div>
         
@@ -1240,17 +1431,21 @@
         </div>
         
         <!-- Level indicator lights -->
-        <div class="level-light astro-j7pv25f6" id="input-level" style="left: 13.15%; top: 73%; width: 0.7%; height: 6%;"></div>
-        <div class="level-light astro-j7pv25f6" id="feedback-level" style="left: 17.05%; top: 73%; width: 0.7%; height: 6%;"></div>
+        <div class="level-light astro-j7pv25f6 off" id="input-level" style="left: 13.15%; top: 73%; width: 0.7%; height: 6%;"></div>
+        <div class="level-light astro-j7pv25f6 off" id="feedback-level" style="left: 17.05%; top: 73%; width: 0.7%; height: 6%;"></div>
         
-        <!-- AutoUndo LED indicator -->
-        <div class="status-led astro-j7pv25f6" id="autoUndoLED" style="left: 35%; top: 65%; width: 0.8%; height: 6%; background-color: #0f0; border-radius: 50%; box-shadow: 0 0 6px #0f0; visibility: visible; opacity: 1.0;"></div>
 
         <!-- Display Section -->
         <div class="display-section" style="left: 32.8%; top:32%; width: 16.9%; height: 27%;">
             <div class="left-display" id="left-display">1</div>
-            <div class="loop-display" id="loop-display">.</div>
-            <div class="multiple-display" id="multiple-display">4</div>
+            <div class="loop-display" id="loop-display">
+                .
+                <span class="auto-undo-led" id="autoUndoLED"></span>
+            </div>
+            <div class="multiple-display" id="multiple-display">
+                <span class="tempo-dot-left" id="tempoDotLeft"></span>
+                <span class="tempo-dot-right" id="tempoDotRight"></span>
+            </div>
         </div>
 
 
@@ -1263,43 +1458,43 @@
 
         <div class="control button" style="left: 61%; top: 10.3%; width: 2.6%; height: 21%;" data-function="record">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 46.5%;"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="record"></div>
             </div>
         </div>
 
         <div class="control button" style="left: 65.5%; top: 10.3%; width: 2.6%; height: 21%;" data-function="overdub">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="overdub"></div>
             </div>
         </div>
 
         <div class="control button" style="left: 70%; top: 10.3%; width: 2.6%; height: 21%;" data-function="multiply">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="multiply"></div>
             </div>
         </div>
 
         <div class="control button" style="left: 74.5%; top: 10.3%; width: 2.6%; height: 21%;" data-function="insert">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="insert"></div>
             </div>
         </div>
 
         <div class="control button" style="left: 79.2%; top: 10.3%; width: 2.6%; height: 21%;" data-function="mute">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 46.5%;"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="mute"></div>
             </div>
         </div>
 
         <div class="control button" style="left: 83.6%; top: 10.3%; width: 2.6%; height: 21%;" data-function="undo">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="undo"></div>
             </div>
         </div>
 
         <div class="control button" style="left: 88.3%; top: 10.3%; width: 2.6%; height: 21%;" data-function="nextloop">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 46.5%;"></div>
+                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="nextloop"></div>
             </div>
         </div>
         
@@ -1393,15 +1588,77 @@
     </div>
   </div>
 
-  <!-- Load Tone.js library for comprehensive audio functionality -->
-  <script src="https://unpkg.com/tone@14.7.77/build/Tone.js" is:inline></script>
-  
   <!-- Load the comprehensive Echoplex Digital Pro Plus implementation -->
-  <script src="../src/scripts/echoplex-pro.js" is:inline type="module"></script>
+  <script type="module">
+    import '/src/scripts/echoplex-pro.js';
+  </script>
   
   <!-- Initialize the Echoplex system after everything loads -->
   <script is:inline>
     // DEBUGGING & TESTING INTERFACE
+    // Dynamic Level LED Color Calculator
+    function updateLevelLED(ledElement, level) {
+      if (!ledElement) return;
+      
+      // Clamp level between 0 and 1.2 (allow some headroom)
+      level = Math.max(0, Math.min(1.2, level));
+      
+      let r, g, b, intensity;
+      
+      if (level < 0.05) {
+        // Off/Dark
+        ledElement.style.backgroundColor = '#333';
+        ledElement.style.boxShadow = 'none';
+        return;
+      }
+      
+      if (level <= 0.3) {
+        // Pure green range
+        r = 0;
+        g = 255;
+        b = 0;
+        intensity = level / 0.3;
+      } else if (level <= 0.6) {
+        // Green to Yellow transition
+        const t = (level - 0.3) / 0.3;
+        r = Math.floor(255 * t);
+        g = 255;
+        b = 0;
+        intensity = 0.8 + (t * 0.2);
+      } else if (level <= 0.8) {
+        // Yellow to Orange transition  
+        const t = (level - 0.6) / 0.2;
+        r = 255;
+        g = Math.floor(255 - (100 * t));
+        b = 0;
+        intensity = 1.0;
+      } else if (level <= 1.0) {
+        // Orange to Red transition
+        const t = (level - 0.8) / 0.2;
+        r = 255;
+        g = Math.floor(155 - (155 * t));
+        b = 0;
+        intensity = 1.0 + (t * 0.3);
+      } else {
+        // Clipping - Pure red with flash
+        r = 255;
+        g = 0; 
+        b = 0;
+        intensity = 1.5;
+        ledElement.style.animation = 'clipping-flash 0.1s infinite';
+      }
+      
+      const color = `rgb(${r}, ${g}, ${b})`;
+      const glowSize = Math.floor(4 + (intensity * 4));
+      
+      ledElement.style.backgroundColor = color;
+      ledElement.style.boxShadow = `0 0 ${glowSize}px ${color}`;
+      
+      if (level <= 1.0) {
+        ledElement.style.animation = 'none';
+      }
+    }
+
     window.echoplexDebug = {
       logs: [],
       errors: [],

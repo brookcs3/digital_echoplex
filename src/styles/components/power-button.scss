@@ -2,6 +2,7 @@
 // Handles power button positioning, styling, and states
 
 @use '../variables-scss/echoplex-positioning' as pos;
+@use '../variables-scss/echoplex-colors' as colors;
 
 // Main power button (small red button like real hardware)
 #power-button {
@@ -12,8 +13,8 @@
   height: pos.$power-button-height;
   
   // Visual styling
-  background: linear-gradient(to bottom, #800, #400);
-  border: 2px solid #600;
+  background: linear-gradient(to bottom, colors.$power-off-gradient-start, colors.$power-off-gradient-end);
+  border: 2px solid colors.$power-off-border;
   border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
@@ -25,14 +26,14 @@
 
   // Hover state
   &:hover {
-    background: linear-gradient(to bottom, #900, #500);
+    background: linear-gradient(to bottom, lighten(colors.$power-off-gradient-start, 10%), lighten(colors.$power-off-gradient-end, 10%));
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
   }
 
   // Powered on state
   &.powered-on {
-    background: linear-gradient(to bottom, #0f0, #080);
-    box-shadow: 0 0 15px #0f0;
+    background: linear-gradient(to bottom, colors.$power-on-gradient-start, colors.$power-on-gradient-end);
+    box-shadow: 0 0 15px colors.$power-on-glow;
   }
 
   // Powering up state
@@ -42,8 +43,8 @@
 
   // On state (alternative)
   &.on {
-    background: linear-gradient(to bottom, #f00, #800);
-    box-shadow: 0 0 15px #f00;
+    background: linear-gradient(to bottom, colors.$led-red, darken(colors.$led-red, 20%));
+    box-shadow: 0 0 15px colors.$led-red;
   }
 }
 
@@ -52,8 +53,8 @@
   position: absolute;
   width: pos.$power-button-width;
   height: 17.14%; // Alternative height from power.css
-  background: linear-gradient(to bottom, #800, #400);
-  border: 2px solid #600;
+  background: linear-gradient(to bottom, colors.$power-off-gradient-start, colors.$power-off-gradient-end);
+  border: 2px solid colors.$power-off-border;
   border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
@@ -61,8 +62,8 @@
   z-index: 1000;
 
   &.on {
-    background: linear-gradient(to bottom, #f00, #800);
-    box-shadow: 0 0 15px #f00;
+    background: linear-gradient(to bottom, colors.$led-red, darken(colors.$led-red, 20%));
+    box-shadow: 0 0 15px colors.$led-red;
   }
 }
 

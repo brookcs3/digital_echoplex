@@ -1,4 +1,5 @@
-import { CSSProperties } from 'astro/types';
+// DISABLED TO TEST LED POSITIONING
+// import { CSSProperties } from 'astro/types';
 
 interface ElementConfig {
   selector: string;
@@ -14,7 +15,7 @@ interface LayoutConfig {
   'row-indicator-leds': ElementConfig[];
 }
 
-const echoplexLayoutConfig: LayoutConfig = {
+const echoplexLayoutConfig: any = null; /*{
   "power-button": {
     selector: "#power-button",
     styles: {
@@ -260,6 +261,6 @@ const echoplexLayoutConfig: LayoutConfig = {
       },
     },
   ],
-};
+}; */
 
 export default echoplexLayoutConfig;
