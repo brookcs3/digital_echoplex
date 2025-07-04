@@ -52,25 +52,7 @@ body {
   margin-bottom: 20px;
 }
 
-// ========== SAMPLE PLAYER ==========
-.sample-player {
-  position: fixed;
-  top: 5.9%;
-  right: 10px;
-  width: 200px;
-  height:21.8%;
-  background-color: rgba(51, 51, 51, 0.95);
-  border: 1px solid #0f0;
-  border-radius: 4px;
-  padding: 8px;
-  z-index: 1000;
-  display: none;
-  font-size: 11px;
-}
 
-.sample-player.visible {
-  display: block;
-}
 
 // ========== CONTROL SECTIONS ==========
 .control-section {
@@ -249,14 +231,14 @@ body {
 
 // Button positions
 .control.button[data-function="parameters"] {
-  left: 54.3% !important;
-  top: 9.0% !important;
+  left: 54.45% !important;
+  top: 9.9% !important;
   width: 2.6% !important;
   height: 21.0% !important;
 }
 
 .control.button[data-function="record"] {
-  left: 61% !important;
+  left: 60.9% !important;
   top: 10.3% !important;
   width: 2.6% !important;
   height: 21% !important;
@@ -323,7 +305,7 @@ body {
 // Status LEDs inside buttons
 .status-led[data-function] {
   position: absolute !important;
-  left: 40.5% !important;
+  left: 36% !important;
   top: 175% !important;
 }
 
@@ -488,7 +470,7 @@ body {
 
 .loop-display {
   font-family: 'Orbitron', monospace !important;
-  font-size: 4.3vw !important;
+  font-size: 3.6vw !important;
   color: $led-red !important;
   text-shadow: 0 0 10px $led-red !important;
   background: $lcd-background !important;

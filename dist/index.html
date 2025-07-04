@@ -1,228 +1,10 @@
----
-// This is the main page for Digital Echo Plex
----
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Echo Plex</title>
-  <style lang="scss" is:global>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-    @import '../styles/echoplex.scss';
-  </style>
-</head>
-<body>
-  
-
-  
-  <div id="main-interface" class="main-interface powered-off">
-    
-    <div class="waveform-display">
-      <canvas id="waveform-canvas"></canvas>
-    </div>
-    
-    <!-- ECHOPLEX DIGITAL PRO PLUS INTERFACE -->
-    <div id="echoplex-container" class="echoplex-container">
-        <!-- Power Button (small red button like real hardware) -->
-        <div class="power-button" id="power-button"></div>
-        
-
-        <!-- KNOBS -->
-        <!-- Input Knob -->
-        <div class="control knob" data-param="input" data-min="0" data-max="127" data-value="64">
-            <div class="knob-image">
-                <div class="knob-indicator"></div>
-            </div>
-        </div>
-
-        <!-- Output Knob -->
-        <div class="control knob" data-param="output" data-min="0" data-max="127" data-value="64">
-            <div class="knob-image">
-                <div class="knob-indicator"></div>
-            </div>
-        </div>
-
-        <!-- Mix Knob -->
-        <div class="control knob" data-param="mix" data-min="0" data-max="127" data-value="64">
-            <div class="knob-image">
-                <div class="knob-indicator"></div>
-            </div>
-        </div>
-
-        <!-- Feedback Knob -->
-        <div class="control knob" data-param="feedback" data-min="0" data-max="127" data-value="95">
-            <div class="knob-image">
-                <div class="knob-indicator"></div>
-            </div>
-        </div>
-        
-        <!-- Level indicator lights -->
-        <div class="level-light astro-j7pv25f6 off" id="input-level"></div>
-        <div class="level-light astro-j7pv25f6 off" id="feedback-level"></div>
-        
-
-        <!-- Display Section -->
-        <div class="display-section">
-            <div class="left-display" id="left-display">1</div>
-            <div class="loop-display" id="loop-display">
-                .
-                <span class="auto-undo-led" id="autoUndoLED"></span>
-            </div>
-            <div class="multiple-display" id="multiple-display">
-                <span class="tempo-dot-left" id="tempoDotLeft"></span>
-                <span class="tempo-dot-right" id="tempoDotRight"></span>
-            </div>
-        </div>
-
-
-
-        <!-- BUTTONS - SINGLE ROW OF 8 -  1 PARAMETER BUTTON - 7 Action Buttons-->
-        <div class="control button" data-function="parameters">
-            <div class="button-image">
-            </div>
-        </div>
-
-        <div class="control button" data-function="record">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="record"></div>
-            </div>
-        </div>
-
-        <div class="control button" data-function="overdub">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="overdub"></div>
-            </div>
-        </div>
-
-        <div class="control button" data-function="multiply">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="multiply"></div>
-            </div>
-        </div>
-
-        <div class="control button" data-function="insert">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="insert"></div>
-            </div>
-        </div>
-
-        <div class="control button" data-function="mute">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="mute"></div>
-            </div>
-        </div>
-
-        <div class="control button" data-function="undo">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="undo"></div>
-            </div>
-        </div>
-
-        <div class="control button" data-function="nextloop">
-            <div class="button-image">
-                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="nextloop"></div>
-            </div>
-        </div>
-        
-        <!-- Row Indicator Lights -->
-        <div class="row-indicator status-led astro-j7pv25f6" id="loops-led">
-            <div class="row-label hidden">Loops</div>
-        </div>
-        <div class="row-indicator status-led astro-j7pv25f6" id="midi-led">
-            <div class="row-label hidden">MIDI</div>
-        </div>
-        <div class="row-indicator status-led astro-j7pv25f6" id="switches-led">
-            <div class="row-label hidden">Switches</div>
-        </div>
-        <div class="row-indicator status-led astro-j7pv25f6" id="timing-led">
-            <div class="row-label hidden">Timing</div>
-        </div>
-
-        <!-- Parameter Matrix (corrected order to match hardware) -->
-        <div class="parameter-matrix hidden">
-            <div class="matrix-row hidden">
-                <div class="matrix-cell">Loops</div>
-                <div class="matrix-cell">MoreLoops</div>
-                <div class="matrix-cell">AutoRecord</div>
-                <div class="matrix-cell">LoopCopy</div>
-                <div class="matrix-cell">SwitchQuant</div>
-                <div class="matrix-cell">LoopTrig</div>
-                <div class="matrix-cell">Velocity</div>
-                <div class="matrix-cell">SamplerStyle</div>
-            </div>
-            <div class="matrix-row">
-                <div class="matrix-cell">MIDI</div>
-                <div class="matrix-cell">Channel</div>
-                <div class="matrix-cell">ControlSource</div>
-                <div class="matrix-cell">Source #</div>
-                <div class="matrix-cell">VolumeCont</div>
-                <div class="matrix-cell">FeedBkCont</div>
-                <div class="matrix-cell">Dump</div>
-                <div class="matrix-cell">Load</div>
-            </div>
-            <div class="matrix-row">
-                <div class="matrix-cell">Switches</div>
-                <div class="matrix-cell">RecordMode</div>
-                <div class="matrix-cell">OverdubMode</div>
-                <div class="matrix-cell">RoundMode</div>
-                <div class="matrix-cell">InsertMode</div>
-                <div class="matrix-cell">MuteMode</div>
-                <div class="matrix-cell">Overflow</div>
-                <div class="matrix-cell">Presets</div>
-            </div>
-            <div class="matrix-row">
-                <div class="matrix-cell">Timing</div>
-                <div class="matrix-cell">Loop/Delay</div>
-                <div class="matrix-cell">Quantize</div>
-                <div class="matrix-cell">8ths/Cycle</div>
-                <div class="matrix-cell">Sync</div>
-                <div class="matrix-cell">Threshold</div>
-                <div class="matrix-cell">Reverse</div>
-                <div class="matrix-cell">StartPoint</div>
-            </div>
-        </div>
-    </div>
-    
-    
-    <div class="control-section preset-section">
-      <h2>Presets</h2>
-      <select id="preset-select">
-        <option value="-1">Select Preset...</option>
-      </select>
-      <div id="preset-description" class="preset-description"></div>
-      <div class="preset-controls">
-        <button id="load-preset-button" class="control-button">Load</button>
-        <button id="save-preset-button" class="control-button">Save New</button>
-        <button id="delete-preset-button" class="control-button">Delete</button>
-      </div>
-    </div>
-  </div>
-  
-  <div id="save-preset-dialog" class="dialog">
-    <h3>Save Preset</h3>
-    <div>
-      <label for="preset-name-input">Name:</label>
-      <input type="text" id="preset-name-input" placeholder="Preset Name">
-    </div>
-    <div>
-      <label for="preset-description-input">Description:</label>
-      <textarea id="preset-description-input" placeholder="Preset Description" rows="3"></textarea>
-    </div>
-    <div class="dialog-buttons">
-      <button id="save-preset-cancel" class="control-button">Cancel</button>
-      <button id="save-preset-confirm" class="control-button">Save</button>
-    </div>
-  </div>
-
-  <!-- Load the comprehensive Echoplex Digital Pro Plus implementation -->
-  <script type="module">
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Digital Echo Plex</title><link rel="stylesheet" href="/assets/index.css"></head> <body> <!-- Sample Player --> <div id="sample-player" class="sample-player"> <h3>Sample Player</h3> <div class="file-input-wrapper"> <input type="file" id="audio-file-input" accept="audio/*"> </div> <div class="sample-controls"> <button id="sample-play-btn">Play</button> <button id="sample-stop-btn">Stop</button> <button id="sample-load-btn" disabled>Load</button> </div> <canvas id="sample-waveform" class="waveform-canvas"></canvas> <div id="sample-playhead" class="playhead"></div> </div> <div class="recording-source"> <span>Record from:</span> <label> <input type="radio" name="record-source" value="microphone" checked> Microphone
+</label> <label> <input type="radio" name="record-source" value="sample"> Sample
+</label> </div> <!-- Debug buttons --> <div> <button onclick="window.echoplexEngine?.testChannelSwitch('microphone')">Test Mic</button> <button onclick="window.echoplexEngine?.testChannelSwitch('sample')">Test Sample</button> </div> <div id="main-interface" class="main-interface powered-off"> <div class="waveform-display"> <canvas id="waveform-canvas"></canvas> </div> <!-- ECHOPLEX DIGITAL PRO PLUS INTERFACE --> <div id="echoplex-container" class="echoplex-container"> <!-- Power Button (small red button like real hardware) --> <div class="power-button" id="power-button"></div> <!-- KNOBS --> <!-- Input Knob --> <div class="control knob" data-param="input" data-min="0" data-max="127" data-value="64"> <div class="knob-image"> <div class="knob-indicator"></div> </div> </div> <!-- Output Knob --> <div class="control knob" data-param="output" data-min="0" data-max="127" data-value="64"> <div class="knob-image"> <div class="knob-indicator"></div> </div> </div> <!-- Mix Knob --> <div class="control knob" data-param="mix" data-min="0" data-max="127" data-value="64"> <div class="knob-image"> <div class="knob-indicator"></div> </div> </div> <!-- Feedback Knob --> <div class="control knob" data-param="feedback" data-min="0" data-max="127" data-value="95"> <div class="knob-image"> <div class="knob-indicator"></div> </div> </div> <!-- Level indicator lights --> <div class="level-light astro-j7pv25f6 off" id="input-level"></div> <div class="level-light astro-j7pv25f6 off" id="feedback-level"></div> <!-- Display Section --> <div class="display-section"> <div class="left-display" id="left-display">1</div> <div class="loop-display" id="loop-display">
+.
+<span class="auto-undo-led" id="autoUndoLED"></span> </div> <div class="multiple-display" id="multiple-display"> <span class="tempo-dot-left" id="tempoDotLeft"></span> <span class="tempo-dot-right" id="tempoDotRight"></span> </div> </div> <!-- BUTTONS - SINGLE ROW OF 8 -  1 PARAMETER BUTTON - 7 Action Buttons--> <div class="control button" data-function="parameters"> <div class="button-image"></div> </div> <div class="control button" data-function="record"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="record"></div> </div> </div> <div class="control button" data-function="overdub"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="overdub"></div> </div> </div> <div class="control button" data-function="multiply"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="multiply"></div> </div> </div> <div class="control button" data-function="insert"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="insert"></div> </div> </div> <div class="control button" data-function="mute"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="mute"></div> </div> </div> <div class="control button" data-function="undo"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="undo"></div> </div> </div> <div class="control button" data-function="nextloop"> <div class="button-image"> <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="nextloop"></div> </div> </div> <!-- Row Indicator Lights --> <div class="row-indicator status-led astro-j7pv25f6" id="loops-led"> <div class="row-label hidden">Loops</div> </div> <div class="row-indicator status-led astro-j7pv25f6" id="midi-led"> <div class="row-label hidden">MIDI</div> </div> <div class="row-indicator status-led astro-j7pv25f6" id="switches-led"> <div class="row-label hidden">Switches</div> </div> <div class="row-indicator status-led astro-j7pv25f6" id="timing-led"> <div class="row-label hidden">Timing</div> </div> <!-- Parameter Matrix (corrected order to match hardware) --> <div class="parameter-matrix hidden"> <div class="matrix-row hidden"> <div class="matrix-cell">Loops</div> <div class="matrix-cell">MoreLoops</div> <div class="matrix-cell">AutoRecord</div> <div class="matrix-cell">LoopCopy</div> <div class="matrix-cell">SwitchQuant</div> <div class="matrix-cell">LoopTrig</div> <div class="matrix-cell">Velocity</div> <div class="matrix-cell">SamplerStyle</div> </div> <div class="matrix-row"> <div class="matrix-cell">MIDI</div> <div class="matrix-cell">Channel</div> <div class="matrix-cell">ControlSource</div> <div class="matrix-cell">Source #</div> <div class="matrix-cell">VolumeCont</div> <div class="matrix-cell">FeedBkCont</div> <div class="matrix-cell">Dump</div> <div class="matrix-cell">Load</div> </div> <div class="matrix-row"> <div class="matrix-cell">Switches</div> <div class="matrix-cell">RecordMode</div> <div class="matrix-cell">OverdubMode</div> <div class="matrix-cell">RoundMode</div> <div class="matrix-cell">InsertMode</div> <div class="matrix-cell">MuteMode</div> <div class="matrix-cell">Overflow</div> <div class="matrix-cell">Presets</div> </div> <div class="matrix-row"> <div class="matrix-cell">Timing</div> <div class="matrix-cell">Loop/Delay</div> <div class="matrix-cell">Quantize</div> <div class="matrix-cell">8ths/Cycle</div> <div class="matrix-cell">Sync</div> <div class="matrix-cell">Threshold</div> <div class="matrix-cell">Reverse</div> <div class="matrix-cell">StartPoint</div> </div> </div> </div> <div class="control-section preset-section"> <h2>Presets</h2> <select id="preset-select"> <option value="-1">Select Preset...</option> </select> <div id="preset-description" class="preset-description"></div> <div class="preset-controls"> <button id="load-preset-button" class="control-button">Load</button> <button id="save-preset-button" class="control-button">Save New</button> <button id="delete-preset-button" class="control-button">Delete</button> </div> </div> </div> <div id="save-preset-dialog" class="dialog"> <h3>Save Preset</h3> <div> <label for="preset-name-input">Name:</label> <input type="text" id="preset-name-input" placeholder="Preset Name"> </div> <div> <label for="preset-description-input">Description:</label> <textarea id="preset-description-input" placeholder="Preset Description" rows="3"></textarea> </div> <div class="dialog-buttons"> <button id="save-preset-cancel" class="control-button">Cancel</button> <button id="save-preset-confirm" class="control-button">Save</button> </div> </div> <!-- Load the comprehensive Echoplex Digital Pro Plus implementation --> <script type="module">
     import '/src/scripts/echoplex-pro.js';
-  </script>
-  
-  <!-- Initialize the Echoplex system after everything loads -->
-  <script is:inline>
+  </script> <!-- Initialize the Echoplex system after everything loads --> <script>
     // DEBUGGING & TESTING INTERFACE
     // Dynamic Level LED Color Calculator
     function updateLevelLED(ledElement, level) {
@@ -518,8 +300,10 @@
         } catch (error) {
           window.echoplexDebug.error('❌ Failed to initialize Echoplex', error);
           // Show error to user
+          const powerButton = document.getElementById('power-button');
           if (powerButton) {
-            
+            powerButton.textContent = 'Error - Right click for details';
+            powerButton.style.backgroundColor = '#f00';
             powerButton.addEventListener('click', () => {
               alert(`Echoplex initialization failed:\n${error.message}\n\nPlease refresh the page and ensure:\n- Microphone permissions\n- Audio is not muted\n- Browser supports Web Audio`);
             });
@@ -558,9 +342,26 @@
         window.echoplexDebug.runDiagnostics();
       }, 100);
     });
-  </script>
-  
-  
-</body>
-
-</html>
+  </script> <!-- Load the sample player --> <script src="/scripts/sample-player.js"></script> <script>
+    // Show/hide sample player based on power state
+    document.addEventListener('DOMContentLoaded', () => {
+      const powerButton = document.getElementById('power-button');
+      const samplePlayer = document.getElementById('sample-player');
+      
+      // Listen for power state changes
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const isPoweredOn = powerButton.classList.contains('powered-on');
+            if (isPoweredOn && samplePlayer) {
+              samplePlayer.classList.add('visible');
+            } else if (samplePlayer) {
+              samplePlayer.classList.remove('visible');
+            }
+          }
+        });
+      });
+      
+      observer.observe(powerButton, { attributes: true });
+    });
+  </script> </body> </html>

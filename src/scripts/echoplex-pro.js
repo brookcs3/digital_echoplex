@@ -9,6 +9,7 @@ class EchoplexDigitalPro {
             loopTime: 0,
             isRecording: false,
             isOverdubbing: false,
+            isPlaying: false,
             isMultiplying: false,
             isInserting: false,
             isMuted: false,
@@ -289,6 +290,34 @@ class EchoplexDigitalPro {
         this.initializeAdvancedLooping();
     }
 
+    setState(newState) {
+        Object.assign(this.state, newState);
+        this.updateInputRouting();
+    }
+
+    resetAudioRouting() {
+        // Disconnect all nodes to clear conflicts
+        if (this.inputGain) this.inputGain.disconnect();
+        if (this.loopBufferNode) this.loopBufferNode.disconnect();
+        if (this.outputGainNode) this.outputGainNode.disconnect();
+        if (this.feedbackGainNode) this.feedbackGainNode.disconnect();
+    }
+
+    updateInputRouting() {
+        this.resetAudioRouting();
+
+        if (this.state.isRecording) {
+            this.inputGain.connect(this.loopBufferNode);
+        } else if (this.state.isOverdubbing) {
+            this.inputGain.connect(this.loopBufferNode);
+            this.loopBufferNode.connect(this.outputGainNode);
+        } else if (this.state.isPlaying) {
+            this.loopBufferNode.connect(this.outputGainNode);
+        } else if (this.state.isMuted) {
+            // No connections during mute
+        }
+    }
+
     // SYSTEMATIC FIX #1: Display Timing Synchronization
     initializeDisplayUpdates() {
         // Real-time display updates every 100ms as per documentation
@@ -450,7 +479,7 @@ class EchoplexDigitalPro {
                 const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
                 this.startOverdubRecording().then(success => {
                     if (success) {
-                        this.state.isOverdubbing = true;
+                        this.setState({ isOverdubbing: true });
                         if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 red';
                         console.log('✅ Sustain Overdub: Recording started on press');
                     }
@@ -496,7 +525,7 @@ class EchoplexDigitalPro {
                 // Stop overdubbing when button is released in sustain mode
                 const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
                 this.stopOverdubRecording().then(() => {
-                    this.state.isOverdubbing = false;
+                    this.setState({ isOverdubbing: false });
                     if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
                     console.log('✅ Sustain Overdub: Recording stopped on release');
                 });
@@ -1431,7 +1460,7 @@ class EchoplexDigitalPro {
             
             // Stop recording and update state
             this.stopRecording();
-            this.state.isRecording = false;
+            this.setState({ isRecording: false, isPlaying: true });
             // HARDWARE-NATIVE: Use data attribute instead of scoped class
             recordLed.setAttribute('data-hw-state', 'ready');
             recordLed.className = 'status-led astro-j7pv25f6';
@@ -1441,7 +1470,7 @@ class EchoplexDigitalPro {
             // START RECORDING - Immediate visual feedback
             console.log('🔴 Starting recording...');
             
-            this.state.isRecording = true;
+            this.setState({ isRecording: true });
             this.state.loopTime = 0;
             this.state.recordStartTime = Date.now();
             // HARDWARE-NATIVE: Use data attribute instead of scoped class
@@ -1540,14 +1569,14 @@ class EchoplexDigitalPro {
         if (this.state.isRecording) {
             // Stop recording
             this.stopRecording();
-            this.state.isRecording = false;
+            this.setState({ isRecording: false, isPlaying: true });
             this.deactivateMicrophone();
             console.log('Recording stopped (Toggle Mode)');
             this.updateRecordLED('green');
         } else {
             // Start recording
             this.startRecording();
-            this.state.isRecording = true;
+            this.setState({ isRecording: true });
             console.log('Recording started (Toggle Mode)');
             this.updateRecordLED('red');
         }
@@ -1560,7 +1589,7 @@ class EchoplexDigitalPro {
         if (!this.state.isRecording) {
             // Start recording while button is held
             this.startRecording();
-            this.state.isRecording = true;
+            this.setState({ isRecording: true });
             console.log('Recording started (Sustain Mode)');
             this.updateRecordLED('red');
         }
@@ -1570,7 +1599,7 @@ class EchoplexDigitalPro {
         if (this.state.isRecording) {
             // Stop recording when button is released
             this.stopRecording();
-            this.state.isRecording = false;
+            this.setState({ isRecording: false, isPlaying: true });
             this.deactivateMicrophone();
             console.log('Recording stopped (Sustain Mode)');
             this.updateRecordLED('green');
@@ -1584,7 +1613,7 @@ class EchoplexDigitalPro {
         if (this.state.isRecording) {
             // Stop recording and set feedback to 100%
             this.stopRecording();
-            this.state.isRecording = false;
+            this.setState({ isRecording: false, isPlaying: true });
             this.deactivateMicrophone();
             this.state.controlValues.feedback = 127; // Maximum feedback
             console.log('Recording stopped (Safe Mode), feedback set to 100%');
@@ -1592,7 +1621,7 @@ class EchoplexDigitalPro {
         } else {
             // Start recording
             this.startRecording();
-            this.state.isRecording = true;
+            this.setState({ isRecording: true });
             console.log('Recording started (Safe Mode)');
             this.updateRecordLED('red');
         }
@@ -1727,7 +1756,7 @@ class EchoplexDigitalPro {
             // Start native Web Audio recording
             await this.startNativeRecording();
             
-            this.state.isRecording = true;
+            this.setState({ isRecording: true });
             recordLed.className = 'status-led astro-j7pv25f6 red';
             this.state.loopTime = 0;
             this.state.recordStartTime = Date.now();
@@ -1857,7 +1886,7 @@ class EchoplexDigitalPro {
         }
         
         // Update state
-        this.state.isRecording = false;
+        this.setState({ isRecording: false, isPlaying: true });
         
         // CRITICAL: Deactivate microphone when recording stops (prevents feedback)
         this.deactivateMicrophone();
@@ -2010,7 +2039,7 @@ class EchoplexDigitalPro {
             if (this.state.quantizeMode !== 'OFF') {
                 this.executeWithQuantization(async () => {
                     await this.stopOverdubRecording();
-                    this.state.isOverdubbing = false;
+                    this.setState({ isOverdubbing: false });
                     // HARDWARE-NATIVE: Use data attribute for overdub ready state
                     overdubLed.setAttribute('data-hw-state', 'ready');
                     overdubLed.className = 'status-led astro-j7pv25f6';
@@ -2018,7 +2047,7 @@ class EchoplexDigitalPro {
                 }, 'OVERDUB_STOP');
             } else {
                 await this.stopOverdubRecording();
-                this.state.isOverdubbing = false;
+                this.setState({ isOverdubbing: false });
                 // HARDWARE-NATIVE: Use data attribute for overdub ready state
                 overdubLed.setAttribute('data-hw-state', 'ready');
                 overdubLed.className = 'status-led astro-j7pv25f6';
@@ -2029,7 +2058,7 @@ class EchoplexDigitalPro {
             if (this.state.quantizeMode !== 'OFF') {
                 this.executeWithQuantization(async () => {
                     await this.startOverdubRecording();
-                    this.state.isOverdubbing = true;
+                    this.setState({ isOverdubbing: true });
                     // HARDWARE-NATIVE: Use data attribute for overdub recording state
                     overdubLed.setAttribute('data-hw-state', 'overdubbing');
                     overdubLed.className = 'status-led astro-j7pv25f6';
@@ -2038,7 +2067,7 @@ class EchoplexDigitalPro {
                 }, 'OVERDUB_START');
             } else {
                 await this.startOverdubRecording();
-                this.state.isOverdubbing = true;
+                this.setState({ isOverdubbing: true });
                 // HARDWARE-NATIVE: Use data attribute for overdub recording state
                 overdubLed.setAttribute('data-hw-state', 'overdubbing');
                 overdubLed.className = 'status-led astro-j7pv25f6';
@@ -3018,7 +3047,7 @@ class EchoplexDigitalPro {
             }
             
             // Reset overdub state
-            this.state.isOverdubbing = false;
+            this.setState({ isOverdubbing: false });
             
             // Update LED
             const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
@@ -3253,8 +3282,8 @@ class EchoplexDigitalPro {
             // Update state
             this.state.loopTime = 0;
             this.state.currentCycle = 0;
-            this.state.isRecording = false;
-            this.state.isOverdubbing = false;
+            this.setState({ isRecording: false, isPlaying: true });
+            this.setState({ isOverdubbing: false });
             
             // Update displays
             this.updateLoopTimeDisplay();
@@ -3494,7 +3523,7 @@ class EchoplexDigitalPro {
         
         if (this.state.isOverdubbing) {
             // Stop current overdub
-            this.state.isOverdubbing = false;
+            this.setState({ isOverdubbing: false });
             const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
             if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         }
@@ -3510,8 +3539,8 @@ class EchoplexDigitalPro {
             // Restore previous state
             this.state.loopTime = this.state.undoBuffer.loopTime;
             this.state.currentCycle = this.state.undoBuffer.currentCycle;
-            this.state.isRecording = false;
-            this.state.isOverdubbing = false;
+            this.setState({ isRecording: false, isPlaying: true });
+            this.setState({ isOverdubbing: false });
             this.state.isMultiplying = false;
             this.state.isInserting = false;
             
@@ -3755,8 +3784,8 @@ class EchoplexDigitalPro {
      * Stop all current operations - used by Long Undo
      */
     stopAllOperations() {
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
         
@@ -3811,8 +3840,8 @@ class EchoplexDigitalPro {
         this.state.currentCycle = undoBuffer.currentCycle || 1;
         
         // Restore operation states
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
         
@@ -5204,11 +5233,11 @@ class EchoplexDigitalPro {
      * Reset all operation states
      */
     resetAllOperationStates() {
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
-        this.state.isMuted = false;
+        this.setState({ isMuted: false });
         this.state.isReplacing = false;
         this.state.isSubstituting = false;
         this.state.isReversed = false;
@@ -6202,9 +6231,9 @@ class EchoplexDigitalPro {
             this.showDisplayMessage('rE.t', 1000);
             
             // Return to normal playback state
-            this.state.isRecording = false;
-            this.state.isOverdubbing = false;
-            this.state.isMuted = false;
+            this.setState({ isRecording: false, isPlaying: true });
+            this.setState({ isOverdubbing: false });
+            this.setState({ isMuted: false });
             
             console.log('✅ ReTrigger started');
             return true;
@@ -13235,8 +13264,8 @@ class EchoplexDigitalPro {
         this.clearAllLEDs();
         
         // Reset state
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.parameterMode = 0;
     }
@@ -13683,7 +13712,7 @@ class EchoplexDigitalPro {
         }
         
         if (this.state.isOverdubbing) {
-            this.state.isOverdubbing = false;
+            this.setState({ isOverdubbing: false });
             const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
             if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         }
@@ -13776,8 +13805,8 @@ class EchoplexDigitalPro {
     // Error 5: Audio system errors
     handleAudioSystemError() {
         console.log('Audio system error - attempting recovery');
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
         this.initializeLEDStates();
@@ -14018,7 +14047,7 @@ class EchoplexDigitalPro {
         if (recordLed) recordLed.className = 'status-led astro-j7pv25f6 green';
         
         // Mute the newly recorded loop
-        this.state.isMuted = true;
+        this.setState({ isMuted: true });
         const muteLed = this.elements.muteBtn?.querySelector('.status-led');
         if (muteLed) muteLed.className = 'status-led astro-j7pv25f6 red';
         
@@ -14121,7 +14150,7 @@ class EchoplexDigitalPro {
         console.log('Alternate ending: Overdub → Record');
         
         // Stop overdub
-        this.state.isOverdubbing = false;
+        this.setState({ isOverdubbing: false });
         const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
         if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         
@@ -14136,7 +14165,7 @@ class EchoplexDigitalPro {
         console.log('Alternate ending: Overdub → Multiply');
         
         // Stop overdub
-        this.state.isOverdubbing = false;
+        this.setState({ isOverdubbing: false });
         const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
         if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         
@@ -14149,7 +14178,7 @@ class EchoplexDigitalPro {
         console.log('Alternate ending: Overdub → Insert');
         
         // Stop overdub
-        this.state.isOverdubbing = false;
+        this.setState({ isOverdubbing: false });
         const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
         if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         
@@ -14162,8 +14191,8 @@ class EchoplexDigitalPro {
         console.log('Alternate ending: Overdub → Mute');
         
         // Stop overdub and mute
-        this.state.isOverdubbing = false;
-        this.state.isMuted = true;
+        this.setState({ isOverdubbing: false });
+        this.setState({ isMuted: true });
         
         const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
         const muteLed = this.elements.muteBtn?.querySelector('.status-led');
@@ -14178,7 +14207,7 @@ class EchoplexDigitalPro {
         console.log('Alternate ending: Overdub → Undo');
         
         // Stop overdub and undo the overdub
-        this.state.isOverdubbing = false;
+        this.setState({ isOverdubbing: false });
         const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
         if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         
@@ -14216,7 +14245,7 @@ class EchoplexDigitalPro {
         // End multiply and mute
         this.stopMultiply(this.elements.multiplyBtn?.querySelector('.status-led'));
         
-        this.state.isMuted = true;
+        this.setState({ isMuted: true });
         const muteLed = this.elements.muteBtn?.querySelector('.status-led');
         if (muteLed) muteLed.className = 'status-led astro-j7pv25f6 red';
         
@@ -14763,8 +14792,8 @@ class EchoplexDigitalPro {
         console.log('General reset performed - resetting all loops');
         
         // Stop all current operations
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
         
@@ -17184,11 +17213,11 @@ class EchoplexDigitalPro {
         this.state.cycleLength = 4.0;
         
         // Reset all operational states
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
-        this.state.isMuted = false;
+        this.setState({ isMuted: false });
         this.state.isReversed = false;
         this.state.isHalfSpeed = false;
         
@@ -17268,11 +17297,11 @@ class EchoplexDigitalPro {
         this.state.currentCycle = 0;
         
         // Reset operational states
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
-        this.state.isMuted = false;
+        this.setState({ isMuted: false });
         
         // Clear undo buffer for this loop
         this.state.undoBuffer = null;
@@ -17364,8 +17393,8 @@ class EchoplexDigitalPro {
 
     stopAllOperations() {
         // Stop all recording, overdubbing, and other operations
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
         
@@ -17452,8 +17481,8 @@ class EchoplexDigitalPro {
 
     stopCurrentLoopOperations() {
         // Stop operations only on current loop, not global
-        this.state.isRecording = false;
-        this.state.isOverdubbing = false;
+        this.setState({ isRecording: false, isPlaying: true });
+        this.setState({ isOverdubbing: false });
         this.state.isMultiplying = false;
         this.state.isInserting = false;
         
@@ -20237,7 +20266,7 @@ class EchoplexDigitalPro {
 
     stopOverdub() {
         // Stop overdub for sustain mode
-        this.state.isOverdubbing = false;
+        this.setState({ isOverdubbing: false });
         const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
         if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 green';
         console.log('Overdub stopped (sustain release)');
@@ -21492,8 +21521,8 @@ class EchoplexDigitalPro {
             // Update state
             this.state.loopTime = 0;
             this.state.currentCycle = 0;
-            this.state.isRecording = false;
-            this.state.isOverdubbing = false;
+            this.setState({ isRecording: false, isPlaying: true });
+            this.setState({ isOverdubbing: false });
             
             this.updateLoopTimeDisplay();
         }
@@ -24331,7 +24360,7 @@ class EchoplexDigitalPro {
         // Start recording if not already recording
         if (!this.state.isRecording) {
             console.log('🎙️ SUSRecord: Starting recording...');
-            this.state.isRecording = true;
+            this.setState({ isRecording: true });
             this.startRecordingProcess();
             this.updateRecordLED();
         }
@@ -24340,7 +24369,7 @@ class EchoplexDigitalPro {
     stopSustainRecord() {
         if (this.state.isRecording) {
             console.log('🎙️ SUSRecord: Stopping recording...');
-            this.state.isRecording = false;
+            this.setState({ isRecording: false, isPlaying: true });
             this.stopRecordingProcess();
             this.updateRecordLED();
         }
@@ -24354,7 +24383,7 @@ class EchoplexDigitalPro {
         
         if (!this.state.isOverdubbing) {
             console.log('🔄 SUSOverdub: Starting overdub...');
-            this.state.isOverdubbing = true;
+            this.setState({ isOverdubbing: true });
             this.startOverdubProcess();
             this.updateOverdubLED();
         }
@@ -24363,7 +24392,7 @@ class EchoplexDigitalPro {
     stopSustainOverdub() {
         if (this.state.isOverdubbing) {
             console.log('🔄 SUSOverdub: Stopping overdub...');
-            this.state.isOverdubbing = false;
+            this.setState({ isOverdubbing: false });
             this.stopOverdubProcess();
             this.updateOverdubLED();
         }
@@ -24423,7 +24452,7 @@ class EchoplexDigitalPro {
         
         if (!this.state.isMuted) {
             console.log('🔇 SUSMute: Starting mute...');
-            this.state.isMuted = true;
+            this.setState({ isMuted: true });
             this.applyMute(true);
             this.updateMuteLED();
         }
@@ -24432,7 +24461,7 @@ class EchoplexDigitalPro {
     stopSustainMute() {
         if (this.state.isMuted) {
             console.log('🔇 SUSMute: Stopping mute...');
-            this.state.isMuted = false;
+            this.setState({ isMuted: false });
             this.applyMute(false);
             this.updateMuteLED();
         }
