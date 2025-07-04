@@ -1,0 +1,17 @@
+
+CLEANUP REPORT
+==============
+Date: 2025-07-03T14:46:43.615Z
+Inline styles removed: 46
+Remaining inline styles: 0
+
+Elements that should now use SCSS positioning:
+- #power-button
+- .control.button[data-function="..."] (8 buttons)
+- .control.knob[data-param="..."] (4 knobs)
+- .status-led elements
+- .level-light elements
+- .row-indicator elements
+- .display-section
+
+All positioning is now in: styles/echoplex.scss

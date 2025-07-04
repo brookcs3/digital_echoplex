@@ -8,1348 +8,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Echo Plex</title>
-  <style>
+  <style lang="scss" is:global>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-    
-    /* Critical styles to ensure immediate visual feedback */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #222;
-      color: #eee;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .power-section {
-      text-align: center;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    
-    #power-button {
-      position: absolute;
-      width: 2.14%; /* 30px / 1400px - proper percentage of background */
-      height: 17.14%;
-      background: linear-gradient(to bottom, #800, #400);
-      border: 2px solid #600;
-      border-radius: 5px;
-      cursor: pointer;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-      pointer-events: auto !important;
-      z-index: 1000;
-      transition: all 0.3s;
-    }
-    
-    #power-button:hover {
-      background: linear-gradient(to bottom, #900, #500);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.7);
-    }
-    
-    #power-button.powered-on {
-      background: linear-gradient(to bottom, #0f0, #080);
-      box-shadow: 0 0 15px #0f0;
-    }
-    
-    #power-button.powering {
-      animation: pulse 1s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-    
-    #power-status {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    
-    #power-status.error {
-      color: #f00;
-    }
-    
-    /* FIX: Remove opacity and pointer-events restrictions from main interface */
-    .main-interface {
-      transition: opacity 0.5s;
-    }
-    
-    /* FIX: Only apply restrictions when explicitly powered off */
-    .main-interface.powered-off {
-      opacity: 0.3;
-    }
-    
-    /* Only disable pointer events on controls, not the power button */
-    .main-interface.powered-off .control:not(.echoplex-power-button) {
-      pointer-events: none;
-    }
-    
-    /* Power off - completely hide display like a real machine */
-    .main-interface.powered-off .timer-display,
-    .main-interface.powered-off .loop-display,
-    .main-interface.powered-off .multiple-display,
-    .main-interface.powered-off .status-led,
-    .main-interface.powered-off .tempo-dot,
-    .main-interface.powered-off .level-light {
-      display: none !important;
-    }
-    
-    /* Power button - small red button like real hardware */
-    .power-button {
-        position: absolute;
-        width: 2.14%; /* 30px / 1400px */
-        height: 17.14%; /* 60px / 350px */
-        background: linear-gradient(to bottom, #800, #400);
-        border: 2px solid #600;
-        border-radius: 5px;
-        cursor: pointer;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-        pointer-events: auto !important;
-        z-index: 1000;
-    }
-    .power-button.on {
-        background: linear-gradient(to bottom, #f00, #800);
-        box-shadow: 0 0 15px #f00;
-    }
-    
-    .timer-display {
-      background-color: #000;
-      color: #0f0;
-      font-family: monospace;
-      font-size: 24px;
-      padding: 10px;
-      border: 1px solid #0f0;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-    }
-    
-    .timer-display .label {
-      font-size: 14px;
-      color: #0a0;
-    }
-    
-    .timer-display .time {
-      font-weight: bold;
-    }
-    
-    .timer-display .warning {
-      color: #f00;
-    }
-    
-    .control-section {
-      margin-bottom: 20px;
-      padding: 10px;
-      border: 1px solid #444;
-      background-color: #333;
-    }
-    
-    .control-section h2 {
-      margin-top: 0;
-      font-size: 18px;
-      color: #0f0;
-    }
-    
-    /* FEATURE #1: Sustain Action Mode Visual Feedback */
-    .sustain-pressed {
-      background: linear-gradient(to bottom, #ff6600, #cc4400) !important;
-      box-shadow: 0 0 12px #ff6600 !important;
-      transform: scale(0.98);
-      border-color: #ff8800 !important;
-    }
-    
-    .button.sustain-mode {
-      border: 2px solid #ffaa00;
-    }
-    
-    .button.sustain-mode::after {
-      content: "SUS";
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ffaa00;
-      color: #000;
-      font-size: 8px;
-      padding: 1px 3px;
-      border-radius: 2px;
-      font-weight: bold;
-    }
-    
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    
-    .control-button {
-      background-color: #444;
-      color: #fff;
-      border: 1px solid #666;
-      padding: 10px 15px;
-      font-size: 14px;
-      cursor: pointer;
-      min-width: 80px;
-      text-align: center;
-      /* FIX: Ensure buttons are clickable */
-      position: relative;
-      z-index: 10;
-    }
-    
-    .control-button:hover {
-      background-color: #555;
-    }
-    
-    /* ECHOPLEX HARDWARE FIX: Disable hover effects on hardware buttons */
-    .control.button:hover {
-      /* No hover effect for authentic hardware feel */
-      background: none !important;
-      transform: none !important;
-      box-shadow: none !important;
-      filter: none !important;
-      opacity: 1 !important;
-    }
-    
-    .control.button {
-      transition: none !important; /* Disable any transitions on hardware buttons */
-    }
-    
-    .control-button.active {
-      background-color: #0f0;
-      color: #000;
-    }
-    
-    .parameter-section {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-    }
-    
-    .parameter-control {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .parameter-control label {
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-    
-    .parameter-control input[type="range"] {
-      width: 100%;
-    }
-    
-    .parameter-control select {
-      width: 100%;
-      padding: 5px;
-      background-color: #444;
-      color: #fff;
-      border: 1px solid #666;
-    }
-    
-    .waveform-display {
-      width: 100%;
-      height: 150px;
-      background-color: #000;
-      border: 1px solid #0f0;
-      margin-bottom: 20px;
-    }
-    
-    .preset-section {
-      margin-top: 20px;
-    }
-    
-    .preset-controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .preset-description {
-      font-style: italic;
-      margin-top: 5px;
-      font-size: 14px;
-    }
-    
-    .dialog {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #333;
-      border: 2px solid #0f0;
-      padding: 20px;
-      z-index: 100;
-      width: 300px;
-    }
-    
-    .dialog h3 {
-      margin-top: 0;
-      color: #0f0;
-    }
-    
-    .dialog-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .dialog input, .dialog textarea {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      background-color: #444;
-      color: #fff;
-      border: 1px solid #666;
-    }
-    
-    .function-active .function-indicator {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      background-color: #f00;
-      border-radius: 50%;
-      margin-left: 5px;
-    }
-    
-    .recording-active #recording-time {
-      animation: blink 1s infinite;
-    }
-    
-    @keyframes blink {
-      0% { color: #0f0; }
-      50% { color: #f00; }
-      100% { color: #0f0; }
-    }
-    
-    /* Mic monitoring toggle styles */
-    .mic-monitoring-section {
-      margin-top: 15px;
-      padding: 10px;
-      border: 1px solid #666;
-      background-color: #2a2a2a;
-    }
-    
-    .mic-monitoring-section h3 {
-      margin-top: 0;
-      font-size: 16px;
-      color: #0f0;
-    }
-    
-    .mic-monitoring-options {
-      display: flex;
-      gap: 15px;
-    }
-    
-    .mic-monitoring-options label {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-    
-    .mic-monitoring-options input {
-      margin-right: 5px;
-    }
-    
-    /* Sample Player Styles */
-    .sample-player {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      width: 200px;
-      background-color: rgba(51, 51, 51, 0.95);
-      border: 1px solid #0f0;
-      border-radius: 4px;
-      padding: 8px;
-      z-index: 1000;
-      display: none;
-      font-size: 11px;
-    }
-    
-    .sample-player.visible {
-      display: block;
-    }
-    
-    /* SYSTEMATIC FIX #14: Loop Switching Visual Indicators */
-    .loop-indicator {
-      display: inline-block;
-      margin: 2px;
-      padding: 4px 8px;
-      background-color: #222;
-      border: 1px solid #444;
-      border-radius: 3px;
-      font-size: 10px;
-      text-align: center;
-      min-width: 40px;
-      vertical-align: top;
-    }
-    
-    .loop-indicator .loop-number {
-      font-weight: bold;
-      color: #0a0;
-      font-size: 12px;
-    }
-    
-    .loop-indicator .loop-status {
-      color: #888;
-      font-size: 8px;
-      margin-top: 2px;
-    }
-    
-    .loop-indicator .loop-led {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      margin: 2px auto;
-      background-color: #333;
-    }
-    
-    .loop-indicator .loop-led.green {
-      background-color: #0f0;
-      box-shadow: 0 0 4px #0f0;
-    }
-    
-    .loop-indicator .loop-led.green.active {
-      animation: pulse-green 1s infinite;
-    }
-    
-    .loop-indicator .loop-led.amber {
-      background-color: #ff0;
-      box-shadow: 0 0 4px #ff0;
-    }
-    
-    .loop-indicator .loop-led.red {
-      background-color: #f00;
-      box-shadow: 0 0 4px #f00;
-    }
-    
-    .loop-indicator .loop-led.off {
-      background-color: #333;
-      box-shadow: none;
-    }
-    
-    @keyframes pulse-green {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-    
-    /* Loop display area for indicators */
-    .loop-display {
-      margin-top: 10px;
-      padding: 5px;
-      border: 1px solid #444;
-      background-color: #1a1a1a;
-      border-radius: 3px;
-    }
-    
-    .loop-display h4 {
-      margin: 0 0 5px 0;
-      color: #0a0;
-      font-size: 12px;
-    }
-    
-    /* SYSTEMATIC FIX #17: COMPREHENSIVE VISUAL STATE SYNCHRONIZATION */
-    
-    /* Enhanced button states that reflect exact audio states */
-    .button {
-      transition: all 0.2s ease;
-    }
-    
-    .button.recording {
-      background-color: #ff3333 !important;
-      box-shadow: 0 0 10px #ff3333;
-      animation: recording-pulse 1s infinite;
-    }
-    
-    .button.overdubbing {
-      background-color: #ff8800 !important;
-      box-shadow: 0 0 10px #ff8800;
-      animation: overdub-pulse 0.8s infinite;
-    }
-    
-    .button.playing {
-      background-color: #00ff00 !important;
-      box-shadow: 0 0 8px #00ff00;
-    }
-    
-    .button.muted {
-      background-color: #666 !important;
-      opacity: 0.5;
-      animation: mute-flash 2s infinite;
-    }
-    
-    .button.quantizing {
-      animation: quantize-glow 0.5s infinite alternate;
-    }
-    
-    .button.parameter-mode {
-      background-color: #ff8800 !important;
-      border-color: #ff8800 !important;
-    }
-    
-    /* Advanced LED states */
-    .status-led {
-      transition: all 0.3s ease;
-      border-radius: 50%;
-      width: 8px;
-      height: 8px;
-    }
-    
-    /* HARDWARE-NATIVE: Data attribute state management (framework-independent) */
-    .status-led.astro-j7pv25f6[data-hw-state="recording"] {
-      background-color: #ff0000 !important;
-      box-shadow: 0 0 8px #ff0000, inset 0 0 4px #ff4444 !important;
-      animation: recording-blink 0.5s infinite !important;
-    }
-    
-    .status-led.astro-j7pv25f6[data-hw-state="ready"] {
-      background-color: #00ff00 !important;
-      box-shadow: 0 0 6px #00ff00, inset 0 0 3px #44ff44 !important;
-    }
-    
-    .status-led.astro-j7pv25f6[data-hw-state="overdubbing"] {
-      background-color: #ff8800 !important;
-      box-shadow: 0 0 8px #ff8800, inset 0 0 4px #ffaa44 !important;
-      animation: overdub-shimmer 1s infinite !important;
-    }
-    
-    .status-led.astro-j7pv25f6[data-hw-state="off"] {
-      background-color: #333 !important;
-      box-shadow: none !important;
-      animation: none !important;
-    }
-    
-    .status-led.astro-j7pv25f6[data-hw-state="muted"] {
-      background-color: #ffff00 !important;
-      box-shadow: 0 0 6px #ffff00 !important;
-      animation: mute-blink 1s infinite !important;
-    }
-    
-    .status-led.recording {
-      background-color: #ff0000;
-      box-shadow: 0 0 8px #ff0000, inset 0 0 4px #ff4444;
-      animation: recording-blink 0.5s infinite;
-    }
-    
-    .status-led.overdubbing {
-      background-color: #ff8800;
-      box-shadow: 0 0 8px #ff8800, inset 0 0 4px #ffaa44;
-      animation: overdub-shimmer 1s infinite;
-    }
-    
-    .status-led.playing {
-      background-color: #00ff00;
-      box-shadow: 0 0 6px #00ff00, inset 0 0 3px #44ff44;
-    }
-    
-    .status-led.muted {
-      background-color: #ffff00;
-      box-shadow: 0 0 6px #ffff00;
-      animation: mute-blink 1s infinite;
-    }
-    
-    .status-led.standby {
-      background-color: #004400;
-      box-shadow: none;
-    }
-    
-    /* Button-embedded LED positioning - exact positioning from HTML */
-    .status-led[data-function="record"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    .status-led[data-function="overdub"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    .status-led[data-function="multiply"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    .status-led[data-function="insert"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    .status-led[data-function="mute"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    .status-led[data-function="undo"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    .status-led[data-function="nextloop"] {
-      left: 33.5% !important;
-      position: absolute !important;
-      top: 162% !important;
-    }
-    
-    /* Green LED default state for ready buttons */
-    .status-led.green {
-      background-color: #00ff00;
-      box-shadow: 0 0 4px #00ff00, inset 0 0 2px #44ff44;
-    }
-    
-    .status-led.orange {
-      background-color: #ff8000;
-      box-shadow: 0 0 4px #ff8000, inset 0 0 2px #ffaa44;
-    }
-    
-    .level-light#input-level {
-      left: 13.15% !important;
-      top: 73% !important;
-      position: absolute !important;
-      width: 0.7% !important;
-      height: 6% !important;
-    }
-    
-    .level-light#feedback-level {
-      left: 17.05% !important;
-      top: 73% !important;
-      width: 0.7% !important;
-      height: 6% !important;
-      position: absolute !important;
-    }
-    
-    .row-indicator.status-led#loops-led {
-      left: 56.3% !important;
-      top: 52% !important;
-      position: absolute !important;
-      width: 0.7%;
-      height: 6%;
-    }
-    
-    .row-indicator.status-led#midi-led {
-      left: 57.5% !important;
-      top: 62.5% !important;
-      position: absolute !important;
-      width: 0.7%;
-      height: 6%;
-    }
-    
-    .row-indicator.status-led#switches-led {
-      left: 58.5% !important;
-      top: 72% !important;
-      position: absolute !important;
-      width: 0.7%;
-      height: 6%;
-    }
-    
-    .row-indicator.status-led#timing-led {
-      left: 59.7% !important;
-      top: 82% !important;
-      position: absolute !important;
-      width: 0.7%;
-      height: 6%;
-    }
-    
-    /* Row indicator LED visibility and default styling */
-    .row-indicator.status-led {
-      background-color: #333;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      z-index: 1000 !important;
-      pointer-events: none;
-    }
-    
-    /* Row indicator LED active states */
-    .row-indicator.status-led.active {
-      background-color: #00ff00;
-      box-shadow: 0 0 4px #00ff00;
-    }
-    
-    /* Orange row indicators for parameter mode - higher specificity */
-    .row-indicator.status-led.orange {
-      background-color: #ff8000 !important;
-      box-shadow: 0 0 4px #ff8000 !important;
-    }
-
-    .status-led.error {
-      background-color: #ff0000;
-      animation: error-flash 0.2s infinite;
-    }
-    
-    /* Memory pressure indicators */
-    .memory-warning {
-      color: #ffaa00 !important;
-      animation: memory-warning 2s infinite;
-    }
-    
-    .memory-critical {
-      color: #ff0000 !important;
-      animation: memory-critical 1s infinite;
-    }
-    
-    /* Loop state indicators */
-    .loop-empty {
-      opacity: 0.3;
-    }
-    
-    .loop-has-content {
-      opacity: 1.0;
-      box-shadow: 0 0 4px #00ff00;
-    }
-    
-    .loop-current {
-      border: 2px solid #00ff00 !important;
-      animation: current-loop-glow 2s infinite ease-in-out;
-    }
-    
-    /* Tempo and timing visual feedback */
-    .tempo-dot {
-      transition: all 0.1s ease;
-    }
-    
-    .tempo-dot.beat {
-      background-color: #00ff00;
-      transform: scale(1.3);
-      box-shadow: 0 0 8px #00ff00;
-    }
-    
-    .tempo-dot.off-beat {
-      background-color: #004400;
-      transform: scale(0.8);
-    }
-    
-    /* Quantization visual feedback */
-    .quantizing-display {
-      color: #ff8800;
-      animation: quantize-countdown 0.5s ease-in-out;
-    }
-    
-    /* Parameter mode visual feedback */
-    .parameter-row-active {
-      background-color: rgba(255, 136, 0, 0.2);
-      border: 1px solid #ff8800;
-    }
-    
-    .parameter-button-mapped {
-      border-color: #ff8800 !important;
-      color: #ff8800 !important;
-    }
-    
-    /* Audio level indicators */
-    .level-meter {
-      height: 4px;
-      background-color: #333;
-      border-radius: 2px;
-      overflow: hidden;
-      margin: 2px 0;
-    }
-    
-    .level-meter .level-bar {
-      height: 100%;
-      transition: width 0.1s ease;
-      background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
-    }
-    
-    .level-meter.input .level-bar {
-      background: linear-gradient(to right, #0080ff, #00ff80, #ffff00);
-    }
-    
-    .level-meter.clipping .level-bar {
-      background-color: #ff0000 !important;
-      animation: clipping-flash 0.1s infinite;
-    }
-    
-    /* Knob visual feedback */
-    .knob.active {
-      box-shadow: 0 0 8px #00ff00;
-    }
-    
-    .knob.changing {
-      animation: knob-change 0.5s ease-out;
-    }
-    
-    /* Feedback routing visualization */
-    .feedback-active {
-      animation: feedback-flow 2s infinite linear;
-    }
-    
-    /* Error state indicators */
-    .error-state {
-      background-color: #330000 !important;
-      color: #ff6666 !important;
-      animation: error-pulse 1s infinite;
-    }
-    
-    /* Animation keyframes */
-    @keyframes recording-pulse {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.05); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    
-    @keyframes overdub-pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.8; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes recording-blink {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes overdub-shimmer {
-      0% { opacity: 0.8; }
-      50% { opacity: 1; }
-      100% { opacity: 0.8; }
-    }
-    
-    @keyframes mute-flash {
-      0% { opacity: 1; }
-      25% { opacity: 0.3; }
-      50% { opacity: 1; }
-      75% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes mute-blink {
-      0% { opacity: 1; }
-      50% { opacity: 0.2; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes quantize-glow {
-      0% { box-shadow: 0 0 5px #ff8800; }
-      100% { box-shadow: 0 0 15px #ff8800; }
-    }
-    
-    @keyframes quantize-countdown {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.2); opacity: 0.8; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    
-    @keyframes current-loop-glow {
-      0% { box-shadow: 0 0 5px #00ff00; }
-      50% { box-shadow: 0 0 15px #00ff00; }
-      100% { box-shadow: 0 0 5px #00ff00; }
-    }
-    
-    @keyframes memory-warning {
-      0% { opacity: 1; }
-      50% { opacity: 0.6; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes memory-critical {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.1); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    
-    @keyframes error-flash {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes error-pulse {
-      0% { background-color: #330000; }
-      50% { background-color: #660000; }
-      100% { background-color: #330000; }
-    }
-    
-    @keyframes clipping-flash {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes knob-change {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    
-    @keyframes feedback-flow {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
-    
-    /* State-specific display colors */
-    .display.recording {
-      color: #ff4444 !important;
-      animation: recording-display 1s infinite;
-    }
-    
-    .display.overdubbing {
-      color: #ff8800 !important;
-    }
-    
-    .display.quantizing {
-      color: #ffff00 !important;
-      animation: pulse 0.5s infinite;
-    }
-    
-    .display.error {
-      color: #ff0000 !important;
-      animation: error-flash 0.3s infinite;
-    }
-    
-    @keyframes recording-display {
-      0% { color: #ff4444; }
-      50% { color: #ff8888; }
-      100% { color: #ff4444; }
-    }
-    
-    .sample-player h3 {
-      margin: 0 0 6px 0;
-      color: #0f0;
-      font-size: 10px;
-    }
-    
-    .sample-controls {
-      display: flex;
-      gap: 3px;
-      margin-bottom: 6px;
-    }
-    
-    .sample-controls button {
-      padding: 3px 6px;
-      background-color: #444;
-      color: #0f0;
-      border: 1px solid #0f0;
-      border-radius: 2px;
-      cursor: pointer;
-      font-size: 9px;
-    }
-    
-    .sample-controls button:hover {
-      background-color: #555;
-    }
-    
-    .sample-controls button.active {
-      background-color: #0f0;
-      color: #000;
-    }
-    
-    .waveform-container {
-      position: relative;
-      height: 30px;
-      background-color: #222;
-      border: 1px solid #666;
-      margin-bottom: 6px;
-      overflow: hidden;
-    }
-    
-    .waveform-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    
-    .playhead {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 100%;
-      background-color: #f00;
-      cursor: pointer;
-      z-index: 10;
-    }
-    
-    .file-input-wrapper {
-      margin-bottom: 6px;
-    }
-    
-    .file-input-wrapper input[type="file"] {
-      width: 100%;
-      padding: 2px;
-      background-color: #444;
-      color: #0f0;
-      border: 1px solid #666;
-      border-radius: 2px;
-      font-size: 9px;
-    }
-    
-    .recording-source {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      font-size: 9px;
-    }
-    
-    .recording-source label {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      color: #0f0;
-    }
-    
-    .recording-source input {
-      margin-right: 5px;
-    }
-    
-    /* ECHOPLEX DIGITAL PRO PLUS STYLES */
-
-    /* Main container */
-    .echoplex-container {
-        position: relative;
-        width: 95%;
-        max-width: 1400px;
-        aspect-ratio: 1400 / 162;
-        border: 2px solid #111;
-        user-select: none;
-        background: url('https://echoplex-js.com/images/axa.png') no-repeat center;
-        background-size: cover;
-        margin: 20px auto;
-    }
-
-    /* Brand and model text */
-    .brand-text {
-        position: absolute;
-        left: 5%;
-        top: 15%;
-        font-size: 2.5vw;
-        font-style: italic;
-        font-weight: bold;
-        color: #ddd;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    }
-
-    .model-text {
-        position: absolute;
-        right: 25%;
-        top: 15%;
-        font-size: 1.8vw;
-        font-style: italic;
-        color: #ccc;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    }
-
-    /* KNOBS */
-    .knob {
-        position: absolute;
-        width: 2.86%;
-        height: 11.43%;
-        border-radius: 50%;
-        cursor: grab;
-    }
-
-    .knob:active {
-        cursor: grabbing;
-    }
-
-    .knob-image {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at 30% 30%, #666, #222);
-        border-radius: 50%;
-        box-shadow: 
-            0 5px 15px rgba(0,0,0,0.8),
-            inset 0 -2px 5px rgba(0,0,0,0.5),
-            inset 0 2px 2px rgba(255,255,255,0.2);
-        transform-origin: center center;
-        pointer-events: none;
-    }
-
-    .knob-indicator {
-        position: absolute;
-        width: 3px;
-        height: 40%;
-        background: #fff;
-        left: 50%;
-        top: 10%;
-        transform: translateX(-50%);
-        box-shadow: 0 0 3px rgba(255,255,255,0.5);
-        pointer-events: none;
-    }
-
-    /* Knob labels */
-    .knob-label {
-        position: absolute;
-        color: #aaa;
-        font-size: 0.9vw;
-        text-align: center;
-        white-space: nowrap;
-        transform: translateX(-50%);
-    }
-
-    .hidden {
-  		display: none !important;
-	}
-
-    /* Display section */
-    .display-section {
-        position: absolute;
-        left: 40%;
-        top: 28%;
-        width: 30%;
-        height: 25%;
-        background: #111;
-        border: 2px solid #333;
-        border-radius: 5px;
-        padding: 1%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .loop-display {
-        font-family: 'Orbitron', monospace;
-        font-size: 2.8vw;
-        color: #f00;
-        text-shadow: 0 0 10px #f00;
-        letter-spacing: -0.08em;
-        background: #000;
-        padding: 0.5% 1%;
-        border-radius: 3px;
-        min-width: 60%;
-    }
-
-    .left-display {
-        font-family: 'Orbitron', monospace;
-        font-size: 1.2vw;
-        color: #0f0;
-        text-shadow: 0 0 8px #0f0;
-        background: #000;
-        padding: 0.5% 1%;
-        border-radius: 3px;
-        min-width: 15%;
-        text-align: center;
-    }
-
-    .loop-display {
-        text-align: center;
-    }
-
-    .multiple-display {
-        font-family: 'Orbitron', monospace;
-        font-size: 1.2vw;
-        color: #0f0;
-        text-shadow: 0 0 8px #0f0;
-        background: #000;
-        padding: 0.5% 1%;
-        border-radius: 3px;
-        min-width: 15%;
-        text-align: center;
-    }
-
-    /* Display labels */
-    .display-labels {
-        position: absolute;
-        left: 40%;
-        top: 55%;
-        width: 30%;
-        display: flex;
-        justify-content: space-around;
-        color: #888;
-        font-size: 0.7vw;
-    }
-
-    /* Button control hitbox */
-    .control {
-        position: absolute;
-        cursor: pointer;
-    }
-
-    .button {
-        transition: all 0.1s;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-    }
-
-    .button:active {
-        transform: scale(0.95);
-    }
-
-    .button-image {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to bottom, #f8f8f8, #d0d0d0);
-        border: 1px solid #888;
-        border-radius: 50%;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        pointer-events: none;
-    }
-
-    /* Button labels */
-    .button-label {
-        position: absolute;
-        color: #ccc;
-        font-size: 0.65vw;
-        text-align: center;
-        white-space: nowrap;
-        transform: translateX(-50%);
-    }
-
-    /* Parameter matrix grid */
-    .parameter-matrix {
-        position: absolute;
-        left: 53%;
-        bottom: 13%;
-        width: 39%;
-        height: 22%;
-        background: rgba(34, 34, 34, 0.26);
-        border: 1px solid rgba(68, 68, 68, 0.29);
-        border-radius: 3px;
-        padding: 0.5%;
-    }
-
-    .matrix-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 25%;
-        color: #666;
-        font-size: 0.6vw;
-    }
-
-    .matrix-cell {
-        text-align: center;
-        width: 12.5%;
-        flex: 1;
-    }
-
-    .matrix-cell:first-child {
-        text-align: left;
-        padding-left: 2%;
-    }
-
-    .row-label {
-        position: absolute;
-        left: -50px;
-        font-size: 0.65vw;
-        color: #000;
-        white-space: nowrap;
-        width: 45px;
-        text-align: right;
-    }
-
-    /* SYSTEMATIC FIX #8: Enhanced tempo dot states */
-    @keyframes tempoPulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
-
-    /* AutoUndo blink for loop display */
-    .loop-display.auto-undo-blink {
-        animation: autoUndoBlink 1s ease-in-out infinite;
-    }
-
-    @keyframes autoUndoBlink {
-        0%, 90% { opacity: 1; }
-        95% { opacity: 0.3; }
-        100% { opacity: 1; }
-    }
-
-    /* Value display */
-    .value-display {
-        position: absolute;
-        background: rgba(0,0,0,0.9);
-        color: #0ff;
-        padding: 4px 8px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-family: monospace;
-        pointer-events: none;
-        z-index: 1000;
-        border: 1px solid #0ff;
-    }
-
-    /* AutoUndo LED - positioned as lower right dot in Loop Display */
-    .auto-undo-led {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        width: 10px;
-        height: 10px;
-        background-color: orange;
-        border-radius: 50%;
-        opacity: 0.3;
-        visibility: hidden;
-        box-shadow: 0 0 6px orange;
-        animation: autoUndoBlink 2s infinite;
-    }
-
-    @keyframes autoUndoBlink {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 0.1; }
-    }
-
-    /* Multiple Display tempo dots */
-    .tempo-dot-left,
-    .tempo-dot-right {
-        position: absolute;
-        bottom: 5px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        opacity: 0.2;
-    }
-
-    .tempo-dot-left {
-        left: 5px;
-        background-color: #0f0;
-    }
-
-    .tempo-dot-right {
-        right: 15px;
-        background-color: orange;
-    }
-
-    .tempo-dot-left.bright {
-        opacity: 1.0;
-        box-shadow: 0 0 6px #0f0;
-    }
-
-    .tempo-dot-left.faint {
-        opacity: 0.3;
-    }
-
-    .tempo-dot-right.orange {
-        opacity: 1.0;
-        box-shadow: 0 0 6px orange;
-    }
-
-    .tempo-dot-left.off,
-    .tempo-dot-right.off {
-        opacity: 0.1;
-        box-shadow: none;
-    }
-
-    /* Level LED dynamic color transition - Input and Feedback LEDs */
-    .level-light {
-        border-radius: 50%;
-        transition: all 0.1s ease;
-        background-color: #333;
-        box-shadow: none;
-    }
-
-    /* Dynamic level LED colors will be set via JavaScript based on actual levels */
-    .level-light.active {
-        /* Colors will be dynamically calculated:
-           Level 0.0-0.3: Green (#0f0)
-           Level 0.3-0.6: Green to Yellow gradient  
-           Level 0.6-0.8: Yellow to Orange gradient
-           Level 0.8-1.0: Orange to Red gradient
-           Level >1.0: Red with clipping flash
-        */
-    }
+    @import '../styles/echoplex.scss';
   </style>
 </head>
 <body>
@@ -1382,9 +43,9 @@
     </div>
     
     <!-- Debug buttons -->
-    <div style="margin-top: 5px; font-size: 9px;">
-      <button onclick="window.echoplexEngine?.testChannelSwitch('microphone')" style="padding: 2px 4px; font-size: 8px;">Test Mic</button>
-      <button onclick="window.echoplexEngine?.testChannelSwitch('sample')" style="padding: 2px 4px; font-size: 8px;">Test Sample</button>
+    <div>
+      <button onclick="window.echoplexEngine?.testChannelSwitch('microphone')">Test Mic</button>
+      <button onclick="window.echoplexEngine?.testChannelSwitch('sample')">Test Sample</button>
     </div>
   </div>
 
@@ -1398,45 +59,45 @@
     <!-- ECHOPLEX DIGITAL PRO PLUS INTERFACE -->
     <div id="echoplex-container" class="echoplex-container">
         <!-- Power Button (small red button like real hardware) -->
-        <div class="power-button" style="right: 2%; top: 40%;" id="power-button"></div>
+        <div class="power-button" id="power-button"></div>
         
 
         <!-- KNOBS -->
         <!-- Input Knob -->
-        <div class="control knob" style="left: 1.3%; top: 56%; width: 2.8%; height: 22.5%;" data-param="input" data-min="0" data-max="127" data-value="64">
+        <div class="control knob" data-param="input" data-min="0" data-max="127" data-value="64">
             <div class="knob-image">
                 <div class="knob-indicator"></div>
             </div>
         </div>
 
         <!-- Output Knob -->
-        <div class="control knob" style="left: 7.5%; top: 56%; width: 2.8%; height: 22.5%;" data-param="output" data-min="0" data-max="127" data-value="64">
+        <div class="control knob" data-param="output" data-min="0" data-max="127" data-value="64">
             <div class="knob-image">
                 <div class="knob-indicator"></div>
             </div>
         </div>
 
         <!-- Mix Knob -->
-        <div class="control knob" style="left: 21.2%; top: 56%; width: 2.8%; height: 22.5%;" data-param="mix" data-min="0" data-max="127" data-value="64">
+        <div class="control knob" data-param="mix" data-min="0" data-max="127" data-value="64">
             <div class="knob-image">
                 <div class="knob-indicator"></div>
             </div>
         </div>
 
         <!-- Feedback Knob -->
-        <div class="control knob" style="left: 26.95%; top: 56%; width: 2.8%; height: 22.5%;" data-param="feedback" data-min="0" data-max="127" data-value="95">
+        <div class="control knob" data-param="feedback" data-min="0" data-max="127" data-value="95">
             <div class="knob-image">
                 <div class="knob-indicator"></div>
             </div>
         </div>
         
         <!-- Level indicator lights -->
-        <div class="level-light astro-j7pv25f6 off" id="input-level" style="left: 13.15%; top: 73%; width: 0.7%; height: 6%;"></div>
-        <div class="level-light astro-j7pv25f6 off" id="feedback-level" style="left: 17.05%; top: 73%; width: 0.7%; height: 6%;"></div>
+        <div class="level-light astro-j7pv25f6 off" id="input-level"></div>
+        <div class="level-light astro-j7pv25f6 off" id="feedback-level"></div>
         
 
         <!-- Display Section -->
-        <div class="display-section" style="left: 32.8%; top:32%; width: 16.9%; height: 27%;">
+        <div class="display-section">
             <div class="left-display" id="left-display">1</div>
             <div class="loop-display" id="loop-display">
                 .
@@ -1451,65 +112,65 @@
 
 
         <!-- BUTTONS - SINGLE ROW OF 8 -  1 PARAMETER BUTTON - 7 Action Buttons-->
-        <div class="control button" style="left: 54.3%; top: 9.0%; width: 2.6%; height: 21.0%;" data-function="parameters">
+        <div class="control button" data-function="parameters">
             <div class="button-image">
             </div>
         </div>
 
-        <div class="control button" style="left: 61%; top: 10.3%; width: 2.6%; height: 21%;" data-function="record">
+        <div class="control button" data-function="record">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="record"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="record"></div>
             </div>
         </div>
 
-        <div class="control button" style="left: 65.5%; top: 10.3%; width: 2.6%; height: 21%;" data-function="overdub">
+        <div class="control button" data-function="overdub">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="overdub"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="overdub"></div>
             </div>
         </div>
 
-        <div class="control button" style="left: 70%; top: 10.3%; width: 2.6%; height: 21%;" data-function="multiply">
+        <div class="control button" data-function="multiply">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="multiply"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="multiply"></div>
             </div>
         </div>
 
-        <div class="control button" style="left: 74.5%; top: 10.3%; width: 2.6%; height: 21%;" data-function="insert">
+        <div class="control button" data-function="insert">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="insert"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="insert"></div>
             </div>
         </div>
 
-        <div class="control button" style="left: 79.2%; top: 10.3%; width: 2.6%; height: 21%;" data-function="mute">
+        <div class="control button" data-function="mute">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="mute"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="mute"></div>
             </div>
         </div>
 
-        <div class="control button" style="left: 83.6%; top: 10.3%; width: 2.6%; height: 21%;" data-function="undo">
+        <div class="control button" data-function="undo">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="undo"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="undo"></div>
             </div>
         </div>
 
-        <div class="control button" style="left: 88.3%; top: 10.3%; width: 2.6%; height: 21%;" data-function="nextloop">
+        <div class="control button" data-function="nextloop">
             <div class="button-image">
-                <div class="status-led astro-j7pv25f6" style="left: 33.5% !important; position: absolute !important; top: 162% !important;" data-hw-state="off" data-function="nextloop"></div>
+                <div class="status-led astro-j7pv25f6" data-hw-state="off" data-function="nextloop"></div>
             </div>
         </div>
         
         <!-- Row Indicator Lights -->
-        <div class="row-indicator status-led astro-j7pv25f6" style="left: 56.5%; top: 52%; width: 0.7%; height: 6%;" id="loops-led">
-            <div class="row-label hidden" style="transform: translateX(-18%) translateY(-14%);">Loops</div>
+        <div class="row-indicator status-led astro-j7pv25f6" id="loops-led">
+            <div class="row-label hidden">Loops</div>
         </div>
-        <div class="row-indicator status-led astro-j7pv25f6" style="left: 57.7%; top: 62.5%; width: 0.7%; height: 6%;" id="midi-led">
-            <div class="row-label hidden" style="transform: translateX(-22%);">MIDI</div>
+        <div class="row-indicator status-led astro-j7pv25f6" id="midi-led">
+            <div class="row-label hidden">MIDI</div>
         </div>
-        <div class="row-indicator status-led astro-j7pv25f6" style="left: 58.8%; top: 72%; width: 0.7%; height: 6%;" id="switches-led">
-            <div class="row-label hidden" style="transform: translateY(-32%); translateX(-60%)">Switches</div>
+        <div class="row-indicator status-led astro-j7pv25f6" id="switches-led">
+            <div class="row-label hidden">Switches</div>
         </div>
-        <div class="row-indicator status-led astro-j7pv25f6" style="left: 60.0%; top: 82%; width: 0.7%; height: 6%;" id="timing-led">
-            <div class="row-label hidden" style="transform: translateY(-34%) translateX(-20%);">Timing</div>
+        <div class="row-indicator status-led astro-j7pv25f6" id="timing-led">
+            <div class="row-label hidden">Timing</div>
         </div>
 
         <!-- Parameter Matrix (corrected order to match hardware) -->
@@ -1713,28 +374,28 @@
           
           if (isMinimized) {
             debugPanel.innerHTML = `
-              <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
                 <span>🔍 Debug (${this.errors.length} errors)</span>
-                <button onclick="window.echoplexDebug.toggleMinimize()" style="background:none;border:none;color:#0f0;cursor:pointer;">⬆️</button>
+                <button onclick="window.echoplexDebug.toggleMinimize()">⬆️</button>
               </div>
             `;
           } else {
             debugPanel.innerHTML = `
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <h3 style="margin:0; font-size:12px;">🔍 Debug Console</h3>
-                <button onclick="window.echoplexDebug.toggleMinimize()" style="background:none;border:none;color:#0f0;cursor:pointer;">⬇️</button>
+              <div>
+                <h3>🔍 Debug Console</h3>
+                <button onclick="window.echoplexDebug.toggleMinimize()">⬇️</button>
               </div>
               <div class="debug-section">
-                <div style="font-size:9px;">Recent: ${this.logs.slice(-2).map(l => `<div>${l.substring(0, 50)}...</div>`).join('')}</div>
+                <div>Recent: ${this.logs.slice(-2).map(l => `<div>${l.substring(0, 50)}...</div>`).join('')}</div>
               </div>
               <div class="debug-section">
-                <div style="color:#f88; font-size:9px;">Errors: ${this.errors.length > 0 ? this.errors.slice(-1)[0].substring(0, 40) + '...' : 'None'}</div>
+                <div>Errors: ${this.errors.length > 0 ? this.errors.slice(-1)[0].substring(0, 40) + '...' : 'None'}</div>
               </div>
-              <div class="debug-actions" style="margin-top:5px;">
-                <button onclick="window.echoplexDebug.runDiagnostics()" style="font-size:8px; padding:2px;">🔬 Test</button>
-                <button onclick="window.echoplexDebug.exportLogs()" style="font-size:8px; padding:2px;">📋 Copy</button>
-                <button onclick="window.echoplexDebug.clear()" style="font-size:8px; padding:2px;">🧹 Clear</button>
-                <button onclick="window.echoplexDebug.hide()" style="font-size:8px; padding:2px;">✖️ Hide</button>
+              <div class="debug-actions">
+                <button onclick="window.echoplexDebug.runDiagnostics()">🔬 Test</button>
+                <button onclick="window.echoplexDebug.exportLogs()">📋 Copy</button>
+                <button onclick="window.echoplexDebug.clear()">🧹 Clear</button>
+                <button onclick="window.echoplexDebug.hide()">✖️ Hide</button>
               </div>
             `;
           }
@@ -1961,4 +622,5 @@
     });
   </script>
 </body>
+
 </html>

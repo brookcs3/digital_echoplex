@@ -1680,24 +1680,16 @@ class EchoplexDigitalPro {
      * Virtual INPUT jack - state-driven input routing like real hardware
      */
     activateMicrophone() {
-        if (this.microphoneSource && this.inputGainNode) {
-            this.microphoneSource.connect(this.inputGainNode);
-            
-            // Only connect to destination if input knob is above 0
-            const inputLevel = this.state.controlValues.input / 127;
-            if (inputLevel > 0) {
-                this.inputGainNode.connect(this.audioContext.destination);
-                console.log('🔌 Virtual INPUT jack activated');
-            } else {
-                console.log('🔌 Virtual INPUT jack activated (muted - input knob at 0)');
-            }
+        if (this.microphoneSource && this.inputGain) {
+            // Connect microphone to main input gain (not directly to destination)
+            this.microphoneSource.connect(this.inputGain);
+            console.log('🔌 Virtual INPUT jack activated - routed through main audio chain');
         }
     }
 
     deactivateMicrophone() {
-        if (this.microphoneSource && this.inputGainNode) {
-            this.microphoneSource.disconnect(this.inputGainNode);
-            this.inputGainNode.disconnect();
+        if (this.microphoneSource && this.inputGain) {
+            this.microphoneSource.disconnect(this.inputGain);
             console.log('🔌 Virtual INPUT jack deactivated');
         }
     }
@@ -11663,13 +11655,14 @@ class EchoplexDigitalPro {
      */
     applyInputGainChange(value) {
         const gainDb = this.convertControllerToDb(value, -40, 20); // -40dB to +20dB range
+        const gainValue = this.dbToGain(gainDb);
         
-        // Apply to input gain
+        // Apply to main input gain node (following Adobe's hardware accuracy guidance)
         if (this.inputGain) {
-            this.inputGain.gain.linearRampToValueAtTime(this.dbToGain(gainDb), this.audioContext.currentTime + 0.1);
+            this.inputGain.gain.setValueAtTime(gainValue, this.audioContext.currentTime);
         }
         
-        console.log(`🎤 Input: ${value}/127 (${gainDb.toFixed(1)}dB)`);
+        console.log(`🎤 Input: ${value}/127 (${gainDb.toFixed(1)}dB) - gain: ${gainValue.toFixed(3)}`);
     }
 
     /**
@@ -14516,11 +14509,10 @@ class EchoplexDigitalPro {
                 } 
             });
             
-            // Create Web Audio nodes
+            // Create Web Audio nodes  
             this.microphoneSource = this.audioContext.createMediaStreamSource(this.microphoneStream);
-            this.inputGainNode = this.audioContext.createGain();
-            this.outputGainNode = this.audioContext.createGain();
             
+            // Note: Using main this.inputGain instead of separate inputGainNode for proper signal flow
             // CRITICAL: DO NOT connect microphone to input gain here - only during recording
             // Virtual INPUT jack will handle connection during recording states only
             
