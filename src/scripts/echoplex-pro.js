@@ -479,6 +479,9 @@ class EchoplexDigitalPro {
             case "mute":
                 this.setState({ isMuted: !this.state.isMuted });
                 break;
+            case "parameters":
+                this.cycleParameterMode();
+                break;
             default:
                 console.log("Unknown button type");
         }
