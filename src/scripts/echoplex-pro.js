@@ -304,17 +304,17 @@ class EchoplexDigitalPro {
     }
 
     updateInputRouting() {
-        this.resetAudioRouting();
+        this.deactivateMicrophone(); // Reset routing
 
         if (this.state.isRecording) {
-            this.inputGain.connect(this.loopBufferNode);
+            this.microphoneSource.connect(this.inputGainNode);
+            this.inputGainNode.connect(this.loopBufferNode);
         } else if (this.state.isOverdubbing) {
-            this.inputGain.connect(this.loopBufferNode);
+            this.microphoneSource.connect(this.inputGainNode);
+            this.inputGainNode.connect(this.loopBufferNode);
             this.loopBufferNode.connect(this.outputGainNode);
         } else if (this.state.isPlaying) {
             this.loopBufferNode.connect(this.outputGainNode);
-        } else if (this.state.isMuted) {
-            // No connections during mute
         }
     }
 
@@ -1445,6 +1445,20 @@ class EchoplexDigitalPro {
         }
     }
 
+    activateMicrophone() {
+        if (this.microphoneSource && this.inputGainNode) {
+            this.microphoneSource.connect(this.inputGainNode);
+            console.log('Microphone activated');
+        }
+    }
+
+    deactivateMicrophone() {
+        if (this.microphoneSource && this.inputGainNode) {
+            this.microphoneSource.disconnect(this.inputGainNode);
+            console.log('Microphone deactivated');
+        }
+    }
+
     handleToggleRecord(recordLed) {
         console.log(`🔄 Toggle Record: isRecording=${this.state.isRecording}`);
         
@@ -1674,234 +1688,36 @@ class EchoplexDigitalPro {
     }
 
     async startRecording(recordLed) {
-        console.log('Starting recording...');
-        
-        // Check for threshold waiting
-        if (this.state.thresholdLevel > 0) {
-            console.log(`⏱️ Waiting for audio threshold: ${this.state.thresholdLevel}`);
-            this.showThresholdWaitingDisplay();
-            // In a real implementation, you would monitor audio input level here
-            // For now, we'll simulate threshold reached after 1 second
-            setTimeout(() => {
-                this.clearQuantizeWaitingDisplay('THRESHOLD_REACHED');
-                this.continueRecordingAfterThreshold(recordLed);
-            }, 1000);
-            return true;
+        if (this.state.isRecording) {
+            console.warn('Recording already active');
+            return;
         }
-        
-        // Check for sync waiting
-        if (this.state.syncMode !== 'INTERNAL') {
-            console.log(`⏱️ Waiting for sync event: ${this.state.syncMode}`);
-            this.showSyncWaitingDisplay();
-            // In a real implementation, you would wait for MIDI sync here
-            // For now, we'll simulate sync received after 1.5 seconds
-            setTimeout(() => {
-                this.clearQuantizeWaitingDisplay('SYNC_RECEIVED');
-                this.continueRecordingAfterSync(recordLed);
-            }, 1500);
-            return true;
-        }
-        
-        return this.continueRecordingAfterThreshold(recordLed);
-    }
-    
-    /**
-     * Virtual INPUT jack - state-driven input routing like real hardware
-     */
-    activateMicrophone() {
-        if (this.microphoneSource && this.inputGain) {
-            // Connect microphone to main input gain (not directly to destination)
-            this.microphoneSource.connect(this.inputGain);
-            console.log('🔌 Virtual INPUT jack activated - routed through main audio chain');
-        }
-    }
 
-    deactivateMicrophone() {
-        if (this.microphoneSource && this.inputGain) {
-            this.microphoneSource.disconnect(this.inputGain);
-            console.log('🔌 Virtual INPUT jack deactivated');
-        }
-    }
-
-    async continueRecordingAfterThreshold(recordLed) {
-        // Ensure audio system is ready and microphone is connected
         if (!this.audioSystem || !this.audioSystem.isReady) {
-            await this.initializeAudioSystem();
-            await this.initializeRecording();
+            console.error('Audio system not ready for recording');
+            return;
         }
-        
-        // CRITICAL: Activate microphone only when starting to record
-        this.activateMicrophone();
-        
-        // STRICT: Ensure recording system has microphone access
-        if (!this.recordingSystem || !this.recordingSystem.stream) {
-            console.log('🎤 Requesting microphone access for recording...');
-            try {
-                await this.initializeRecording(); // This handles mic permission
-                this.showDisplayMessage('MIC OK', 1000);
-            } catch (error) {
-                console.error('❌ Microphone access failed:', error);
-                this.showDisplayMessage('MIC ERR', 2000);
-                return false;
-            }
-        }
-        
-        return this.continueRecordingAfterSync(recordLed);
-    }
-    
-    async continueRecordingAfterSync(recordLed) {
-        
-        // Start actual audio recording
-        try {
-            // Start native Web Audio recording
-            await this.startNativeRecording();
-            
-            this.setState({ isRecording: true });
-            recordLed.className = 'status-led astro-j7pv25f6 red';
-            this.state.loopTime = 0;
-            this.state.recordStartTime = Date.now();
-            
-            // SYSTEMATIC FIX #6: Track real audio timing start point
-            this.recordingStartTime = this.audioSystem?.currentTime() || Date.now() / 1000;
-            console.log(`✅ Recording started at audio time: ${this.recordingStartTime.toFixed(3)}s`);
-            
-            // Save undo state before recording
-            this.saveUndoState();
-            
-            // STRICT: Real-time display updates with precise Web Audio timing
-            this.recordingInterval = setInterval(() => {
-                // Update loop time using precise Web Audio timing
-                if (this.audioSystem && this.audioSystem.currentTime && this.recordingStartTime) {
-                    const currentAudioTime = this.audioSystem.currentTime();
-                    this.state.loopTime = currentAudioTime - this.recordingStartTime;
-                } else {
-                    // Fallback to incremental timing
-                    this.state.loopTime += 0.1;
-                }
-                
-                // STRICT: Update main LCD display during recording
-                this.updateLoopTimeDisplay();
-                console.log(`🔴 Recording: ${this.state.loopTime.toFixed(1)}s`);
-                
-                // SYSTEMATIC FIX #15: Check memory usage with new memory management system
-                if (this.memorySystem) {
-                    const currentLoopNumber = this.state.currentLoop;
-                    
-                    // Check if loop would exceed available memory
-                    if (this.state.loopTime > this.memorySystem.availableMemory) {
-                        console.warn(`⚠️ Memory limit reached: ${this.state.loopTime.toFixed(1)}s > ${this.memorySystem.availableMemory.toFixed(1)}s`);
-                        this.showDisplayMessage('MEM!', 2000);
-                        this.stopRecording();
-                        return;
-                    }
-                    
-                    // Check maximum loop length
-                    if (this.state.loopTime > this.memorySystem.maxLoopLength) {
-                        console.warn(`⚠️ Maximum loop length reached: ${this.state.loopTime.toFixed(1)}s`);
-                        this.showDisplayMessage('LONG', 2000);
-                        this.stopRecording();
-                        return;
-                    }
-                } else {
-                    // Fallback to old memory check
-                    if (this.state.loopTime >= this.state.availableMemory) {
-                        this.handleError(2, 'Memory overflow during recording');
-                        this.stopRecording();
-                    }
-                }
-            }, 50); // More frequent updates for smoother display
-            
-            // SYSTEMATIC FIX #8: Start tempo guide when recording begins
-            this.startVisualTempoGuide();
-            
-            console.log(`Audio recording started in ${this.state.recordMode} mode`);
-            return true;
-            
-        } catch (error) {
-            console.error('Failed to start recording:', error);
-            this.showDisplayMessage('ERR2', 2000);
-            return false;
-        }
+
+        this.setState({ isRecording: true });
+        this.recorder.start();
+        this.recordStartTime = this.audioSystem.currentTime();
+
+        console.log('Recording started');
     }
 
-    // SYSTEMATIC FIX #1: Real-time display synchronization + AUDIO RECORDING
     async stopRecording() {
-        console.log('Stopping recording...');
-        
-        try {
-            // SYSTEMATIC FIX #9: Proper record/playback audio chain connection
-            if (this.recorder && this.state.isRecording) {
-                const recordingBuffer = await this.stopNativeRecording();
-                
-                // SYSTEMATIC FIX #15: Store recorded audio with memory management integration
-                const currentLoop = this.getCurrentLoop();
-                if (currentLoop && recordingBuffer) {
-                    const currentLoopNumber = this.state.currentLoop;
-                    const recordedDuration = this.state.loopTime;
-                    
-                    // Allocate memory for the new loop using memory management system
-                    let memoryAllocated = true;
-                    if (this.memorySystem) {
-                        memoryAllocated = this.notifyLoopCreated(currentLoopNumber, recordedDuration, recordingBuffer);
-                    }
-                    
-                    if (memoryAllocated) {
-                        currentLoop.buffer = recordingBuffer;
-                        currentLoop.originalBuffer = recordingBuffer; // SYSTEMATIC FIX #12: Store original for overdub undo
-                        currentLoop.duration = recordedDuration;
-                        currentLoop.isEmpty = false;
-                        
-                        // Initialize overdub layers for this loop
-                        this.overdubLayers[currentLoopNumber] = [];
-                        
-                        // CRITICAL: Set up proper looping playback chain
-                        await this.setupLoopPlayback(recordingBuffer);
-                        
-                        console.log(`✅ Audio recorded and playback chain established. Loop ${currentLoopNumber}: ${recordedDuration.toFixed(1)}s`);
-                        
-                        // Update memory display
-                        if (this.memorySystem) {
-                            this.updateMemoryDisplay();
-                        }
-                    } else {
-                        console.error('❌ Failed to allocate memory for recorded loop');
-                        this.showDisplayMessage('MEM!', 2000);
-                        
-                        // Clean up the buffer since we can't store it
-                        try {
-                            if (recordingBuffer.dispose) recordingBuffer.dispose();
-                        } catch (error) {
-                            console.warn('Error disposing failed recording buffer:', error);
-                        }
-                        return false;
-                    }
-                } else {
-                    console.error('❌ Failed to store recording buffer');
-                }
-            }
-            
-        } catch (error) {
-            console.error('Error stopping recording:', error);
-            this.showDisplayMessage('ERR3', 2000);
+        if (!this.state.isRecording) {
+            console.warn('No active recording to stop');
+            return;
         }
-        
-        // Update state
+
+        this.recorder.stop();
         this.setState({ isRecording: false, isPlaying: true });
-        
-        // CRITICAL: Deactivate microphone when recording stops (prevents feedback)
-        this.deactivateMicrophone();
-        
-        if (this.recordingInterval) {
-            clearInterval(this.recordingInterval);
-            this.recordingInterval = null;
-        }
-        
-        // SYSTEMATIC FIX #6: Clear audio timing reference
-        this.recordingStartTime = null;
-        console.log(`✅ Recording stopped. Final loop time: ${this.state.loopTime.toFixed(2)}s`);
-        
-        // Update memory tracking
-        this.state.availableMemory -= this.state.loopTime;
+
+        const recordedBuffer = this.processRecordedBuffer();
+        this.startLoopPlayback(recordedBuffer);
+
+        console.log('Recording stopped and playback started');
     }
 
     // SYSTEMATIC FIX #9: Critical function to establish proper loop playback chain
@@ -1959,6 +1775,33 @@ class EchoplexDigitalPro {
             hasLoop,
             isOverdubReady: feedbackLevel > 0 && hasLoop
         };
+    }
+
+    processRecordedBuffer() {
+        try {
+            const audioBuffer = this.recorder.getBuffer();
+            this.state.loopBuffer = audioBuffer;
+            this.state.loopTime = audioBuffer.duration;
+
+            console.log(`Processed recorded buffer: ${audioBuffer.duration.toFixed(2)}s`);
+            return audioBuffer;
+        } catch (error) {
+            console.error('Error processing recorded buffer:', error);
+            return null;
+        }
+    }
+
+    startLoopPlayback(buffer) {
+        if (!buffer) {
+            console.warn('No buffer available for playback');
+            return;
+        }
+
+        const player = this.createAudioPlayer(buffer);
+        player.loop = true;
+        player.start();
+
+        console.log('Loop playback started');
     }
 
     // SYSTEMATIC FIX #9: Loop switching with proper audio chain management
@@ -25766,23 +25609,18 @@ class EchoplexDigitalPro {
                 sampleRate: context.sampleRate
             };
 
+            // Set initial state and routing
+            this.setState({ isRecording: false, isOverdubbing: false, isMuted: false, isPlaying: false });
+            this.updateInputRouting();
+
             // Set gain values
             this.audioSystem.inputGain.gain.value = 0.8;
-            this.audioSystem.outputGain.gain.value = 0.8;
-            this.audioSystem.sampleInput.gain.value = 1.0;
 
-            // Connect native audio chain
-            this.audioSystem.sampleInput.connect(this.audioSystem.inputGain);
-            this.audioSystem.inputGain.connect(this.audioSystem.outputGain);
-            this.audioSystem.outputGain.connect(context.destination);
-            
-            this.audioSystem.isReady = true;
-            this.isAudioReady = true; // Legacy compatibility
-            console.log(`✅ Native Web Audio API initialized - Sample Rate: ${context.sampleRate}Hz, Buffer: ${this.audioSystem.bufferSize}`);
-            return true;
+            this.deactivateMicrophone(); // Ensure microphone is off by default
         } catch (error) {
-            console.error('❌ Failed to initialize audio system:', error);
-            return false;
+            console.error("Failed to initialize audio system:", error);
+            this.audioSystem = { isReady: false };
+            throw error;
         }
     }
 
