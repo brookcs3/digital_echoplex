@@ -181,8 +181,8 @@ class EchoplexDigitalPro {
                 substitute: false   // SUSSubstitute - substitute only while held
             },
             
-            // Long press threshold (500ms like hardware)
-            longPressThreshold: 500,
+            // Long press threshold (1000ms for exiting parameter mode)
+            longPressThreshold: 1000,
             
             // Sustain action timers
             sustainTimers: {},
@@ -468,7 +468,12 @@ class EchoplexDigitalPro {
     }
 
     // SYSTEMATIC FIX #3: Proper long press timer management + Sustain Mode
-    handleButtonPress(buttonType) {
+    handleButtonPress(buttonType, e) {
+        this.buttonPressStart = Date.now();
+        this.longPressTimer = setTimeout(() => {
+            this.handleLongPress(buttonType);
+        }, this.sustainActionSystem.longPressThreshold);
+
         switch (buttonType) {
             case "record":
                 this.state.isRecording ? this.stopRecording() : this.startRecording();
@@ -498,12 +503,6 @@ class EchoplexDigitalPro {
         }
         
         const pressDuration = Date.now() - this.buttonPressStart;
-        
-        // Record button now uses BUCKET TOGGLE behavior (handled in handleButtonPress)
-        if (buttonName === 'record') {
-            // No action needed on release - bucket toggle happens on press
-            return;
-        }
         
         // SYSTEMATIC FIX #12: Handle sustain mode for overdub button release with actual recording
         if (buttonName === 'overdub' && this.state.overdubMode === 'SUSTAIN') {
@@ -1252,14 +1251,8 @@ class EchoplexDigitalPro {
         
         switch(buttonName) {
             case 'parameters':
-                // Exit parameter mode or execute parameter reset
-                if (this.state.parameterMode > 0) {
-                    this.executeParameterReset();
-                } else {
-                    this.state.parameterMode = 0;
-                    this.updateParameterLEDs();
-                    this.updateMultipleDisplay('');
-                }
+                // Exit parameter mode
+                this.exitParameterMode();
                 break;
                 
             case 'record':
