@@ -291,8 +291,9 @@ class EchoplexDigitalPro {
     }
 
     setState(newState) {
-        Object.assign(this.state, newState);
+        this.state = { ...this.state, ...newState };
         this.updateInputRouting();
+        this.updateAllLEDsFromState();
     }
 
     resetAudioRouting() {
@@ -304,18 +305,38 @@ class EchoplexDigitalPro {
     }
 
     updateInputRouting() {
-        this.deactivateMicrophone(); // Reset routing
+        const { isRecording, isOverdubbing, isMuted, isPlaying } = this.state;
 
-        if (this.state.isRecording) {
-            this.microphoneSource.connect(this.inputGainNode);
-            this.inputGainNode.connect(this.loopBufferNode);
-        } else if (this.state.isOverdubbing) {
-            this.microphoneSource.connect(this.inputGainNode);
-            this.inputGainNode.connect(this.loopBufferNode);
-            this.loopBufferNode.connect(this.outputGainNode);
-        } else if (this.state.isPlaying) {
-            this.loopBufferNode.connect(this.outputGainNode);
+        // Disconnect all nodes initially
+        this.inputGainNode.disconnect();
+        this.feedbackNode.disconnect();
+        this.outputGainNode.disconnect();
+
+        // Signal routing based on states
+        if (isRecording) {
+            this.inputGainNode.connect(this.feedbackNode);
+            this.feedbackNode.connect(this.loopBuffer);
+        } else if (isOverdubbing) {
+            this.inputGainNode.connect(this.feedbackNode);
+            this.feedbackNode.connect(this.loopBuffer);
+            this.loopBuffer.connect(this.outputGainNode);
+        } else if (isMuted) {
+            // No connections for muted state
+        } else if (isPlaying) {
+            this.loopBuffer.connect(this.outputGainNode);
         }
+
+        // Update visual feedback (e.g., LEDs)
+        this.updateAllLEDsFromState();
+    }
+
+    updateAllLEDsFromState() {
+        const { isRecording, isOverdubbing, isMuted, isPlaying } = this.state;
+
+        this.recordLED.className = isRecording ? "led-on" : "led-off";
+        this.overdubLED.className = isOverdubbing ? "led-on" : "led-off";
+        this.muteLED.className = isMuted ? "led-on" : "led-off";
+        this.playLED.className = isPlaying ? "led-on" : "led-off";
     }
 
     // SYSTEMATIC FIX #1: Display Timing Synchronization
@@ -447,58 +468,20 @@ class EchoplexDigitalPro {
     }
 
     // SYSTEMATIC FIX #3: Proper long press timer management + Sustain Mode
-    handleButtonPress(buttonName, event) {
-        if (!this.state.power) return;
-        
-        event.preventDefault();
-        this.buttonPressStart = Date.now();
-        
-        // Handle Record button with BUCKET TOGGLE behavior
-        if (buttonName === 'record') {
-            const recordLed = this.elements.recordBtn?.querySelector('.status-led');
-            if (!this.state.isRecording) {
-                // BUCKET FILL: Start recording when button is pressed
-                this.startRecording(recordLed);
-                console.log(`${this.state.recordMode} Record: BUCKET FILL - Recording started`);
-            } else {
-                // BUCKET SPILL: Stop recording when button is pressed again  
-                this.stopRecording();
-                if (recordLed) {
-                    recordLed.setAttribute('data-hw-state', 'ready');
-                    recordLed.className = 'status-led astro-j7pv25f6';
-                }
-                console.log(`${this.state.recordMode} Record: BUCKET SPILL - Recording stopped`);
-            }
-            return;
+    handleButtonPress(buttonType) {
+        switch (buttonType) {
+            case "record":
+                this.state.isRecording ? this.stopRecording() : this.startRecording();
+                break;
+            case "overdub":
+                this.state.isOverdubbing ? this.stopOverdubbing() : this.startOverdubbing();
+                break;
+            case "mute":
+                this.setState({ isMuted: !this.state.isMuted });
+                break;
+            default:
+                console.log("Unknown button type");
         }
-        
-        // SYSTEMATIC FIX #12: Handle sustain mode for overdub button with actual recording
-        if (buttonName === 'overdub' && this.state.overdubMode === 'SUSTAIN') {
-            if (!this.state.isOverdubbing && this.state.loopTime > 0) {
-                // Start overdubbing immediately when button is pressed in sustain mode
-                const overdubLed = this.elements.overdubBtn?.querySelector('.status-led');
-                this.startOverdubRecording().then(success => {
-                    if (success) {
-                        this.setState({ isOverdubbing: true });
-                        if (overdubLed) overdubLed.className = 'status-led astro-j7pv25f6 red';
-                        console.log('✅ Sustain Overdub: Recording started on press');
-                    }
-                });
-            }
-            return;
-        }
-        
-        // Clear any existing timer
-        if (this.longPressTimer) {
-            clearTimeout(this.longPressTimer);
-        }
-        
-        // Set up long press detection (500ms as per documentation)
-        this.longPressTimer = setTimeout(() => {
-            this.handleLongPress(buttonName);
-        }, 500);
-        
-        console.log(`Echoplex: ${buttonName} button pressed`);
     }
 
     // SYSTEMATIC FIX #3: Proper timer cleanup + Sustain Mode Handling
@@ -1425,24 +1408,20 @@ class EchoplexDigitalPro {
     }
 
     // SYSTEMATIC FIX #5: Cycle Counter Logic + RecordMode Implementation
-    toggleRecord() {
-        const recordLed = this.elements.recordBtn?.querySelector('.status-led');
-        if (!recordLed) return;
+    startRecording() {
+        if (this.state.isRecording || this.state.isOverdubbing) return; // Prevent invalid states
 
-        // Handle different record modes
-        switch(this.state.recordMode) {
-            case 'TOGGLE':
-                this.handleToggleRecord(recordLed);
-                break;
-            case 'SUSTAIN':
-                // Sustain mode handled in button press/release events
-                this.showDisplayMessage('SUS', 500);
-                console.log('Sustain mode: use hold to record');
-                break;
-            case 'SAFE':
-                this.handleSafeRecord(recordLed);
-                break;
-        }
+        this.activateMicrophone();
+        this.setState({ isRecording: true });
+        console.log("Recording started");
+    }
+
+    stopRecording() {
+        if (!this.state.isRecording) return; // Prevent invalid states
+
+        this.deactivateMicrophone();
+        this.setState({ isRecording: false, isPlaying: true });
+        console.log("Recording stopped, playback started");
     }
 
     activateMicrophone() {
@@ -1454,255 +1433,37 @@ class EchoplexDigitalPro {
 
     deactivateMicrophone() {
         if (this.microphoneSource && this.inputGainNode) {
-            this.microphoneSource.disconnect(this.inputGainNode);
+            this.microphoneSource.disconnect();
             console.log('Microphone deactivated');
         }
     }
 
-    handleToggleRecord(recordLed) {
-        console.log(`🔄 Toggle Record: isRecording=${this.state.isRecording}`);
-        
-        if (this.state.isRecording) {
-            // STOP RECORDING - Clear timers and reset state
-            console.log('🛑 Stopping recording...');
-            
-            // Clear recording interval immediately
-            if (this.recordingInterval) {
-                clearInterval(this.recordingInterval);
-                this.recordingInterval = null;
-            }
-            
-            // Stop recording and update state
-            this.stopRecording();
-            this.setState({ isRecording: false, isPlaying: true });
-            // HARDWARE-NATIVE: Use data attribute instead of scoped class
-            recordLed.setAttribute('data-hw-state', 'ready');
-            recordLed.className = 'status-led astro-j7pv25f6';
-            
-            console.log('✅ Recording stopped, LED green');
-        } else {
-            // START RECORDING - Immediate visual feedback
-            console.log('🔴 Starting recording...');
-            
-            this.setState({ isRecording: true });
-            this.state.loopTime = 0;
-            this.state.recordStartTime = Date.now();
-            // HARDWARE-NATIVE: Use data attribute instead of scoped class
-            recordLed.setAttribute('data-hw-state', 'recording');
-            recordLed.className = 'status-led astro-j7pv25f6';
-            
-            // Start immediate LCD display updates
-            this.recordingStartTime = Date.now() / 1000;
-            this.startImmediateRecordingDisplay();
-            
-            // Handle audio system in background (don't wait)
-            this.startRecording(recordLed).catch(error => {
-                console.error('Audio recording failed, but visual continues:', error);
-            });
-            
-            console.log('✅ Recording started, LED red');
-        }
-    }
-
-    handleSafeRecord(recordLed) {
-        if (this.state.isRecording) {
-            // Stop recording and set feedback to 100% (Safe mode)
-            this.stopRecording();
-            this.state.controlValues.feedback = 127; // Set to maximum (100%)
-            this.showDisplayMessage('SAF', 1000);
-            // HARDWARE-NATIVE: Use data attribute for state
-            recordLed.setAttribute('data-hw-state', 'ready');
-            recordLed.className = 'status-led astro-j7pv25f6';
-            console.log('Safe Record: Feedback set to 100%');
-        } else {
-            // Start recording
-            this.startRecording(recordLed);
-        }
-    }
-
-    /**
-     * Handle Record button press - CRITICAL missing function
-     */
-    handleRecord() {
-        // CHECK: If in P2 (Switches) parameter mode, cycle record modes instead of recording
-        if (this.state.parameterMode === 2) {
-            this.cycleRecordMode();
-            return;
-        }
-        
-        // Normal recording behavior based on current record mode
-        switch(this.state.recordMode) {
-            case 'TOGGLE':
-                this.handleToggleRecord();
-                break;
-            case 'SUSTAIN':
-                this.handleSustainRecordPress();
-                break;
-            case 'SAFE':
-                this.handleSafeRecord();
-                break;
-            default:
-                this.handleToggleRecord(); // Default to toggle mode
-        }
-    }
-
-    /**
-     * Cycle through Record Modes when in P2 (Switches) parameter mode
-     */
-    cycleRecordMode() {
-        const modes = ['TOGGLE', 'SUSTAIN', 'SAFE'];
-        const currentModeIndex = modes.indexOf(this.state.recordMode);
-        const nextModeIndex = (currentModeIndex + 1) % modes.length;
-
-        this.state.recordMode = modes[nextModeIndex];
-        
-        // Update loop display with mode abbreviation
-        const modeDisplay = this.state.recordMode === 'TOGGLE' ? 'tog' : 
-                           this.state.recordMode === 'SUSTAIN' ? 'SUS' : 'SAF';
-        this.showDisplayMessage(modeDisplay, 2000);
-        
-        console.log(`🎛️ RecordMode switched to ${this.state.recordMode} (${modeDisplay})`);
-    }
-
-    /**
-     * Handle Record button long press
-     */
-    handleRecordLongPress() {
-        // Long press only works in TOGGLE and SAFE modes (not SUSTAIN)
-        if (this.state.recordMode !== 'SUSTAIN') {
-            console.log('Resetting loop...');
-            this.resetLoop();
-            this.updateRecordLED('green');
-        }
-    }
-
-    /**
-     * TOGGLE MODE: Press once to start, press again to stop
-     */
-    handleToggleRecord() {
-        if (this.state.isRecording) {
-            // Stop recording
-            this.stopRecording();
-            this.setState({ isRecording: false, isPlaying: true });
-            this.deactivateMicrophone();
-            console.log('Recording stopped (Toggle Mode)');
-            this.updateRecordLED('green');
-        } else {
-            // Start recording
-            this.startRecording();
-            this.setState({ isRecording: true });
-            console.log('Recording started (Toggle Mode)');
-            this.updateRecordLED('red');
-        }
-    }
-
-    /**
-     * SUSTAIN MODE: Record only while button is held
-     */
-    handleSustainRecordPress() {
-        if (!this.state.isRecording) {
-            // Start recording while button is held
-            this.startRecording();
-            this.setState({ isRecording: true });
-            console.log('Recording started (Sustain Mode)');
-            this.updateRecordLED('red');
-        }
-    }
-
-    handleSustainRecordRelease() {
-        if (this.state.isRecording) {
-            // Stop recording when button is released
-            this.stopRecording();
-            this.setState({ isRecording: false, isPlaying: true });
-            this.deactivateMicrophone();
-            console.log('Recording stopped (Sustain Mode)');
-            this.updateRecordLED('green');
-        }
-    }
-
-    /**
-     * SAFE MODE: Like toggle but sets feedback to 100% after recording
-     */
-    handleSafeRecord() {
-        if (this.state.isRecording) {
-            // Stop recording and set feedback to 100%
-            this.stopRecording();
-            this.setState({ isRecording: false, isPlaying: true });
-            this.deactivateMicrophone();
-            this.state.controlValues.feedback = 127; // Maximum feedback
-            console.log('Recording stopped (Safe Mode), feedback set to 100%');
-            this.updateRecordLED('green');
-        } else {
-            // Start recording
-            this.startRecording();
-            this.setState({ isRecording: true });
-            console.log('Recording started (Safe Mode)');
-            this.updateRecordLED('red');
-        }
-    }
-
-    /**
-     * Update Record LED visual feedback
-     */
-    updateRecordLED(color) {
-        const recordLED = this.elements.recordBtn?.querySelector('.status-led');
-        if (!recordLED) return;
-
-        // Set LED state based on color
-        if (color === 'red') {
-            recordLED.setAttribute('data-hw-state', 'recording');
-            recordLED.className = 'status-led astro-j7pv25f6';
-        } else if (color === 'green') {
-            recordLED.setAttribute('data-hw-state', 'ready');
-            recordLED.className = 'status-led astro-j7pv25f6';
-        } else {
-            recordLED.setAttribute('data-hw-state', 'off');
-            recordLED.className = 'status-led astro-j7pv25f6';
-        }
-    }
-
-    /**
-     * Start immediate recording display updates - CRITICAL for user feedback
-     */
-    startImmediateRecordingDisplay() {
-        // Clear any existing interval
-        if (this.recordingInterval) {
-            clearInterval(this.recordingInterval);
-        }
-        
-        // Start immediate LCD updates every 100ms
-        this.recordingInterval = setInterval(() => {
-            // Update loop time - immediate visual feedback
-            this.state.loopTime = (Date.now() - this.state.recordStartTime) / 1000;
-            
-            // Update LCD display immediately
-            this.updateLoopTimeDisplay();
-            
-            // Check memory limits
-            if (this.state.loopTime > 198) { // Max Echoplex memory
-                this.showDisplayMessage('MEM!', 2000);
-                this.stopRecording();
-                return;
-            }
-        }, 100); // 100ms updates for smooth visual feedback
-    }
+    
 
     async startRecording(recordLed) {
-        if (this.state.isRecording) {
-            console.warn('Recording already active');
-            return;
+        try {
+            if (this.state.isRecording) {
+                console.warn('Recording already active');
+                return;
+            }
+
+            if (!this.audioSystem || !this.audioSystem.isReady) {
+                console.error('Audio system not ready for recording');
+                this.showDisplayMessage('ERR_AUD', 2000);
+                return;
+            }
+
+            await this.activateMicrophone();
+            this.setState({ isRecording: true });
+            this.recorder.start();
+            this.recordStartTime = this.audioSystem.currentTime();
+
+            console.log('Recording started');
+        } catch (error) {
+            console.error('Failed to start recording:', error);
+            this.showDisplayMessage('ERR_REC', 2000);
+            this.setState({ isRecording: false });
         }
-
-        if (!this.audioSystem || !this.audioSystem.isReady) {
-            console.error('Audio system not ready for recording');
-            return;
-        }
-
-        this.setState({ isRecording: true });
-        this.recorder.start();
-        this.recordStartTime = this.audioSystem.currentTime();
-
-        console.log('Recording started');
     }
 
     async stopRecording() {
@@ -1780,6 +1541,9 @@ class EchoplexDigitalPro {
     processRecordedBuffer() {
         try {
             const audioBuffer = this.recorder.getBuffer();
+            if (!audioBuffer || audioBuffer.length === 0) {
+                throw new Error("Recorded buffer is empty or invalid.");
+            }
             this.state.loopBuffer = audioBuffer;
             this.state.loopTime = audioBuffer.duration;
 
@@ -1787,6 +1551,7 @@ class EchoplexDigitalPro {
             return audioBuffer;
         } catch (error) {
             console.error('Error processing recorded buffer:', error);
+            this.showDisplayMessage('ERR_BUF', 2000);
             return null;
         }
     }
