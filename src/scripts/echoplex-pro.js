@@ -7936,49 +7936,79 @@ class EchoplexDigitalPro {
     /**
      * Execute toggle recording behavior
      */
-    executeToggleRecord() {
-        const recordModeSystem = this.recordModeSystem;
-        const toggleState = recordModeSystem.toggleState;
-        
-        if (!toggleState.isRecording) {
-            // Start recording
-            console.log('🎙️ Toggle mode: Starting recording...');
-            
-            const success = this.startRecording();
-            if (success) {
-                toggleState.isRecording = true;
-                toggleState.recordingStartTime = performance.now();
-                recordModeSystem.toggleRecords++;
-                
-                // Add to history
-                this.addToRecordingHistory('TOGGLE_START', toggleState.recordingStartTime);
-                
-                // Visual feedback
-                this.showDisplayMessage('REC', 0); // Infinite duration
-                this.updateRecordModeVisuals('recording');
-                
-                console.log('✅ Toggle mode: Recording started');
-            }
-        } else {
-            // Stop recording
-            console.log('🛑 Toggle mode: Stopping recording...');
-            
-            const success = this.stopRecording();
-            if (success) {
-                toggleState.isRecording = false;
-                const recordingDuration = performance.now() - toggleState.recordingStartTime;
-                
-                // Add to history
-                this.addToRecordingHistory('TOGGLE_STOP', performance.now(), recordingDuration);
-                
-                // Visual feedback
-                this.showDisplayMessage('PLAY', 1000);
-                this.updateRecordModeVisuals('stopped');
-                
-                console.log(`✅ Toggle mode: Recording stopped (${recordingDuration.toFixed(1)}ms)`);
-            }
-        }
+    executeToggleRecord() { 
+    const r = this.recordModeSystem, t = r?.toggleState; 
+
+    // Validate state objects 
+    if (!this.state) { 
+        console.error('❌ executeToggleRecord: state object is undefined. ');
+        return;
     }
+    if (!r || !t) {
+        console.error('❌ executeToggleRecord: recordModeSystem / toggleState missing. ');
+        return;
+    }
+
+    // Prevent concurrent execution 
+    if (this.state.isRecordToggleLocked) return; 
+    this.setState({ isRecordToggleLocked: true }); 
+
+    try {
+        if (!t.isRecording) { 
+            console.log(' Toggle mode: Starting recording…'); 
+            if (!this.startRecording()) { 
+                console.error('❌ startRecording failed: audio engine refused to arm.  Current state:', this.state); 
+                this.showDisplayMessage('ERR: START', 2000); 
+                return;
+            }
+            const t0 = performance.now(); 
+            this.setState(s => ({ 
+                ...s,
+                recordModeSystem: { 
+                    ...s.recordModeSystem, 
+                    toggleRecords: (s.recordModeSystem.toggleRecords  || 0) + 1,
+                    toggleState: { 
+                        ...s.recordModeSystem.toggleState, 
+                        isRecording: true, 
+                        recordingStartTime: t0 
+                    }
+                }
+            }));
+            this.addToRecordingHistory('TOGGLE_START', t0); 
+            this.showDisplayMessage('REC', 0); 
+            this.updateRecordModeVisuals('recording'); 
+            console.log(' Toggle mode: Recording started'); 
+        } else { 
+            console.log(' Toggle mode: Stopping recording…'); 
+            if (!this.stopRecording()) { 
+                console.error('❌ stopRecording failed: audio engine still busy.  Current state:', this.state); 
+                this.showDisplayMessage('ERR: STOP', 2000); 
+                return;
+            }
+            const t1 = performance.now(); 
+            const dur = t1 - t.recordingStartTime; 
+            const sec = (dur / 1000).toFixed(2);
+
+            this.setState(s => ({ 
+                ...s,
+                recordModeSystem: { 
+                    ...s.recordModeSystem, 
+                    toggleState: {
+                        ...s.recordModeSystem.toggleState, 
+                        isRecording: false, 
+                        recordingStartTime: null 
+                    }
+                }
+            }));
+            this.addToRecordingHistory('TOGGLE_STOP', t1, dur); 
+            this.showDisplayMessage(`Stopped • ${sec}s`, 1500); // Extended duration for better visibility 
+            this.updateRecordModeVisuals('stopped'); 
+            console.log(` Toggle mode: Recording stopped (${sec}s)`); 
+        }
+    } finally {
+        this.setState({ isRecordToggleLocked: false }); 
+    }
+}
     
     /**
      * Handle Toggle Mode reset (long press)
