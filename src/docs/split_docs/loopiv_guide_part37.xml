@@ -1,0 +1,100 @@
+<TD>LongUndo </TD>
+
+<TD>Immediately execute the LongUndo function </TD>
+</TR>
+
+<TR>
+<TD>G# </TD>
+
+<TD>32 </TD>
+
+<TD>Forward </TD>
+
+<TD>Go into Forward </TD>
+</TR>
+
+<TR>
+<TD>A </TD>
+
+<TD>33 </TD>
+
+<TD>Reverse </TD>
+
+<TD>Go into Reverse </TD>
+</TR>
+
+<TR>
+<TD>A# </TD>
+
+<TD>34 </TD>
+
+<TD>FullSpeed </TD>
+
+<TD>Go into FullSpeed </TD>
+</TR>
+
+<TR>
+<TD>B </TD>
+
+<TD>35 </TD>
+
+<TD>HalfSpeed </TD>
+
+<TD>Go into HalfSpeed </TD>
+</TR>
+
+<TR>
+<TD>C </TD>
+
+<TD>36 </TD>
+
+<TD>PlaySample </TD>
+
+<TD>Immediately restart the loop and play once </TD>
+</TR>
+
+<TR>
+<TD>C# </TD>
+
+<TD>37 </TD>
+
+<TD>ReTrigger </TD>
+
+<TD>Immediately restart the loop and play forever </TD>
+</TR>
+
+<TR>
+<TD>D </TD>
+
+<TD>38 </TD>
+
+<TD>ReAlign </TD>
+
+<TD>Restart the loop at next Global MIDI StartPoint </TD>
+</TR>
+
+<TR>
+<TD>D# </TD>
+
+<TD>39 </TD>
+
+<TD>MuteReAlign </TD>
+
+<TD>Immediately Mute and restart the loop at next Global MIDI StartPoint </TD>
+</TR>
+
+<TR>
+<TD>E </TD>
+
+<TD>40 </TD>
+
+<TD>QuantMIDIStartSong </TD>
+
+<TD>Wait to next Local Loop StartPoint and then send a StartSong </TD>
+</TR>
+
+<TR>
+<TD>F </TD>
+
+<TD>41 </TD>
+

@@ -1,0 +1,100 @@
+<TD>SUSReplace </TD>
+
+<TD>Sustain Action Replace </TD>
+</TR>
+
+<TR>
+<TD>A# </TD>
+
+<TD>22 </TD>
+
+<TD>SUSSubstitute </TD>
+
+<TD>Sustain Action Substitute </TD>
+</TR>
+
+<TR>
+<TD>B </TD>
+
+<TD>23 </TD>
+
+<TD>SUSToggleReverse </TD>
+
+<TD>Sustain Action Reverse </TD>
+</TR>
+
+<TR>
+<TD>C </TD>
+
+<TD>24 </TD>
+
+<TD>SUSToggleSpeed </TD>
+
+<TD>Sustain Action HalfSpeed </TD>
+</TR>
+
+<TR>
+<TD>C# </TD>
+
+<TD>25 </TD>
+
+<TD>Reset </TD>
+
+<TD>Immediately reset current loop </TD>
+</TR>
+
+<TR>
+<TD>D </TD>
+
+<TD>26 </TD>
+
+<TD>GeneralReset </TD>
+
+<TD>Immediately reset all loops </TD>
+</TR>
+
+<TR>
+<TD>D# </TD>
+
+<TD>27 </TD>
+
+<TD>Exit Parameters </TD>
+
+<TD>Exit Parameter editing and return to Play state </TD>
+</TR>
+
+<TR>
+<TD>E </TD>
+
+<TD>28 </TD>
+
+<TD>SUSUnroundedMultiply </TD>
+
+<TD>Sustain Action Unrounded Multiply </TD>
+</TR>
+
+<TR>
+<TD>F </TD>
+
+<TD>29 </TD>
+
+<TD>SUSUnroundedInsert </TD>
+
+<TD>Sustain Action Unrounded Insert </TD>
+</TR>
+
+<TR>
+<TD>F# </TD>
+
+<TD>30 </TD>
+
+<TD>SUSMute-Retrigger </TD>
+
+<TD>Sustain Action Mute-Retrigger (NoteOn = Mute, NoteOff=Retrig.) </TD>
+</TR>
+
+<TR>
+<TD>G </TD>
+
+<TD>31 </TD>
+

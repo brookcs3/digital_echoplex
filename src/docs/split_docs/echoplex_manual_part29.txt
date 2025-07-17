@@ -1,0 +1,100 @@
+When the MuteQuantMIDIStartSong command is received, the Loop is muted instantly and then waits until the next StartPoint. The display will show St.S. When it reaches the StartPoint a MIDI StartSong message is sent out the MIDI port to start up the sequencer and the Loop comes out of Mute. 
+
+ReAlign 
+Continued 
+This is similarly useful for when the Echoplex is the clock master and we need to restart the sequencer. In this case, both the loop and the sequencer can be muted and brought back on together. 
+MuteQuantMIDIStartSong works the same as the Mute-Multiply combination from the front panel when Sync is set to OuS, but provides a more direct access since it only requires a single command instead of the two button combination. 
+Unlike the front panel function, MuteQuantMIDIStartSong works for any setting of the Sync parameter and can be executed at any time. This allows you to always have a way to send a StartSong message in sync with the Loop StartPoint, even if the Echoplex is not the clock master. 
+
+
+MIDIREALIGN ( SOURCE# + 38) 
+MIDIReAlign executes ReAlign with a single MIDI command. The loop is not muted prior to the ReAlignment. 
+If Sync=In, the display shows AL until the Global StartPoint defined by the sequencers clock arrives, at which point the loop is retriggered automatically from its StartPoint. 
+When Sync=Out, the loop is retriggered when a BrotherSync is received. 
+
+
+MIDIMUTEREALIGN (SOURCE# + 39) 
+MIDIMuteReAlign is exactly like using ReAlign from the front panel, except it directly does the function without requiring double button combinations. When the command is received, the loop is muted and AL appears on the display. 
+If Sync=In, when the next Global StartPoint arrives the loop is retriggered back in time with the external sequencer. 
+When Sync=OUS, the loop is retriggered when a BrotherSync is received. 
+ReAlign 
+Continued 
+
+BROTHERSYNC AND REALIGN 
+As shown in the tables on the previous pages, ReAlign also works when BrotherSyncing two or more Echoplexes together. 
+When one Echoplex has had its StartPoint shifted off from the other, ReAlign can bring them back together. Send a ReAlign command to one of the units and it will wait for a Sync with AL on the LoopTime Display. When the BrotherSync pulse comes from the other Echoplex, it will retrigger its loop so they are both back in alignment with each other. 
+BrotherSync is usually done with Sync=Out, so ReAlign to BrotherSync is available with that combination, as shown in the previous table. 
+There can be some confusion when DeAligning and ReAligning to BrotherSync with more than two Echoplexes. If you have two Echoplexes in BrotherSync and shift one units StartPoint away from the other, you will have them both sending pulses on the BrotherSync line at different times. Those two are able to tell which pulse is theirs and which is from the other unit, so they can stay in sync with each other just fine. They can be ReAligned later at the users command. 
+However, if you try to add a third unit to the sync it will see the two different pulses coming and be unable to tell the correct loop StartPoint and loop length. It will not be able to SyncRecord to the others correctly. The best way to deal with this is to have the third unit record a loop in sync before having any of them shift their StartPoints. Then the third unit will be in sync already and not have to worry about joining the sync later. Or ReAlign the other two first before the third unit joins. 
+An alternative would be to use the QuantStartPoint command on the unit that has been shifted, so that it will reset its StartPoint to the next BrotherSync coming in from the other Echoplex. Then they will both have their StartPoints in the same spot and be sending BrotherSync pulses at the same time, so there will not be any confusion for the third unit. Of 
+
+ReAlign 
+Continued 
+course this means ReAlign can no longer be used on the second machine to put it back in the original alignment with the first. 
+
+See also: Mute, Global/Local MIDI Clock, Sync, BrotherSync, BeatSync, StartPoint 
+SongPositionPointer and Continue Synchronization 
+The Echoplex can receive and use MIDI SongPositionPointer and Continue messages from a sequencer or drum machine. 
+MIDI SongPositionPointer and Continue messages are received according to the MIDI spec when Sync=In. Since the Echoplex cannot reproduce the entire sequence of how the loop was built throughout the song, we just put the current state of the loop in the correct timing with any position of the song, assuming that the loop length and the sequencer timing stayed the same. 
+
+The positioning happens through ReAlign after you press Continue on the sequencer. You use it as follows:  
+n  After the sequencer has been stopped, put the Echoplex into the ReAlign state. You can do this by press Mute-Multiply on the front panel, or using the MIDI ReAlign commands.  
+n  The Echoplex will wait for a sync event.  
+n  Press Continue on the sequencer.  
+n  The sequencer will send a MIDI SongPositionPointer message to the Echoplex to indicate where in the sequence it is starting from.  
+n  The sequencer will then send a MIDI Continue message and begin sending MIDI clocks again.  
+n  The Echoplex will use the SongPositionPointer information to determine where the Global MIDI StartPoint should be.  
+
+n When the next Global StartPoint occurs, the Echoplex will automatically trigger the loop at the beginning so that it is back in sync with the sequencer. 
+See also: ReAlign, Global/Local MIDI Clock, Sync, StartPoint, StartSong, StopSong, and Continue 
+Synchronization StartSong, StopSong, Continue 
+The Echoplex can send and receive MIDI StartSong, StopSong, and Continue messages in various ways. 
+MIDI includes three important messages for controlling synchronized devices. These are called StartSong, StopSong, and Continue and are part of the System Real Time commands in MIDI. These commands are commonly used with devices like sequencers, drum machines, recording equipment and software, arpeggiators, and loopers. The Echoplex uses all three in a variety of different ways to give you maximum flexibility and control in synchronizing your loops to other devices. 
+The MIDI StartSong message commands slaved devices to start at the beginning of their material, and begin playing as soon as the next clock pulse is received. They should proceed in tempo with the MIDI Clock after that. The MIDI StopSong message commands slaved devices to stop their playback immediately. The MIDI Continue message tells a device to restart playback from the position where it was last stopped, or from a position defined by another type of MIDI command called 
+SongPositionPointer. 
+In this section we will deal primarily with StartSong and StopSong. Please see the section called SongPositionPointer and Continue for more details on how the Echoplex uses the MIDI Continue  command. 
+
+START AND STOP AT YOUR COMMAND 
+One of the values for the Sync parameter allows you to command directly how MIDI StartSong and StopSong messages are sent when the Echoplex is the clock master. This is Sync=OutUserStart, or OuS. 
+This choice can be very useful in different circumstances when controlling external sequencers. For example, some sequencers need to have the clock sent in advance to set the tempo, with the StartSong sent later. 
+
+StartSong, StopSong, Continue 
+Continued 
+In other cases you may want to have the StartSong sent immediately with the MIDI clock when the loop is recorded so that a sequencer starts right up with the clock. In that situation, use Sync=Out. 
+
+THE EFFECT OF THE SYNC PARAMETER 
+The possible Sync parameter settings and their effect on StartSong and StopSong are as follows: 
+
+
+SYNC = OUT 
+StartSong and StopSong messages are sent in most instances automatically. MIDI Clock is also sent based on the Cycle length of the loop and the setting of the 8th/Cycle parameter. The Echoplex does not send Continue. 
+
+
+SYNC = OUTUSERSTARTSONG (OUS) 
+MIDI clock is sent, but no StartSong or StopSong messages unless the user specifically commands it. The Echoplex does not send Continue. 
+
+
+SYNC = IN 
+MIDI clock, StartSong, StopSong, and Continue messages are only received, not sent. They are piped through from the MIDI In Port to the MIDI Out Port by the MIDIpipe function. 
+
+
+SYNC = OFF 
+MIDI clock, StartSong, StopSong and Continue messages are neither sent or received. They are piped through from the MIDI In Port to the MIDI Out Port by the MIDIpipe function. 
+
+StartSong, StopSong, Continue 
+Continued 
+The exception is for one situation where we send StopSong in both Sync=Out and Sync=OuS cases: When the MIDI Clock is stopped at Reset we send a StopSong. This avoids the case of the sequencer or drum machine waking up in the middle of a pattern when the MIDI Clock happens to get restarted again. 
+
+WHEN IS START SONG AND STOPSONG SENT? 
+The following lists all cases where StartSong and StopSong messages are sent, depending on the state of the Sync parameter: 
+
+
+SYNC = OUT 
+StartSong is sent at: 
+StopRecord (finishing a loop with Record) Start SyncRecord (in the case where we come from TempoSelect) SetTempo in TempoSelect UnroundedMultiply (Multiply-Record) UnroundedInsert  (Insert-Record) UnMute ReTrigger (when MuteMode= StA) Mute-Undo ReTrigger (when MuteMode = Cnt) NextLoop (when SamplerStyle = STA) ReAlign MuteReAlign MIDIReAlign MIDIMuteReAlign QuantMIDIStartSong (only at next loop start) MuteQuantMIDIStartSong (only at next loop start) StartPoint MIDI StartPoint Undo Record (only at next loop start) 
+StopSong is sent at: 
+
+StartSong, StopSong, Continue 
+Continued 
+Reset GeneralReset Start Record Mute (if MuteMode=StA) 
+

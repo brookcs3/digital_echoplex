@@ -1,0 +1,100 @@
+
+<TR>
+<TD>C# </TD>
+
+<TD>13 </TD>
+
+<TD>ReverseButton </TD>
+
+<TD>Virtually presses the “Reverse Button” </TD>
+</TR>
+</Table>
+
+<P>New DirectMIDI commands </P>
+
+<Table>
+<TR>
+<TH>Note </TH>
+
+<TH>source# offset </TH>
+
+<TH>function </TH>
+
+<TH>short descriptions (see expanded description below) </TH>
+</TR>
+
+<TR>
+<TD>D </TD>
+
+<TD>14 </TD>
+
+<TD>SUSRecord </TD>
+
+<TD>Sustain Action Record </TD>
+</TR>
+
+<TR>
+<TD>D# </TD>
+
+<TD>15 </TD>
+
+<TD>SUSOverdub </TD>
+
+<TD>Sustain Action Overdub </TD>
+</TR>
+
+<TR>
+<TD>E </TD>
+
+<TD>16 </TD>
+
+<TD>SUSRoundMultiply </TD>
+
+<TD>Sustain Action Rounded Multiply </TD>
+</TR>
+
+<TR>
+<TD>F </TD>
+
+<TD>17 </TD>
+
+<TD>SUSRoundedInsert </TD>
+
+<TD>Sustain Action Rounded Insert </TD>
+</TR>
+
+<TR>
+<TD>F# </TD>
+
+<TD>18 </TD>
+
+<TD>SUSMute </TD>
+
+<TD>Sustain Action Mute </TD>
+</TR>
+
+<TR>
+<TD>G </TD>
+
+<TD>19 </TD>
+
+<TD>ShortUndo </TD>
+
+<TD>Immediately execute the ShortUndo function (Undo to end) </TD>
+</TR>
+
+<TR>
+<TD>G# </TD>
+
+<TD>20 </TD>
+
+<TD>SUSNextLoop </TD>
+
+<TD>Sustain Action NextLoop (NoteOn = Next, NoteOff = Previous) </TD>
+</TR>
+
+<TR>
+<TD>A </TD>
+
+<TD>21 </TD>
+

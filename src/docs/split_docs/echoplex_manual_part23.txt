@@ -1,0 +1,100 @@
+FIGURE 4.X Replacing with the Insert button. InsertMode=Replace.  Existing Loop New Performance  
+Button Actions  
+Resulting Loop  
+
+.... .... ....  .. ..  ................. ................. .................  
+I ...I  
+.... .... ... ................. ................. .................  
+
+Time 
+
+
+Immediate Action Reset Play Mode 
+Resets the Current Loop. 
+To Reset the current loop, press and hold down the Record button for about half a second. Reset erases the contents of the current loop. This is also called a Long-Press Record. The loop will then be in the Reset State, and ready for a new recording. 
+You can also execute Reset immediately using MIDI. The DirectMIDI Reset command is located at Source#+25. 
+Although Reset erases the audio of the loop, it does not cause the Echoplex to lose sync with external devices. The Echoplex will continue to track the Global MIDI StartPoint (or Beat 1 of the sequencer), so that your next Recording can begin in Sync. 
+Reset will also leave intact any tempos you have set using the TempoSelect feature and keeps you in the TempoSelect state. This means if you have recorded a loop to a preselected BPM tempo, and then Reset it, the next loop you record will still follow that tempo. If you do a GeneralReset, the Echoplex exists the TempoSelect state, although your Tempo will be recalled if you enter it again. 
+
+See also: Record, GeneralReset, MIDI Command List, TempoSelect, Global/Local MIDI Clock 
+Retrigger Immediate Action Play Mode 
+Restart a loop from the StartPoint and continue playing. 
+The Retrigger command instantly restarts the current loop from its StartPoint and then continues looping. This is useful for manually triggering a loop so that it starts in time with other music. 
+This is similar to the function called SamplePlay. The difference is that Retrigger will continue playing the loop, while SamplePlay plays it once and then stops. 
+There are several ways to access Retrigger. 
+
+
+MUTE-UNDO 
+Press Mute to put the loop into the Mute state. When you want to Retrigger the loop, press Undo. The loop will trigger from the beginning and continue playing. 
+Note that the MuteMode parameter affects this behavior. When MuteMode=Start, pressing Mute to leave the Mute state executes the Retrigger function. In other words, MuteMode swaps the roles of the Mute button and Undo button for leaving Mute. This is useful when you always want to Unmute with a Retrigger command, and prefer a simpler way to remember it. 
+
+
+NEXTLOOP WITH MORELOOPS=1 
+When MoreLoops=1, the otherwise unused NextLoop button does the Retrigger function. Its LED becomes yellow to indicate it has a different function than normal. When you press it, the current loop will retrigger from the start, and then continue looping. This is similar to doing Mute-Undo to retrigger a loop, but without silence from having to mute first. 
+This is only available when you have one loop set up in MoreLoops, since the NextLoop button obviously changes loops otherwise. 
+
+Retrigger 
+Continued 
+
+
+MIDI RETRIGGER COMMAND 
+The Retrigger command can be executed directly from MIDI. The Retrigger DirectMIDI command is located at Source# + 37. So if you have Source#=36 and ControlSource=Notes, the Retrigger command will be at MIDI Note# 73. 
+
+
+MIDI SUS MUTE-RETRIGGER 
+Another way to execute Retrigger with MIDI is the SUS Mute-Retrigger command. With this command, when you press the appropriate MIDI button down on your MIDI controller and the loop will immediately go into Mute. When you release the button, it will Retrigger the loop. 
+SUS Mute-Retrigger is located at Source# + 30. So if Source#=36 and ControlSource=Notes, the SUS Mute-Retrigger command will be at MIDI Note# 66. NoteOn 66 will put the loop into Mute, and NoteOff 66 will Retrigger it. 
+
+See also: Mute, MuteMode, SamplePlay 
+Reverse Immediate Action Play Mode 
+Reverses the direction of the current loop. 
+Reverse reverses the playback direction of the current loop, so that the audio plays backwards. Reverse can be accessed at most times, and most functions are available even while the loop is in Reverse. 
+Since there is no LED specially designated for Reverse, the Insert LED 
+comes on when Reverse is engaged. 
+Whenever you engage Reverse, the front panel LoopTime Display will briefly display rE to indicate that Reverse has started. When you press Reverse again to go forward, the display will briefly show Fd. 
+
+ACCESSING REVERSE 
+There are several different ways to access the Reverse function. 
+There is no direct Reverse button on the front panel, however you can bring this function to the front panel and down to the footpedal by setting InsertMode=Reverse. The Insert button then becomes the Reverse button, and Reverse will take the place of the Insert function. 
+If you only need to access Reverse occasionally and want the Insert button available for a different function, there is an indirect method from the front panel to control Reverse. In the Parameter Matrix there is a space labeled Reverse, in the Timing Row under the Undo button. At any time if you want to access Reverse, press Parameter once, and then press Undo. 
+Reverse is also available by MIDI. There are several different flavors of 
+MIDI Reverse: 
+
+n The MIDI VirtualButton ReverseButton is Source# + 13. This behaves exactly like the front panel buttons do, in this case as if there were a front panel Reverse button.The NoteOn message presses the button, and the NoteOff message releases the button. If you do a short-press tap 
+Reverse 
+Continued 
+of the ReverseButton, you go into Reverse, and then into Forward when you tap it again. If you do a long-press of the ReverseButton, it will become SUS action and stay in Reverse as long as you hold the button, and then go back to Forward when you release it. 
+
+n DirectMIDI SUSToggleReverse is Source# + 23. This is Reverse with SUS action, so Reverse will be engaged as long as the midi button is held. When it is released the loop will go Forward again. If you are already in Reverse when you use this command, it will actually use SUS action to put you into Forward, and then back to Reverse when you release it. 
+n DirectMIDI Reverse is Source# + 33. This command always puts the loop into Reverse. If the loop is already in Reverse it does nothing. 
+n DirectMIDI Forward is Source# + 32. This command always puts the loop into Forward. If the loop is already in Forward it does nothing. 
+REVERSE AND OTHER FUNCTIONS 
+
+OVERDUB 
+If you Overdub while a reversed loop is playing and then press the Reverse button a second time, youll hear your original loop play back forwards and your overdubbed part play backwards. You can easily have audio going forwards and backwards in loop by combining Reverse and Overdub. This is great for backwards guitar solos or secret messages. 
+Reverse and Overdub are independent, so you can Reverse the loop while Overdubbing, and the Overdub will continue. 
+
+
+RECORD 
+Reverse can be used to end Record, so that the Record stops and the loop immediately plays backwards. This is very useful for doing backwards audio tricks live. You may find this works especially well with the Feedback Knob set to 0 and the Mix Knob set to Loop. Note that this 
+Reference - Functions 5-59 
+Reverse 
+Continued 
+only works with the Reverse button (InsertMode=Reverse) or the Reverse VirtualButton. the DirectMIDI Reverse has no effect while Recording. 
+
+
+MULTIPLY AND INSERT 
+Loops that have had cycles added to them using Multiply or Insert can be Reversed. You will notice the green Multiple Display counts the cycles backwards while the loop is Reversed. You can also engage Multiply and Insert while the loop is Reversed, and they work normally. 
+The Multiply and Insert functions can be ended with a press of Reverse. The Multiply (or Insert) will round off exactly like it normally would. When it reaches the end of the cycle, the whole loop will immediately play backwards. In this way you can go directly from Multiply into Reverse without extra button presses. 
+
+THE EFFECT OF QUANTIZE 
+Reverse is affected by the setting of Quantize. If Quantize=Cycle, Loop, or 8th, the reverse playback will not begin until the end of the current quantize period, and proceeds backwards from the end of the quantize period towards the beginning of the loop. If Quantize=Off, then reverse playback begins as soon as you press Reverse, and proceeds from the time of the button press back towards the start of the loop. 
+
+UNDO AND REVERSE 
+It is possible to press Undo while in Reverse. Undo during Reverse works normally back to the point where Reverse happened. This means any overdubs you do while Reversing can be Undone. However, it is not possible to Undo past a Reverse, since memory really does get used in 
+
+Reverse 
+Continued 
+the other direction and overdubs made prior to Reverse get destroyed by overdubs made after the Reverse. 
+Record-Undo is also possible in Reverse. So if you press Record by mistake while in Reverse, pressing Undo returns you to where you were. As a consequence, starting Record does not automatically force you to be Forward, but leaves the loop in Reverse. 
+All of this means that Reverse and Forward are really equal, with the exception that the green Multiple Display counts backwards when you are in Reverse. 

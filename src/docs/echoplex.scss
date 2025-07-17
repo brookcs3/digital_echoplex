@@ -489,20 +489,19 @@ body {
 .auto-undo-led {
   position: absolute;
   bottom: 5px;
-  left: 34px;
-  width: 6.5px;
-  height: 6.5px;
-  background-color: black;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: #333;
   border-radius: 50%;
-  opacity: 0.3;
+  opacity: 1.0;
+  visibility: visible;
+  box-shadow: none;
 }
 
 .auto-undo-led.active {
-  opacity: 0.4;
-  background-color: red;
-  box-shadow: 0 0 6px red;
-
-
+  background-color: orange;
+  box-shadow: 0 0 6px orange;
 }
 
 .left-display,

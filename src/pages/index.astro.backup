@@ -1,7 +1,6 @@
 ---
 // This is the main page for Digital Echo Plex
 ---
-  <script type="module" src="/src/scripts/echoplex-skeleton.js"></script>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -69,10 +68,9 @@
             <div class="left-display" id="left-display">1</div>
             <div class="loop-display" id="loop-display">
                 .
+                <span class="auto-undo-led" id="autoUndoLED"></span>
             </div>
             <div class="multiple-display" id="multiple-display">
-            <span class="auto-undo-led" id="autoUndoLED"></span>
-
                 <span class="tempo-dot-left" id="tempoDotLeft"></span>
                 <span class="tempo-dot-right" id="tempoDotRight"></span>
             </div>
@@ -218,7 +216,8 @@
     </div>
   </div>
 
-  <!-- Load the full Echoplex Digital Pro Plus implementation -->
+  <!-- Load the minimal Echoplex Digital Pro Plus implementation -->
+  <script type="module" src="/src/scripts/echoplex-minimal.js"></script>
   
   
 </body>

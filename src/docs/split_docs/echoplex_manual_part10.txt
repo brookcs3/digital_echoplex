@@ -1,0 +1,100 @@
+One way is to use a stereo volume pedal for the Feedback Pedal Jack. Connect the two channels of the pedal to the two Echoplexes, and then each will have a pedal inserted with the control coming from the same place. Both can be set to all InterfaceModes, and be controlled appropriately. If you are really picky, you may find that your pedal is not exact between channels, so you may find values are not set exactly the same between the two Echoplexes. Fixing this will either mean finding a pedal that is better matched, or soldering a wire between the two potentiometer wipers inside your pedal to force them to have the same voltage. (This makes the pedal useless as a true stereo volume pedal, so make sure you understand what you are doing before attempting such a modification.) 
+A second approach is to use a single mono pedal connected to the Feedback Pedal Jack of both units with a Y connector. For this to work, the potentiometer in the pedal must be half the resistance of the pedal requirement for a single Echoplex. This means it will have to be approximately 10 KOhms or greater, but you may need to experiment a bit to find a pedal that uses the full range of the pedal in the best way. For some Echoplex units, values as low as 5 KOhm may work better. 
+Reference - Parameters 4-27 
+
+Loop/Delay (InterfaceMode) 
+Continued 
+A third way which is less useful is to insert a dummy connector into the Feedback Pedal Jack of the slave, without connecting it to anything. Then you will be able to at least set the slave to any of the InterfaceModes and use some of their functionality, but on the slave you will not be able to control some parameters that the pedal controls in some of the InterfaceModes. Any Feedback settings controlled by the pedal will be sent by MIDI from the Master, so InterfaceModes that use the pedal for Feedback will work fine. But Loop Input Volume and Loop Output Volume will not be transmitted, so any InterfaceModes that use the pedal for those will not work very well this way for Stereo. 
+
+See also: Feedback Knob, Feedback Pedal Jack, Overdub, Substitute, Replace, Record, Multiply, Insert, Mute, Undo, LoopCopy 
+Default = off LoopCopy Parameter Row: Loops 
+Copies the current loop into the next, in several ways 
+Values: Off, Timing, Sound 
+When LoopCopy is set to Sound (Snd) or Timing (ti), The Echoplex will do a copy function anytime you switch into a reset loop. 
+
+COPY  THE  AUDIO  TO  A  NEW  LOOP  
+If LoopCopy=Sound it will cause the audio content of the current loop to be automatically copied into every empty (reset) loop that you enter. The sound copy occurs in real time, and works just like doing a Multiply into the new loop. If you let it keep going, your previous loop will be repeated into multiple cycles in the new loop, which will be counted in the Multiple Display. Any new material that you play during this copy will be overdubbed on top. When you want to complete the copy, press the Multiply button to end. The copy will round off to the next cycle, exactly as it does when using the Multiply function.  
+COPY  THE  TIME  BASE  TO  A  NEW  LOOP  
+Similarly, if LoopCopy=Timing the length of the current loop will be automatically copied into every reset loop that you enter. This also happens in real time, and works just like doing an Insert into the new loop. If you let it continue you will see additional cycles counted in the Multiple Display. Any new material that you play will be added to the new loop. When you want to complete the copy, press Insert to end. The copy will round off to the next cycle, exactly as it does when using the Insert function.  
+
+LoopCopy 
+Continued 
+
+THE EFFECT OF AUTORECORD 
+If AutoRecord=On and LoopCopy is not Off, LoopCopy will take precedence, and the Echoplex will behave as if AutoRecord=Off. 
+
+OTHER COPY METHODS 
+Another way to perform copies is to use Multiply, Insert, or Overdub as alternate endings to a NextLoop press when SwitchQuant=On. See the discussion under the SwitchQuant heading in this chapter for a full explanation and examples. 
+
+See also: NextLoop, SwitchQuant, AutoRecord 
+Default: 84 LoopTrig Parameter Row: Loops 
+Determines which MIDI note numbers will trigger loops. 
+Values: 0-127 
+When multiple loops are set up using the MoreLoops parameter, incoming MIDI NoteOn messages can trigger any loops playback. This function is called LoopTriggering, and is described in more detail in the functions section. 
+The LoopTrig parameter sets the value of the MIDI note number that will trigger Loop 1. The other loops are triggered by successive note numbers; i.e., if Loop 1 is triggered by note 84, then Loop 2 will be triggered by note 85, Loop 3 will be triggered by note 86, etc. 
+Note: The default value of 84 will be displayed in your sequencer either as C5 or C6. 
+
+See also: Channel, LoopTriggering, SamplerStyle, Velocity, MoreLoops 
+MoreLoops Default: 1 Parameter Row: Loops 
+Divides memory into multiple loops. 
+Values: 1-16 
+This function lets you divide the Echoplex Digital Pros memory into up to 16 separate loops. You can switch among them with the NextLoop button or with incoming MIDI messages. 
+The Echoplex Digital Pros memory will be divided evenly among the loops; for instance, if you have 198 seconds of memory installed, then setting MoreLoops=4 will give you 4 loops of 49.5 seconds each. 
+Changing the number of loops with the MoreLoops parameter will reset all existing loops since the memory must be reconfigured. 
+When you first turn on the Echoplex Digital Pro, the rightmost two characters of the display (above the word Multiple) tell you how many loops are set up. 
+If the number of loops is more than one, than the leftmost digit in the display (above the word Loop) tells you which loop is current. On the Loop Display the numbers above 9 are shown with letters, due to the lack of a leading 1. So they go 1, 2, 39, A, b, C, d, E, F, G. 
+All recording and overdubbing operations affect the current loop only. 
+You can Reset all the loops at once by a long press of Record (to reset the current loop) followed by a long press of Multiply. This is called a GeneralReset. Both types of Reset are also available as DirectMIDI commands. 
+
+See Also: LoopCopy, NextLoop, AutoRecord, LoopTrig, SamplerStyle, Velocity, Multiply, SwitchQuant 
+Default: Continuous MuteMode Parameter Row: Switches 
+Determines how sound is restarted after it is muted. 
+Values: Continuous (Cnt), Start (StA) 
+MuteMode determines where loop playback starts the second time you press the Mutebutton to UnMute a loop. Whichever approach you choose, the Undobutton takes the opposite viewpoint, so youll always have both ways to end a Mute readily available. 
+
+MuteMode=Start 
+When MuteMode=Start, a second press of the Mute button will always restart the current loop at the beginning. This is probably the most useful setting for solo playing. 
+When MuteMode=Start, the end of the Mute is affected by the setting of Quantize. If Quantize=On, then sound wont restart until the end of the current cycle. 
+Be aware that restarting the loop can move your StartPoint in relation to external sequencers or other musicians. This could be a problem if you wish to keep things tight with a sequencer, but it can also be very useful if the bands time has shifted and you need to line your loop up again with everybody else. 
+
+MuteMode=Continuous 
+When the MuteMode=Continuous, the loop continues counting even when it is silenced by pressing Mute. Then, when you press Mute a second time to allow audio output again, the loop will become audible wherever it happens to be at that time. This is probably most useful if you want to silence the loop for just a beat or two to play a fill, or have your loop stay in time with other musicians even while it is not heard. 
+
+See Also: Mute, SamplePlay, Quantize 
+OverdubMode Default: Toggle Parameter Row: Switches 
+Affects the behavior of the Overdub button 
+Values: Toggle (tog), Sustain (SUS) 
+When OverdubMode is set to Toggle, the Overdub button toggles the Overdub function on and off. In other words, tap Overdub once to turn it on, and tap it again to turn it off. 
+However, when OverdubMode is set to Sustain, you can only layer sounds while you hold down the buttonas soon as you release it, the overdubbing stops. This is similar to using the long presses of the Overdub button, except it is guaranteed to always operate in Sustain fashion no matter how short or long you press it. There are many situations when youre likely to want to set OverdubMode to Sustain, for example: 
+
+n You want to overdub extremely short excerpts from a sound source. If OverdubMode=Toggle you have to press Overdub twice, which can be difficult to do quickly. With OverdubMode=Sustain you can capture very short fragments of sound into your loop. 
+n You want to guard against inadvertently putting yourself into an extended Overdub, so you decide to overdub only when your foot is holding down the button.This is extremely useful if you are playing without looking at the Echoplex. You will always know the state of Overdub by whether you are pressing it or not. 
+See Also: Overdub 
+
+Default: Stop Overflow Parameter Row: Switches 
+Determines how Record handles memory overflows. 
+Values: Stop(StP), Play (PLY) 
+An overflow occurs when you attempt to use more memory than you have during Record operations. 
+When Overflow=Stop, exceeding the memory capacity of your unit will cause the Record operation to be immediately cancelled, and will reset (erase) the current loop. 
+When Overflow=Play, exceeding the memory capacity of your unit will cause the cycle length to be set to the full time available to the current loop. Everything that youve played from the start of the Record to the instant just before the overflow will be looped, and everything that youve played after that instant will be ignored. 
+If youre trying to create rhythmic loops, neither of these options will produce very satisfactory results: youre best off avoiding overflows in the first place. 
+See Also: Record 
+
+Quantize Default: Off Parameter Row: Timing 
+Defines whether certain functions are executed at the end of the the current loop, current cycle, the current sub-cycle or immediately. 
+Values: Off (OFF), Cycle (CYC), Sub-Cycle (8th), Loop (Lop). 
+Functions affected: Multiply, Insert, Reverse, Mute, Substitute, HalfSpeed, Replace. 
+Quantize forces a function to wait for a designated point before executing. This is very useful for forcing functions to occur precisely in rhythm. When Quantize=off, all functions execute immediately. 
+When Quantize is on and you press a function button prior to the Quantize point, you will see ooo on the LoopTime Display to indicate the Echoplex is waiting. 
+See the entries for the functions affected for detailed explanations and examples. 
+
+QUANTIZE OPTIONS 
+The Quantize values mean the following: 
+
+QUANTIZE = LOOP 
+When Quantize=Loop, the Echoplex waits until the entire loop completes before executing the function. This is meaningful if you have used Multiply or Insert to add cycles to the loop. When you press a function in the middle of the loop, it will wait until the Loop StartPoint to execute. 
+
+Quantize 
+Continued 
+
+

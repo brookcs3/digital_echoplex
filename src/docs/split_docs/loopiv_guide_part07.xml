@@ -1,0 +1,100 @@
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Expanded MIDI Control </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>DirectMIDI function access </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SUS MIDI commands </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MIDI SUSNextLoop </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MIDI PreviousLoop </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Sysex editing of Parameters and Presets </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MIDIpipe </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MIDI Note Sync Indicators </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Simple Retrigger while Playing </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>NextOverdub </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SimpleCopy </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SmartButtons – MIDI “double-clicks” </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>QuantizeStartPoint </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>DataWheel </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Improved Reverse </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Improved Undo </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+

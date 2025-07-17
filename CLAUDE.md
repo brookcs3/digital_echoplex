@@ -2,6 +2,31 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Implementation Strategy
+
+### Sequential Function Development
+- Follow the **IMPLEMENTATION_RUBRIC.md** strictly
+- Implement functions in order: RECORD → OVERDUB → MULTIPLY → ... → Presets
+- **Cannot proceed to next function until ALL exit tests pass**
+- No skipping, no regressions allowed
+
+### Exit Test Requirements
+- Each function has 6+ specific exit tests that must pass
+- Performance standards: <10ms latency, sample-accurate timing
+- Hardware-faithful behavior required
+- Visual feedback (LEDs/displays) must be correct
+
+### Current Implementation Status
+- **Current Function:** RECORD button (Function 1/35)
+- **Exit Tests Passed:** 0/6 for RECORD
+- **Overall Progress:** 0/35 functions complete
+
+### Key Architecture
+- Central action bus with `dispatch()` for all state changes
+- Layer-based system: SystemLayer, BLKLayer, ParameterLayer, etc.
+- AudioWorklet processor for real-time audio (<10ms latency)
+- Sample-accurate timing for all loop boundaries
+
 ## LED Implementation
 
 ### LED State Management

@@ -1,0 +1,100 @@
+When InsertMode=Replace, the Insert button becomes the Replace button. Each press and release of the Replace button during Play mode will replace a segment of the loop with new material for as long as Replace is held down. The overall loop length is not changed. 
+Insert 
+Continued 
+If Quantize=On and Replace is pressed during a cycle, the function will begin at the end of the current cycle, and will continue to the next cycle point after Replace is released again. 
+When InsertMode=Replace and Insert is used as an alternate ending during a Record, the Record ends as if youd pressed the Record button and the Replace function immediately begins. 
+See Replace in the Functions section for more details. 
+
+INSERTMODE=SUBSTITUTE 
+When InsertMode=Substitute, the Insert button becomes the Substitute button during Play mode. Substitute has some similarity to the Replace function. However, with Substitute the original loop playback continues while you are playing the new material. On the next repetition, only the new audio will remain in the loop and the old portion will be removed. 
+See Substitute in the Functions section for more details. 
+
+INSERTMODE=HALFSPEED 
+When InsertMode=HalfSpeed, the Insert button becomes the HalfSpeed button during Play mode. Pressing HalfSpeed switches the current loop an octave lower, to half speed. The Insert LED turns red and the display says H.SP briefly. Press HalfSpeed again and the loop returns to FullSpeed. The LED turns green and F.SP is displayed for a moment. 
+See HalfSpeed in the Functions section for more details. 
+
+Insert 
+Continued 
+
+INSERTMODE=REVERSE 
+When InsertMode=Reverse, the Insert button performs the same function as the Reverse button on the front panel, but more conveniently. 
+See Reverse in the Functions section for more details. 
+
+INSERTMODE=SUSTAIN 
+InsertMode=Sustain changes the way the Insert and Multiply buttons work. SUS turns Insert and Multiply into Unrounded functions with Sustain action on the button. In other words, they start when the button is pressed and end immediately when it is released, just like Record or Overdub do when RecordMode or OverdubMode=SUS. When the function ends it does so as if Record had been pressed as an alternate ending to the Insert. This is what we call an Unrounded Multiply or Unrounded Insert, because instead of rounding off to the next Cycle point it is ended immediately and the loop time is redefined. 
+See SUS Commands in the Functions section for more details. 
+
+See Also: InsertMode, Multiply, Reverse, SUS Commands, Rehearse, Replace, Substitute, HalfSpeed, Record, Undo 
+Load Immediate Action Parameter Row: MIDI 
+Loads the current loop from a MIDI Sample Dump 
+This replaces the current loop with the contents of a dump received at the MIDI In port. Its a good way to restore your best loops from a sampler or sequencer. Dump and Load are digital data transfers that will not degrade the audio quality of your loops at all. 
+Pressing Load puts you in a mode where there are several possibilities for transferring samples. Any samples that are received will be put in the current loop, erasing anything that was there. 
+Even though MIDI Sample Dump is a standard, many manufacturers have implemented it with slight variations. The Echoplex was designed to handle a wide range of difference. 
+When youre in Load mode, the Echoplex will respond to MIDI Sample Dump Requests. See Example 4.8 under the Dump heading for more information. 
+
+Example 4.11: Loading the Current Loop from a Sequencer or Sampler without Handshaking 
+1. 
+Load the contents of a previous dump into your sequencer, or load a sample into your sampler. 
+
+2. 
+Connect a MIDI cable from the MIDI Out port on your sampler or sequencer to the MIDI In port on the Echoplex Digital Pro. If you also connect the MIDI Out of the Echoplex to the MIDI In of the sampler, then a faster dump can occur (provided that your sampler supports handshaking protocols). 
+
+3. 
+Press the Parameter button on the Echoplex Digital Pro until the light next to the word MIDI is lit, and then press the NextLoop (Load) button to wait for the dump. The display will show moving dashes to indicate a wait state, along with the numbers 00 that indicate that no bytes have been received. 
+
+
+Load 
+Continued 
+
+4. 
+Start a dump on your sequencer or sampler. As the dump progresses, the numbers in the display on the Echoplex Digital Pro will change. 
+
+5. 
+You can cancel the Load at any time by pressing any button. 
+
+
+Example 4.12: Loading a Sample with Handshaking, Echoplex Initiates 
+Handshaking allows the transmission to occur faster and more reliably. It is possible with a 2-way MIDI connection, if your sampler supports it. 
+
+1. 
+Load the contents of a previous dump into your sequencer, or load a sample into your sampler. 
+
+2. 
+Connect a MIDI cable from the MIDI Out port on your sampler or sequencer to the MIDI In port on the Echoplex, and connect another one from the MIDI In port on your sampler or sequencer to the MIDI Out port on the Echoplex. 
+
+3. 
+Press the Parameter button on the Echoplex until the light next to the word MIDI is lit, and then press the NextLoop (Load) button to wait for the dump. The display will show moving dashes to indicate a wait state, along with the numbers 00 that indicate that no bytes have been received. 
+
+4. 
+If your sampler recognizes MIDI Sample Dump Requests, then a second press of the Load button will initiate a dump. As the dump progresses, the numbers in the display on the Echoplex will change. 
+
+5. 
+You can cancel the Load at any time by pressing any button. 
+
+
+See also: Sample Dump Chapter, Dump 
+LoopDivide Quantizing Action Play Mode 
+Allows a loop to be divided up into discrete quantizing points, so that functions can be executed perfectly in rhythm. 
+The Quantize parameter has an important value, 8th. With Quantize=8th, functions automatically shift to execute at subdivisions of the loop cycles, giving us LoopDividing. 
+The 8th/Cycle parameter normally determines how the loop is divided. For example, if 8th/Cycle=8 the subdivisions are on 8th note boundaries of the Loop time. Any function you press will wait until the next 8th note before it starts. When you stop the function, the Echoplex again waits for the next 8th note point to stop. If 8th/Cycle=4, the subdivisions are on quarter notes. With the values available in the 8th/Cycle parameter, you have a wide range of options for dividing your loop. 
+The exception is when Sync=In and a MIDI clock is being received. MIDI clock specifically defines 8th notes, so the MIDI clock information is used for Quantizing to 8th notes in this case. 
+LoopDividing appears simple at first, but offers powerful new techniques when combined with other functions. For example, the Replace and Substitute functions can be used to easily change exactly one eighth note in a loop. Or you can press Reverse and have it precisely aligned to the nearest quarter note, which feels almost immediate but keeps your loop in tempo as you switch in and out of Reverse. 
+
+See also: Quantize, 8th/Cycle 
+Immediate MIDI Action LoopTriggering Play Mode 
+Switch to any loop using MIDI commands. 
+When multiple loops are set up using the MoreLoops parameter, incoming MIDI NoteOn messages can trigger any loops playback. This function is called LoopTriggering. 
+The LoopTrig parameter sets the value of the MIDI note number that will trigger Loop 1. The other loops are triggered by successive note numbers; i.e., if Loop 1 is triggered by note 84, then Loop 2 will be triggered by note 85, Loop 3 will be triggered by note 86, etc. 
+This is especially useful when youve recorded a number of loops and want random accessthe ability to jump directly from any loop to any other without passing through the intervening loops. You can, of course, accomplish this without MIDI (see SwitchQuant), but MIDI provides a much faster way to accomplish this, and even works when SwitchQuant=Off. You can send the NoteOn messages from a keyboard, sequencer, MIDI footcontroller, guitar controller, or any other MIDI controller. 
+Triggering loops in this way turns the Echoplex into a limited sampler, with the unique ability to easily record and modify the samples in real time. With Velocity=On the echoplex will use the velocity information in the Note On message to control the loop volume. The harder you play your controller, the louder the loop plays. 
+Use the SamplerStyle parameter to determine if your loops play from where it was last left, trigger from the beginning and play once, trigger for the beginning and play as long as the note is held, or trigger from the beginning and continue playing. 
+Note: The default value of 84 will be displayed in your sequencer either as C5 or C6. 
+
+See also: Channel, LoopTriggering, SamplerStyle, Velocity, MoreLoops 
+LoopWindowing Immediate Action Play Mode 
+Define a Window for your loop and shift it over the audio stored in memory. 
+LoopWindowing originally started as an obscure bug in the LoopIIIv5.0 software for the Echoplex Digital Pro. People liked it so much they insisted we not fix it, and instead turn it into a feature! The bug has now been cleaned up to work predictably and in a consistent manner with other functions. So now it really is an interesting function called LoopWindowing. 
+
+UNDERSTANDING LOOPWINDOWING 
+LoopWindowing lets you define a short segment, or Window, out of a longer loop and let that short segment repeat as a loop. This Window is defined on the fly, in real time. 
+Once you have defined a LoopWindow, you then have the ability to move that window through the larger loop as it exists in memory. In fact, it is more than just moving the window over the loop as it currently exists, you really move back through the memory, through all of the changes that have been recorded to the loop by overdubbing or multiplying or any other functions you have used. 

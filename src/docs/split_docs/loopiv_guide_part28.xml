@@ -1,0 +1,100 @@
+<TH>Off </TH>
+
+<TH>off </TH>
+</TR>
+
+<TR>
+<TD>Confirm </TD>
+
+<TD>CnF </TD>
+
+<TD>waits for an additional button press to jump </TD>
+</TR>
+
+<TR>
+<TD>CycleQuantize </TD>
+
+<TD>CYC </TD>
+
+<TD>jumps at the next Cycle end </TD>
+</TR>
+
+<TR>
+<TD>ConfirmCycle </TD>
+
+<TD>CCY </TD>
+
+<TD>New: behaves like Confirm but additionally quantizes to Cycle </TD>
+</TR>
+
+<TR>
+<TD>LoopQuant </TD>
+
+<TD>LOP </TD>
+
+<TD>Jumps at the next loop end </TD>
+</TR>
+
+<TR>
+<TD>ConfirmLoop </TD>
+
+<TD>CLP </TD>
+
+<TD>behaves like Confirm but additionally quantizes to loop end </TD>
+</TR>
+</Table>
+
+<P>See the New Functions chapter for more details. </P>
+</Sect>
+
+<Sect>
+<H3>SamplerStyle </H3>
+
+<P>Changes to the SamplerStyle parameter: </P>
+
+<P>Run run same as before. Start StA New: Starts the next loop from the beginning. see New Functions chapter for details. Once One New automatic return function, see New Functions chapter for details. Attack Att same as before with MIDI notes. Acts like “run” with NextLoop button. </P>
+
+<P>See the New Functions chapter for more details. </P>
+</Sect>
+</Sect>
+
+<Sect>
+<H1 id="LinkTarget_532">Chapter 5: Synchronization </H1>
+
+<Sect>
+<H3>SyncRecord </H3>
+
+<P>SyncRecord is a variation of Record that is done when a Sync of any type is being received and Quantize is off. Instead of always quantizing Record when a sync is coming in as was done in LoopIII, we now do a kind of “Multiply over nothing” for the unquantized case. This means SyncRecord starts immediately when you press Record, counts the Cycles on the green display, and rounds at the end to fit the loop time defined by the sync. This gives freedom from quantization, while still allowing tight synchronization to an external clock source. </P>
+
+<P>During Reset, the Overdub LED turns yellow to indicate that a Sync arrived. When the second Sync point arrives to define the loop length, the display shows the resulting Cycle time. Whenever the Overdub LED is yellow like this, the next Record press will be a SyncRecord. </P>
+
+<P>With SyncRecord, you only need to have received the first sync event to begin Recording. As you are Recording, the Echoplex will continue watching the sync to determine what the right cycle times are. </P>
+
+<P>When Quantize is on SyncRecord does give us one improvement. In LoopIII, as a loop was recorded in sync the cycles would not be counted or differentiated. Now the Cycles are tracked and counted properly. This means that if the incoming clock defines a Cycle length of 2 seconds and you let Record continue to 8 seconds, you will see the multiple counter counting from 1 to 4. The Cycle boundaries will be set at 2.0 seconds. In LoopIII it would have just made a big 8 second cycle. This is especially useful now since the Quantize function can quantize to either the Cycle boundaries or the Loop StartPoint. </P>
+</Sect>
+
+<Sect>
+<H3>Global/Local MIDIclock </H3>
+
+<P>There is a new Global/Local MIDIclock system that allows the slaved Echoplex to lock up with an external sequencer without drifting, even if the loop start point on the Echoplex is moved by one of the following de-aligning functions: </P>
+
+<P>-StartPoint </P>
+
+<P>-Sample triggering </P>
+
+<P>- Mute-Undo (restart loop) </P>
+
+<P>-Reverse </P>
+
+<P>-HalfSpeed </P>
+
+<P>- Next (Each loop keeps its own local MIDIclock counter) </P>
+
+<P>-stopping and restarting the sequencer or drum machine </P>
+
+<P>This lets you shift the loop freely away from the downbeats of an external sequencer for interesting rhythmic effects. All the while, the Echoplex keeps track of the external sequencer’s downbeat and clock as a “Global” clock, and the local Loop’s StartPoint as a “Local” clock. This allows for incredible new capabilities in the Echoplex to shift loops out of alignment from each other without losing sync, and then ReAlign them perfectly with each other again at will! </P>
+
+<P>After de-aligning the loop, the original alignment of the Loop StartPoint with MIDI beat 1 can be restored with the new ReAlign functions or with reset. ReAlign is available as the Mute-Multiply combination on the front panel, or directly by MIDI. See ReAlign section below for more details. </P>
+
+<P>All the following functions serve to bring the loop together with the sequencer again, once the loop has been de-aligned by one of the functions above: </P>
+

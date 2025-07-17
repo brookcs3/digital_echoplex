@@ -1,0 +1,100 @@
+
+
+FIGURE 2.1A: The Echoplex Digital Pro Plus front panel, left half 
+
+FIGURE 2.1B: The Echoplex Digital Pro Plus front panel, right half 
+2-i Echoplex Digital Pro Users Guide 
+CHAPTER 
+2 
+
+
+
+Front, Back and Underfoot 
+In this chapter well discuss the physical elements of the interface: the front panel, optional EFC-7 footpedal, and back panel. 
+THE FRONT PANEL 
+The front panel of the Echoplex Digital Pro contains a Power Switch, Knobs that set critical levels, two multicolored Level Indicator Lights to monitor levels, a 6-character Display that shows timing and other information, and a row of eight multi-function Buttons for setting parameters and operating the unit. It also contains four Row Indicator Lights, controlled by the Parameter button, that determine which set of functions or parameters correspond to the buttons. Each button has a multi-colored Status Indicator Light. 
+
+Level Control Knobs 
+The four Level Control Knobs control the input and output levels, the mix between the input signal and the looped or delayed signal, and the feedback level. The Quick Start in Chapter 1 describes how to set these levels, and youll find more information in the entries for Input Knob, Output Knob, Mix Knob, and Feedback Knob in the Reference chapter. 
+
+Level Indicator Lights 
+These multicolored lights monitor audio levels. The Input Indicator monitors the levels that are received at the audio input jack on the back panel, while the Feedbk Indicator monitors the volume of the material that is recorded in the current loop. 
+When one of these lights is dark, it is measuring very little (or no) signal. When it is green, the signal is healthy. Orange indicators are fine too, with the signal at a good level. The orange color indicates that caution should be displayed, however, because the levels are approaching the red zone. Levels that cause the indicator lights to glow red will cause distortion. 
+You cant do much about controlling the level already in the loop, except to lower the feedback, to Undo recent actions, or to reset the loop. However, you can and should control the input level as follows: 
+KEY POINT: Set the Input Knob so that the loudest signals make the Input Indicator Light turn orange. It should never turn red. 
+
+
+Display 
+The Echoplex display conveys some critical information in a compact manner. It takes on different roles according to the context. 
+STARTUP DISPLAY 
+When you first power on the Echoplex, it will show the amount of time available in the current loop. If MoreLoops=1, it will show the total time available, reflecting the amount of memory installed in the unit. The Multiple display on the right will show how many loops are currently setup with the MoreLoops parameter. 
+The following illustration shows the display immediately after bootup. 
+
+
+PLAY MODE DISPLAY 
+A typical display in Play Mode looks like this: 
+
+When you are in a Record, Multiply, or Insert operation, the LoopTime Display will keep track of how much time youve recorded so far. You will see it counting the time as the operation progresses. Once something has been recorded into a loop, the time display will show the length of the current loop. And, once youve reset a loop, the time display will be blank until you record some material in the loop. 
+
+During Play Mode, the MIDI LED, Switches LED, Timing LED, and the right dot of the Multiple Display flash to indicate the Tempo and StartPoints of your loop. These are indicated in the figure above. See Visual Tempo Guide and StartPoint in the Reference chapter for a deeper discussion of these LEDs and for how to reposition the loop beginning. 
+The left dot of the Multiple Display flashes during Sync operations when Sync is on and an external clock is present. See the discussion of Sync in the Reference chapter for more information. 
+The Loop Display dot indicates AutoUndo, explained in the Undo section of the Reference chapter. 
+The LoopTime Display is also used briefly to show other information when appropriate. For example, it displays the value as you change Feedback, it displays various command names that dont have their own LED when you execute those commands, and it shows the expected LoopTime when an incoming MIDI clock is present for synchronization. This feature allows you clearly see what is going on with the Echoplex as you use it. See the LoopTime Display section in the Reference chapter for more specific details. 
+
+
+Buttons and Row Indicator Lights 
+PLAY MODE AND THE ROW INDICATOR LIGHTS 
+The row of 8 buttons on the right side of the Echoplex Digital Pro Plus control most operations. The leftmost button, labeled Parameters alters the meaning of the other buttons. When none of the Row Indicator Lights to the left of the Parameter Matrix (the printed names of all the functions, arranged in a 4x8 grid under the buttons) are lit, then all buttons perform their primary functions: Record, Overdub, Multiply, etc. This state is what we call Play Mode, and is probably where youll spend the most time while performing. Pressing the Parameter button several times selects each row in turn, lighting the corresponding indicator light. 
+When a row indicator light is lit, then the buttons (other than Parameters) take on the meanings written in that row of the grid. For instance, when the Loops light is on, the Record button no longer performs the Record function; instead, it finds a convenient phone booth and changes into the MoreLoops button, able to increase the number of loops with a single push. When we refer to this in the text, well utilize both button names; for example, "Press the Record (MoreLoops) button." 
+
+THE PERSISTENCE OF MEMORY 
+All changes to parameters are active as soon as you make them, and theyre stored into permanent memory when you choose a different parameter or press the Parameter button. 
+KEY POINT: If you shut off the Echoplex Digital Pro and restart it, all your saved parameters will remain the same (although you will lose any music that you have in your loops). 
+
+You can reset all parameters to their factory defaults by holding down the Parameters button when you power up. 
+
+
+Status Indicator Lights 
+As you take the Echoplex through its paces, youll discover that the lights directly under the front-panel buttons change. Here are the meanings of these lights: 
+Unlit: The function is unavailable. 
+Green: The button is ready to perform its usual function. 
+Red: The button was the last pressed and its function is operating. The button is the most likely candidate to end the function that it started. While editing parameters, Red indicates the current parameter column being edited. 
+Orange: The button is available, but will perform a function other than its usual oneone that is especially appropriate to the current activity or state of the Echoplex. 
+THE EFC-7 FOOTPEDAL 
+The buttons on the optional EFC-7 footpedal perform exactly the same function as the buttons on the Echoplex Digital Pros front panel. Anytime that this manual refers to the Record button, either the front-panel button or the footswitch can be used. 
+The only button missing on the footcontroller is the Parameters button, which takes you out of Play mode and lets you edit parameters. We felt that it would be inappropriate to put this button on the footcontroller, as it might take you to an unexpected place if pressed accidentally during a performance. 
+THE BACK PANEL 
+
+
+FIGURE 2.4: The Echoplex Digital Pro back panel 
+The back panel contains all the jacks for connecting the Echoplex Digital Pro to the rest of the world. 
+
+Audio Connections 
+The Echoplex Digital Pro can accept a wide range of audio signals as input, and it outputs a line-level signal that can be attenuated by the 
+
+
+Output knob (or MIDI Control Change messages). This makes it fit easily into a number of audio configurations, such as:  
+n  Plug a guitar, keyboard, or microphone directly into the Echoplex and plug the output into any amplifier or preamplifier. The Echoplex has a high impedance input that works well with passive devices like electric guitar or bass.  
+n  Put the Echoplex in the effects loop of your favorite amplifier or effects device. Be careful about using distortion in the amp after the Echoplex. When you build up a loop it will often sound muddy with distortion after it, which you may or may not want.  
+n  Plug the final output of your favorite effects device directly into the Echoplex and plug the Echoplex output into any amplifier or preamplifier.  
+n  Connect the Echoplex to the Effects (Aux) Send and Return of your mixer.  
+
+n Connect a pair of Echoplexes to loop stereo signals. Refer to the "Stereo" section later in this chapter. 
+
+MIDI Connections 
+The standard MIDI In, Out and Thru ports are described in detail under the MIDI Ports heading in the Reference chapter. A wide range of MIDI functions are available to you. These are summarized at the start of Chapter 3. 
+
+Footswitch Jacks 
+FEEDBACK 
+1/4" jack that connects to the output of a passive volume pedal (one 
+that doesnt require power) with a standard guitar cord. This connector 
+doesnt work with all pedals, but it will work with many, including the 
+popular Boss FV-50L. Call Gibson if you are in doubt about whether a 
+particular pedal will work (or test it, if its convenient). 
+
+
+
+
+OVERDUB 
+A 1/4" mono phone jack for attaching a momentary switch. This is useful if you dont own the EFC-7 footpedal or if you prefer to use a different style of footswitch (one with a different feel, like a sustain pedal modeled after a piano pedal). This would be especially appropriate for if you like to play with OverdubMode=SUS. 
+

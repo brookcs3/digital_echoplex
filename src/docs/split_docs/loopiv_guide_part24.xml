@@ -1,0 +1,100 @@
+
+<Sect>
+<H3 id="LinkTarget_523">QuantStartPoint </H3>
+
+<P>When an external clock is present and Sync = In, a long press on StartPoint will reset the internal Loop StartPoint to the Global StartPoint defined by the clock. See the Synchronization section for more details. </P>
+</Sect>
+
+<Sect>
+<H3>Load and Dump </H3>
+
+<P>The SampleDump function has new features added that allow it to work with a much wider variety of external devices. See the SampleDump chapter for more information. </P>
+
+<P>There is a whole new system for Sysex parameter editing, allowing you to save and recall all of the parameters, individual Parameter Presets, or individual parameters in a given preset. This is described in detail in Parameter Editing chapter and in the Sysex chapter. </P>
+</Sect>
+</Sect>
+
+<Sect>
+<H1 id="LinkTarget_524">Chapter 2: Function Improvements </H1>
+
+<P>Many existing functions have been enhanced or improved over the way they worked in LoopIII. </P>
+
+<Sect>
+<H3>Improved Reverse and Undo while Reverse </H3>
+
+<P>It is now possible to Undo while in Reverse! Undo during Reverse now works normally back to the point where Reverse happened. So any overdubs you do while Reversing can be Undone, which was not possible in LoopIII. However, it is still not possible to Undo past a reverse, since memory really does get used in the other direction and overdubs made prior to reverse get destroyed by ones made after the reverse. </P>
+
+<P>Since Undo is now available in Reverse, the Reverse indicator is no longer the Undo LED and pressing Undo no longer puts the loop back in Forward. That never made much sense anyway, so now Reverse is indicated by the Insert LED. </P>
+
+<P>Record-Undo is also possible in Reverse now. So if you start Record by mistake while in reverse, pressing Undo returns you to where you were. In LoopIII that did not work. As a consequence, starting Record does not automatically force you to be Forward anymore, but leaves it in reverse. </P>
+
+<P>All of this means that Reverse and Forward are really equal now, with the exception that the green Multiple display counts backwards when you are in Reverse. </P>
+</Sect>
+
+<Sect>
+<H3>Multiply-to-x and Insert-to-x CrossFunction Improvements </H3>
+
+<P>Rounding for CrossFunctions </P>
+
+<P>In LoopIII, the Multiply-to-x and Insert-to-x CrossFunctions always created an UnroundedMultiply or UnroundedInsert. In other words, if you had Multiply or Insert going and ended them with a different function, they stopped immediately with the loop length redefined to that point and then went to the new function. Now those actions are rounded, which is more consistent with the typical operation of Multiply and Insert. This means when you end a Multiply or Insert with a different function, they round off to the next Cycle point and then begin that function, similar to if you had ended them with a second press of Multiply or Insert. The Cycles created by Multiply and Insert are not lost as they were before. </P>
+
+<P>Forcing UnroundedMultiply while Rounding </P>
+
+<P>UnroundedMultiply can now be executed while rounding. This means that in addition to doing an UnroundedMultiply by pressing Multiply to start and ending with Record, you can press Multiply to start, then Multiply again to finish multiplying and start rounding, and then press Record while it is rounding to force it to stop Unrounded. This is especially interesting when you use alternate functions to end Multiply. Since ending Multiply with an alternate function now does a rounded ending, pressing Record after that forces it to go into that function immediately and end the multiply Unrounded. </P>
+
+<P>For example, you could press Multiply to multiply your loop out as you add something over it, press Reverse to end the multiply and start it rounding, and then press Record to have it immediately start Reversing with the loop length redefined to that point. </P>
+
+<P>Or, you could chop out a short reversed snippet of your current longer loop in a new loop. With SwitchQuant on, you press Next-Multiply-Reverse-Record to create a reversed snippet. The Next-Multiply begins a copy of the current loop into the new loop (which is really the same as a multiply into the new loop), The Reverse starts it rounding with the Reverse command armed, and the Record executes it immediately and redefines the new loop at that length. </P>
+
+<P id="LinkTarget_525">The Hidden UnroundedMultiplyReverse Function </P>
+
+<P>In LoopIII the limitation with Multiply cross functions that forced us to do them Unrounded resulted in one function that some users liked. If Mutliply was going and overdubs were being made over the top, ending with a single button press of Reverse immediately changed the length of the loop to that point and instantly put the resulting UnroundedMultiply into reverse. This was an interesting use, but after we made the improvements that allowed us to do Multiply cross functions Rounded it was only possible by doing two button presses. (With two button presses, you do it like this: end Multiply with Reverse, then press Record during the Rounding period to set the new loop length and immediately have it in reverse.) </P>
+
+<P>So for the user who lost this favorite function, we found a way to give it back to him. It is a little bit obscure in operation, so bear with us. Set MoreLoops to some number greater than 1. Set SwitchQuantize on to Confirm. (any quantizing value works, but it is easiest with Confirm.) Record your basic loop in Loop 1. Press NextLoop. You will go into the “Confirming” state, where it waits for another function press before it goes into the next loop. Press Multiply down and hold it down. This will immediately put you into the next loop, copying the audio from the first loop. Overdub as much as you want over multiples of your first loop. When you are ready, release Multiply. The loop in Loop 2 will immediately stop copying, reset the loop length to that point, and go into Reverse! So there is the old UnroundedMultiplyReverse function, now properly called NextUnroundedSUSMultiplyReverse. </P>
+
+<P>When InsertMode is equal to SUS, this function is disabled in favor of the usual UnroundedMultiply SUS function. </P>
+</Sect>
+
+<Sect>
+<H3>Undo Improvements </H3>
+
+<P>Undo can now be executed even when the Undo LED is not green. It will be executed as soon as the Undo LED lights up, so you can easily Undo the maximum possible without struggling to press Undo at the right moment. This is an improvement over LoopIII, where you could have a loop with only a short area containing an overdub that was undoable. The Undo LED turns on and off in such a case to indicate when you are in the Undoable section. In LoopIII you could only tap Undo during that time for it to work. Now you can tap it any time and it will be done for you. </P>
+
+<P>Undo now checks whether there may be a whole loop length in memory without changes. If there is, Undo acts twice when you press it. This eliminates the frustrating cases where you sometimes pressed Undo and it appeared that nothing had happened. So you had to press Undo twice to get rid of a bit you had just listened to. This makes Undo feel a lot more responsive for some users who had difficulty with it before. </P>
+
+<P>These improvements for Undo are true for both the Short-Press and Long-Press versions of Undo. </P>
+</Sect>
+
+<Sect>
+<H3>Exiting from SamplePlay to Play with Undo </H3>
+
+<P>SamplePlay is when a loop has been triggered like a sampler, where a trigger starts the loop at the beginning and it plays once and goes back to mute. Repeated triggers will retrigger the loop. In LoopIII pressing Undo during a SamplePlay just immediately stopped it and put you into mute. Another button press was required to go back to the normal play state, which was never very convenient. </P>
+
+<P>In LoopIV this has been improved. Pressing Undo during a SamplePlay now puts you seamlessly back into Play, so your loop keeps going instead of stopping at the end. This is really useful if you are doing a lot of retriggers for stutter effects, and then finally decide to let the loop keep playing. You just have to press Undo and it seamlessly continues! </P>
+</Sect>
+
+<Sect>
+<H3>Next-to-X CrossFunction Undo Improvement </H3>
+
+<P>When Undo is pressed while overwriting a loop with Next-Record, Next-Multiply, or Next-Insert, the target loop is now recovered. </P>
+
+<P>In LoopIII if you did a Next-Multiply to copy loop 1 into loop 2, and then changed your mind and pressed Undo, it correctly returned to loop 1 but left loop 2 in Reset. The previous contents of loop 2 were lost. Now it is correctly preserved. </P>
+</Sect>
+
+<Sect>
+<H3 id="LinkTarget_526">Simultaneous Overdub </H3>
+
+<P>Overdub can now can be held on in a sustain fashion with a long press while simultaneously pressing other buttons to execute other functions. This is true whether Overdub is activated from the front panel buttons, from the foot pedal, or with a momentary switch in the Overdub jack. In LoopIII this did not always work. Overdub would sometimes get stuck on when another button was pressed. </P>
+
+<P>For example, now you can keep Overdub long-pressed and then press Reverse simultaneously to go in and out of Reverse while Overdubbing. </P>
+
+<P>Simultaneous Overdub is useful when using Overdub as a SUS function. Note this only works with the Overdub button, and no other functions. Also, it does not work to do long-press functions on other buttons while holding Overdub. They will be treated as short-presses. </P>
+</Sect>
+
+<Sect>
+<H3>8ths/Cycle and Sync Parameter Changes Occur in Rhythm </H3>
+
+<P>Now when a loop is playing and the 8ths/Cycle or Sync parameters are edited, the change of value is only activated at the first Loop StartPoint after you come out of the Parameter editing state. At that point you jump directly to the new selected value. This means the value change occurs only while back in the playing state, and only at a rhythmically sensible point. This helps eliminate any confusion when working with a synchronized sequencer and makes for much smoother transitions into new time signatures. </P>
+
+<P>Try changing 8ths/Cycle with sync = Out and a sequencer slaving to the clock. You control the sequencer's tempo in relation to your loop! </P>
+

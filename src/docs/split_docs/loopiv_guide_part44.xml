@@ -1,0 +1,100 @@
+<Figure>
+
+<ImageData src="images/LoopIVGuide_img_7.jpg"/>
+ACK ACK Data #1 Data #2 </Figure>
+
+<Table>
+<TR>
+<TD>... </TD>
+
+<TD/>
+</TR>
+
+<TR>
+<TD/>
+
+<TD>... </TD>
+</TR>
+
+<TR>
+<TD>Data #8265 </TD>
+
+<TD><Figure>
+
+<ImageData src="images/LoopIVGuide_img_8.jpg"/>
+</Figure>
+</TD>
+</TR>
+
+<TR>
+<TD><Figure>
+
+<ImageData src="images/LoopIVGuide_img_9.jpg"/>
+</Figure>
+</TD>
+
+<TD>ACK </TD>
+</TR>
+</Table>
+
+<P>MIDI Dump: request initiates dump </P>
+
+<P>Of course, this works only with a closed loop connection. </P>
+
+<P>Sample Number </P>
+
+<P>The Sample Dump header and request contain several pieces of information about the sample. The most important one for the user is the sample number. </P>
+
+<P>A sampler can store many samples. These samples are usually indexed. In a MIDI sample dump the sender tells the receiving unit what sample number it is sending. Correspondingly the receiving unit can request a specific sample number. The sample number can range from 0 to 16383. Usually not all numbers are accessible to the user. </P>
+
+<P>Unfortunately some samplers start numbering the samples with 0 and others with 1, while still others show you a 1 but actually send them as sample number 0! You have to find out what numbering system your sampler uses. If you can’t find it in your manual you have to try it out. Send a sample as #10 and see whether it arrives as #9, #10 or #11. </P>
+
+<P>See below for information on how sample numbers are used in the Echoplex. </P>
+
+<P>Device ID </P>
+
+<P>The device ID of Sysex messages (sample dumps are Sysex messages) are used to make sure that the message is received only by the device that you wanted to send it to. </P>
+
+<P>Two units have to have the same ID in order to talk with each other. </P>
+
+<P>The name “Device ID” is somewhat misleading. “Sysex channel” would be more appropriate. Think of it as the equivalent of the MIDI channel. But be careful, MIDI channel and Device ID don’t have to be the same value! </P>
+
+<P>It is possible to have the MIDI notes go through channel 1 to one unit and the MIDI sysex through device ID 114 to another unit. </P>
+
+<P>Device IDs can be in the range from 0 to 127. </P>
+
+<P>A device ID of 127 has a special meaning.  If you set the receiving unit to 127, all device IDs are accepted. If you set the sending unit to 127, all receiving units should therefore accept your SYSEX data. This is called broadcasting. See below for information on how device IDs are used in the Echoplex. </P>
+
+<P>Aurisis Research * PO Box 40200 * Berkeley, CA 94704-4200 * http://www.aurisis.com * info@aurisis.com </P>
+</Sect>
+</Sect>
+</Sect>
+
+<Sect>
+<H3 id="LinkTarget_547">Echoplex Sample Dump </H3>
+
+<P>Connections </P>
+
+<P>The Echoplex allows you to transfer the sound data through open loop connections (one cable) and closed loop connections (two cables). If you have a choice always use closed loops. The transmission will be approximately twice as fast. </P>
+
+<P>Who starts sending? </P>
+
+<P>The Echoplex can either initiate a sample dump itself (with the Dump button in parameter mode P3) or respond to a sample dump request. </P>
+
+<P>Responding to a request is only possible while in Upload-mode. Enter this state by pressing the Load button in parameter mode P3. During normal operation all Sample Dump messages are ignored. </P>
+
+<P>Loop Numbers and Sample Numbers </P>
+
+<P>Many samplers have sample numbers up to 999. Since the Echoplex has a maximum of 16 loops we have a problem in how to match an incoming sample (e.g. #254) with a loop number. </P>
+
+<P>The Echoplex gives you the possibility to set a current loop number and a “current” sample number as special Sample Dump parameters. While in Upload-mode press Record to edit the loop number and Overdub to edit the sample number. </P>
+
+<P>When you send the current loop it is always sent with the sample number you defined on the Echoplex. </P>
+
+<P>Receiving a sample number in a header or a request is somewhat more complex. To give a maximum of flexibility the following scheme is applied to incoming sample numbers: </P>
+
+<Table>
+<TR>
+<TD>Sample Number </TD>
+
+<TD>Accessed Loop (sent or received) </TD>

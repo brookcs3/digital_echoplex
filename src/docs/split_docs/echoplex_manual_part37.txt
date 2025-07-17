@@ -1,0 +1,100 @@
+SmartButtons are only available when using MIDI to control the Echoplex. They allow you a convenient way to access several common functions by double-clicking the MIDI NoteOn trigger for a given loop. This can be convenient in performance or in the studio, as it allows you to switch loops and execute functions with the same buttons on your MIDI controller. 
+With this feature you have many functions under control simply by connecting a MIDI keyboard or other MIDI controller programmed with the notes from 84 to 99. 
+
+DOUBLE-CLICK COPYING 
+When you are triggering loops with MIDI NoteOn messages and SwitchQuant is on, repeating (double-clicking) the same note during the quantizing period will do a LoopCopy from the current loop into the triggered loop. This is similar to using Next-Multiply, but is much quicker and simpler to use from a keyboard. 
+
+
+DOUBLE-CLICK RECORD 
+If the current loop is in reset, and you double-click the NoteOn trigger for the current loop, the Echoplex will start Record. 
+
+
+DOUBLE-CLICK MULTIPLY 
+If you have a loop playing and you double-click the NoteOn trigger for the current loop, you will do a Multiply. 
+
+SmartButtons 
+Continued 
+
+
+DOUBLE-CLICK STOPRECORD AND STOPMULTIPLY 
+If Record or Multiply is running and you press the same NoteOn message again, we end the Record or Multiply and do nothing else. In this way you can start Recording or Multiplying by double-clicking the NoteOn for the loop, and then end it with another press of the same NoteOn message. 
+
+
+LONG PRESS RESET 
+If you do a long-press of the NoteOn trigger for the current loop, the loop will be Reset. This is not the case when SamplerStyle=Att. In that case the currently loop is just retriggered and played as normal for SamplerStyle=Att. 
+
+See also: LoopCopy, SwitchQuant, SamplerStyle, LoopTrig, Multiply, Record 
+Switches LED 
+Front Panel 
+
+Indicates the Switches Row of the Parameter Matrix is selected; Indicates Cycle StartPoint during Play Mode. 
+PARAMETER EDITING MODE 
+The Switches LED is illuminated when the Switches Row of the Parameter Matrix has been selected for editing with the Parameter Button. The Multiple Display will also show P2 when this row is selected in the Parameter Editing Mode. 
+The Switches Row mainly consists of the Parameters related to how the various Function Buttons operate.  These are RecordMode, OverdubMode, RoundMode, InsertMode, MuteMode, Overflow, and Presets. 
+
+PLAY MODE 
+During Play Mode the Switches LED is part of the Visual Tempo Guide. It blinks at each Cycle StartPoint. This is helpful for you to get a visual indication of the tempo of your loop. 
+
+See also: Parameter Button, Multiple Display, Parameter Matrix, Visual Tempo Guide 
+Timing LED 
+Front Panel 
+
+Indicates the Timing Row of the Parameter Matrix is selected; Indicates 8th notes during Play Mode. 
+PARAMETER EDITING MODE 
+The Timing LED is illuminated when the Timing Row of the Parameter Matrix has been selected for editing with the Parameter Button. The Multiple Display will also show P1 when this row is selected in the Parameter Editing Mode. 
+The Timing Row mainly consists of the Parameters related to Timing and Synchronization of the Echoplex. These are Loop/Delay, Quantize, 8ths/Cycle, Sync, Threshold, Reverse, and StartPoint. 
+
+PLAY MODE 
+During Play Mode the Timing LED is part of the Visual Tempo Guide. It blinks at each Sub-Cycle Point as determined by the 8ths/Cycle parameter and the Global Clock. Usually this is set to indicate 8th notes, but it can be set for any rhythmic division of the loop. This is helpful for you to get a visual indication of the tempo of your loop. 
+
+See also: Parameter Button, Multiple Display, Parameter Matrix, Visual Tempo Guide, 8ths/Cycle 
+Visual Tempo Guide 
+Front Panel 
+
+Blinking LEDs to indicate Loop Tempo and Synchronization 
+points. 
+It is often difficult in looping to feel the length of a loop before there are any good rhythmic clues recorded into it. This can make it frustrating to overdub new material that is intended to be in rhythm. To aid in this the Visual Tempo Guide of the Echoplex user interface is there to help you find the tempo. 
+The Visual Tempo Guide makes use of several LEDs on the Echoplex front panel that are otherwise not used during Play Mode. They work as follows: 
+
+Timing LED Blinks at each Sub-Cycle Point as determined by the 8ths/Cycle parameter and the Global Clock. Usually indicates 8th notes. 
+Switches LED Blinks at local Cycle StartPoints. 
+MIDI LED Blinks with the local Loop StartPoint. (only shown if multiples established) 
+Multiple Right Dot Blinks at the Global MIDI StartPoint ( Beat 1 of the external clock). Only shown if local loop is not aligned. 
+Multiple Left Dot Blinks when a Sync correction happens, as follows: 
+bright: Sync came early, the Echoplex jumps back almost the whole loop. This means the external sequencer was a little fast. 
+faint: Sync came late, the Echoplex jumps a little. This means the external sequencer was a little slow. 
+
+Loop Display Dot AutoUndo executed (loop was not changed in last pass) 
+Visual Tempo Guide 
+Continued 
+The following figure shows the location of each Visual Tempo Guide LED. 
+
+
+EXTERNAL CLOCKS 
+When Sync=In and an external clock source is present, the Tempo LEDs will initially reflect the StartPoints defined by the external clock. 
+If the loop is shifted out of alignment with the external clock, the Tempo LEDs will then reflect our internal loop StartPoints. The Global MIDI StartPoint LED (lower right dot on the Multiple display) will then blink in time with the StartPoints of the external clock. This gives a visual indication of how the loops are aligned. When a ReAlign is done to bring them back together, the Global MIDI StartPoint LED stops blinking. 
+
+Visual Tempo Guide 
+Continued 
+
+GLOBAL CLOCKS AND LOOP SWITCHING 
+The Timing LED for 8th note Sub-Cycles counts on 8th notes determined by the global clock. The Switches LED for Cycles, on the other hand, blinks at the local StartPoints based on the local clock. 
+If multiple loops are used and the loops are switched Unquantized, it is possible to see these move out of alignment with each other. This can be a little disconcerting, but it can also be helpful as a reference of where the Global Clock is in relation to your Local Cycle StartPoints as you switch loops. 
+
+TEMPO LIMITS 
+If the tempo is above 400 BPM, the 8th note Sub-Cycle LED stops blinking since it becomes useless as a visual indicator at such speeds. This is also the point where MIDI clock is no longer sent for similar reasons. You can still make loops as short as you like. 
+
+VISUAL BEAT MATCHING INDICATOR 
+The Multiple Left Dot LED showing the Sync correction can be useful for tuning the tempo on a sequencer to match with an existing loop on the Echoplex. By watching the frequency and intensity of this LED you can quickly speed or slow the tempo of the sequencer to match the loop in the Echoplex, at which point the dot stops blinking. This technique 
+
+Visual Tempo Guide 
+Continued 
+allows you to start a loop without the sequencer, then start the sequencer and tune its tempo to match. 
+
+CHAPTER 10 
+
+
+
+
+MIDI Sample Dump 
+

@@ -1,0 +1,100 @@
+
+<P>Changes current sample number. The default is the current loop number. Range from 0 to 999. Sn is </P>
+
+<P>shown in the green display </P>
+
+<P>Insert </P>
+
+<P>Reserved. </P>
+
+<P>Mute </P>
+
+<P>Reserved. </P>
+
+<P>Undo (=Dump) Send the current loop. The receiving unit will store it as the current sample number. </P>
+
+<P>Next (=Upload) Request a dump from the other unit. The current sample number will be sent by the other unit and stored in the current loop. This works only in a closed loop (2 MIDI cables). </P>
+
+<P>The three value buttons (Record, Overdub, Multiply) work the same way. The first press shows the current value. Subsequent presses increment the value.  If you press the button for a long time it starts repeating. The repeat rate speeds up the longer you press. The maximum speed is reached after approximately 100 increments. When the maximum value is reached, the value is set to minimum (usually 0 or 1) and the repeat rate slows down to give you the possibility to release the button. </P>
+
+<P>Commands received via MIDI </P>
+
+<P>While in Upload-mode the following MIDI Sysex commands are accepted: </P>
+
+<P>SampleHeader(samplenumber) </P>
+
+<P>Samples with the Sample Numbers 1-16 are stored in the corresponding loop. All other Sample Numbers are ignored and the sample is stored in the current loop number. </P>
+
+<P>SampleRequest(samplenumber) </P>
+
+<P>If Sample Numbers 1-16  are requested the corresponding loop is sent. All other Sample Numbers are </P>
+
+<P>ignored and the current loop is sent as the requested Sample Number. </P>
+</Sect>
+
+<Sect>
+<H3>Examples </H3>
+
+<P>The Echoplex is capable of starting the transmission and of passively waiting until the other unit takes control. The following examples give a few examples for transmitting loops from one Echoplex to another one. </P>
+
+<P>Echoplex A -&gt; Echoplex B (open loop) </P>
+
+<L>
+<LI>
+<Lbl>•AB </Lbl>
+
+<LBody>Connect MIDI-Out of Echoplex A with MIDI-In of Echoplex B. </LBody>
+</LI>
+
+<L>
+<LI>
+<Lbl>•AB </Lbl>
+
+<LBody>Press Parameters on both units, until they are both in the MIDI parameter mode. </LBody>
+</LI>
+
+<LI>(A shows 'P3') (B shows 'P3') </LI>
+</L>
+
+<LI>
+<Lbl>•B </Lbl>
+
+<LBody>Press Load on Echoplex B. (goes into Upload-Mode showing '-') </LBody>
+</LI>
+
+<L>
+<LI>
+<Lbl>•A </Lbl>
+
+<LBody>Press Dump on Echoplex A. </LBody>
+</LI>
+
+<LI>(A starts dumping showing 'd') (B starts uploading showing 'U') </LI>
+</L>
+
+<L>
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Wait until the entire loop is sent </LBody>
+</LI>
+
+<LI>(A shows 'P3' again) (B shows '-' again) </LI>
+</L>
+
+<LI>
+<Lbl>•B </Lbl>
+
+<LBody>Press Parameters on B to exit Upload-Mode (B shows 'P3' again) </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Echoplex B has now uploaded the loop. </LBody>
+</LI>
+</L>
+
+<P>Echoplex A =&gt; Echoplex B (closed loop, A initiates) </P>
+
+<L>

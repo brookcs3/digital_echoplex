@@ -12969,7 +12969,18 @@ class EchoplexDigitalPro {
 
     updateMultipleDisplay(message) {
         if (!this.elements.multipleDisplay) return;
+        
+        // Save tempo dots and AutoUndo LED before clearing
+        const tempoDotLeft = this.elements.multipleDisplay.querySelector('.tempo-dot-left');
+        const tempoDotRight = this.elements.multipleDisplay.querySelector('.tempo-dot-right');
+        const autoUndoLED = this.elements.multipleDisplay.querySelector('.auto-undo-led');
+        
         this.elements.multipleDisplay.textContent = message || '';
+        
+        // Restore tempo dots and AutoUndo LED
+        if (tempoDotLeft) this.elements.multipleDisplay.appendChild(tempoDotLeft);
+        if (tempoDotRight) this.elements.multipleDisplay.appendChild(tempoDotRight);
+        if (autoUndoLED) this.elements.multipleDisplay.appendChild(autoUndoLED);
     }
 
     // ============================================================================

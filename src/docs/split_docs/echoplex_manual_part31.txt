@@ -1,0 +1,100 @@
+
+MIDICLOCK AND STARTSONGS 
+MIDIclock is sent out immediately when you enter the TempoSelect state, but without a MIDI StartSong message. Some devices like to have MIDI clock in advance, and for some cases this allows you to get a feel for the rhythm. But to really start things, you need to send a MIDI StartSong message! 
+TempoSelect 
+Continued 
+
+RECORDING IN TEMPO 
+There are three ways to send the MIDI StartSong and get things started: 
+
+1. Start up the sequencer before recording any loops 
+The first option for starting the sequencer is to start it in tempo before recording any loops. After you have entered TempoSelect and set the Tempo, press the Undo button again. This press of Undo sends a StartSong message to the sequencer and locks in your tempo. We call it SetTempo. The sequencer will receive the MIDI StartSong message and start playing at your tempo using the MIDI clock out from the Echoplex, and the Echoplex and sequencer will be aligned from then on. If you dont like the tempo you can press Undo to set it again with the Feedback Knob or the fine tune buttons. This StartSong is sent if Sync=Out or Sync=OuS. 
+If you are not using a pedal for Feedback, make sure you set the Feedback Knob back to where you want it for Feedback before recording! Since you have locked the tempo, changing the knob position at this point will not change tempo, only Feedback. You may also find the RecordMode=Safe parameter helpful here. 
+Whenever you are ready to record your loop, you can simply tap Record to begin. You will actually do a SyncRecord. After the second press of Record to end recording, the Echoplex will round off the recording to the next sync point as determined by your tempo. Your loop will end at exactly the right length and in time with the sequencer. 
+
+2. Start up the Sequencer as you begin Recording your Loop 
+The second option for starting the sequencer is to trigger it immediately as you start Recording. You can do this by pressing Record directly 
+
+TempoSelect 
+Continued 
+when the Undo LED is still red, right after you have dialed in the tempo. A MIDI StartSong message is sent, and the sequencer will start at the same instant as you start recording your loop. In this case the press of Record is the SetTempo moment. When you press Record again to finish, the Echoplex rounds off the recording to the correct loop time, same as before. For this to work you have to have Sync=Out. 
+
+3. Record a Loop to a Tempo and Start the Sequencer Later 
+The third option lets you record a loop without starting up the sequencer immediately. This requires the Sync parameter to be set to OuS. Set the tempo in the TempoSelect state, and then record your loop to it as above. With OuS, the MIDI StartSong message is not sent out when recording is started or stopped, so the Sequencer will not start up. When you are ready to start the sequencer, you need to send a MIDI StartSong message with the QuantStartSong command executed by pressing Mute and then Multiply while the loop is playing. At the next StartPoint of your loop a MIDI StartSong message will be sent automatically and your Sequencer will start. You can also use one of the MIDI StartSong commands which dont necessarily require you to mute your loop first. More details about the quantized StartSong commands can be found in the Synchronization chapter and the MIDI chapter. 
+
+SETTEMPO AND PRESETS 
+The SetTempo moment when the tempo is locked in is important. At SetTempo the tempo you have defined with the Feedback Knob is stored as a parameter value in memory. You can then save it as a Preset and recall it again later. This allows you to have predefined tempos stored in different Presets and jump to them immediately. See the Presets section for more information on Presets. SetTempo also means that the tempo is remembered if you go out of TempoSelect and then come back. For example, after SetTempo and while still in Reset you press Overdub to disable sync. At that point you can record a loop out of sync if you like. After reset, press Overdub again to re-enable sync, 
+TempoSelect 
+Continued 
+and then press Undo again to go back into the TempoSelect state. Your old tempo is still there! 
+
+SYNC=IN AND SYNC=OFF 
+If Sync=In, the TempoSelect function can not be selected. The Undo LED is actually orange, indicating an alternate function. In this case a different function is available, where StartSong can be sent in Reset with a press of Undo. See the Synchronization chapter for more details on this. 
+If Sync=Off, TempoSelect is not available and StartSong messages are not sent. The Undo LED is off during Reset. 
+
+STORING TEMPO IN PRESETS 
+Tempo can be saved in a Preset. Whenever you recall that preset it will immediately come up with the saved tempo. To do this, you simply save to a Preset while you have a tempo set, and it will be stored. See the Presets section for more information on how to save and recall Presets. 
+When you recall a Preset where no tempo has been set, it is just as if this feature did not exist at all. It comes up without any tempo and behaves normally. 
+When the TempoSelect state is activated with Undo, it first displays the tempo value in the preset currently loaded. 
+If there is no tempo saved in the current preset, it defaults to 120 BPM. From then on, as soon as the Feedback Knob is moved, the new value is activated. 
+
+See also: Sync, SyncRecord, 8ths/cycle, Presets 
+CHAPTER 7 
+
+
+
+
+MIDI Control 
+
+DirectMIDI Immediate Action Play Mode 
+Directly access any Echoplex command by MIDI. 
+A large set of commands in the MIDI command list are called DirectMIDI commands. Please see the MIDI command list under the Source# parameter section to see them. 
+DirectMIDI commands do specific functions unavailable from the front panel or reach functions directly that would take several button presses from the front panel. 
+There are some limits to this, in that ReAlign, Half-Speed, and Quantize DirectMIDI functions can execute at any time, but the others can only be executed while the loop is playing, overdubbing, or substituting. 
+Unlike MIDI VirtualButtons, in most cases DirectMIDI commands only require the NoteOn message, or the single continuous controller message. They do not need the NoteOff. This is not true for the SUS DirectMIDI commands. These use the NoteOn message to start their function and the NoteOff message to end it, similar to the way SUS commands work from the front panel. 
+
+See also: MIDI In, MIDI Out, Channel, ControlSource, Source#, MIDI VirtualButtons 
+Immediate Action MIDI Command List Play Mode 
+Complete list of MIDI Commands available for controlling the Echoplex through MIDI. 
+In the tables below, the Offset is the number that should be added to Source# to get the listed command. For example, the midi command for the Record button is an offset of 2. If Source#=36, the message number for Record would then be 38. If you have ControlSource=Notes, you would then use NoteOn 38 to command Record. 
+The note listed is assuming the default value of Source# =36. This is the note of the resulting NoteOn message when you and Source# and the offset together. If you played that note on a keyboard you will trigger that function. 
+The tables are divided into three sections for the three types of MIDI commands  MIDI Sync Indicators, MIDI VirtuaLButtons, and DirectMIDI. 
+MIDI VirtualButtons and DirectMIDI are described elsewhere in this section. MIDI Sync Indicators are in the Synchronization section. 
+
+MIDI Sync Indicators 
+Note  Source#  Function  Short descriptions  
+offset  
+G#  -4  8thSync out  a short note out at each 8th note (output only)  
+A  -3  LoopSync out  a short note out at each Loop StartPoint (output only)  
+A#  -2  MIDISync out  a short note out at each Global MIDI StartPoint (output only)  
+B  -1  CycleSync out  a short note out at each Cycle StartPoint (output only)  
+
+MIDI Command List 
+Continued 
+
+MIDI VirtualButtons 
+Note  Source#  Function  Short descriptions  
+offset  
+C  0  ParameterButton  Virtually presses the Parameter Button  
+C#  1  empty  
+D  2  RecordButton  Virtually presses the Record Button  
+D#  3  OverdubButton  Virtually presses the Overdub Button  
+E  4  MultiplyButton  Virtually presses the Multiply Button  
+F  5  InsertButton  Virtually presses the Insert Button, depends on InsertMode  
+F#  6  MuteButton  Virtually presses the Mute Button  
+G  7  UndoButton  Virtually presses the Undo Button  
+G#  8  NextButton  Virtually presses the Next Button  
+A  9  ReplaceButton  Virtually presses the Replace Button  
+A#  10  SubstituteButton  Virtually presses the Substitute Button  
+B  11  InsertOnlyButton  Virtually presses the Insert Button, regardless of InsertMode  
+C  12  SpeedButton  Virtually presses the HalfSpeed Button  
+C#  13  ReverseButton  Virtually presses the Reverse Button  
+
+DirectMIDI 
+
+Note Source# Function Short descriptions offset 
+D 14 SUSRecord Sustain Action Record 
+D# 15 SUSOverdub Sustain Action Overdub 
+E 16 SUSRoundMultiply Sustain Action Rounded Multiply 
+F 17 SUSRoundedInsert Sustain Action Rounded Insert 
+F# 18 SUSMute Sustain Action Mute 

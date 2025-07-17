@@ -1,0 +1,100 @@
+FOOTPEDAL 
+A 1/4" mono phone jack that connects to the optional EFC-7 footpedal with a standard guitar cord. This jack also accepts a momentary switch to execute the Record function. 
+If you are electrically and mechanically skilled, building your own pedal is fairly easy. Contact customer support if you would like instructions on how to do this. 
+
+
+Sync Jacks 
+These jacks are used to synchronize to external sync pulses or to synchronize multiple Echoplexes. The BeatSync jack takes 1/4 mono cord, while Brother Sync uses a 1/4" stereo cable. See the Reference chapter entries for BeatSync and BrotherSync for more information. 
+
+Voltage Selector Switch 
+The Echoplex Digital Pro Plus can operate on US-style 115V power, Japanese-style 100V power, and on European-style 230V power. All thats required is that the Voltage Selector Switch be set properly and the proper power cord be attached to the Power Input Jack. 
+
+Power Input Jack 
+Use a power cord to connect this to a wall socket after checking that the Voltage Selector Switch is set properly. 
+
+CHAPTER 3 
+
+
+MIDI 
+There are a number of different ways that MIDI interacts with the Echoplex Digital Pro. The MIDI chapter in the Reference guide contains extensive details on all MIDI features. The MIDI functions available are: 
+
+n You can virtually control all front-panel buttons with NoteOn or Continuous Control messages (see the ControlSource and VirtualButtons entries in the Reference chapter). 
+n You can directly control many features that are difficult or complicated to access from the front panel with NoteOn or Continuous Control messages (see the MIDI Command List and DirectMIDI entries in the Reference chapter). 
+n MIDI NoteOn messages can be used to trigger loops (see the LoopTrig, LoopTriggering, and SamplerStyle entries in the Reference chapter). 
+n MIDI clocks can be used to synchronize the cycle time with drum machines and sequencers (see the Sync parameter entry and the Synchronization chapter in the Reference section). 
+n MIDI Continuous Controllers can be used to control Volume and Feedback levels (see the VolumeCont and FeedBkCont entries in the Reference chapter). 
+n MIDI Program Change messages can be used to select parameter Presets. (see the Presets chapter in the Reference section.) 
+n One Echoplex can control numerous others by connecting the MIDI Out port of each one to the MIDI In port of the next, as in the figure below. Be careful not to complete the circle and make a closed loop. 
+
+Figure 3.1 Connecting several Echoplexes together by MIDI 
+
+n Loops can be dumped to sequencers and samplers, and loaded from these devices, without any loss of sound quality (see  the Sample Dump chapter in the Reference section). 
+n Parameters can be directly edited using MIDI SysEx. 
+n Parameters and Presets can be uploaded and downloaded for saving on a computer or other storage device, also using MIDI SysEx commands. (see the SysEx chapter in the Reference section.) 
+SECTION II 
+
+Reference Guide 
+
+REFERENCE GUIDE INTRODUCTION 
+This section is a comprehensive reference for the Echoplex Digital Pro Plus. You can find any function or button name, any knob, and any jack by looking for its name in the upper outside corners of these pages. 
+
+This section is divided into the following chapters: n Chapter 4 - Parameters n Chapter 5 - Functions n Chapter 6 - Synchronization n Chapter 7 - MIDI Control n Chapter 8 - Parameter Presets n Chapter 9 - User Interface n Chapter 10 - MIDI Sample Dump n Chapter 11 - MIDI SysEx 
+Within each chapter the entries are listed alphabetically with their titles at the top of the page, so it should be relatively easy to find what you are looking for. If you have difficulty, consult the table of contents. 
+Reference II-i 
+
+KEY TO THE DIAGRAMS 
+Some of the entries in this section contain diagrams portraying the way various Echoplex functions behave. Here are some tips that will help you to interpret them: 
+
+n Musical material is represented as boxes filled with patterns, like this: 
+n When musical material is mixed together, the patterns are shown overlapping, like this: 
++
+
+
+=
+ 
+
+
+n Button pushes are indicated by vertical lines with arrowheads at the ends, labeled by the first letter of the button. The button abbreviations are: 
+R Record button O Overdub button M Multiply button I Insert button Me Mute button U Undo button N NextLoop button 
+
+The arrows have the following meanings: 
+Press and release the button in one motion. 
+
+
+
+
+Press the button and hold it down 
+Release the button 
+
+CHAPTER 4 
+
+
+
+Parameters 
+
+8ths/Cycle Default: 8 Parameter Row: Timing 
+Synchronization parameter that determines tempo based on Loop time. 
+Values: 1-96, 128, 256 
+When synchronizing with MIDI, 8ths/cycle determines the number of 8th-notes that make up each cycle. In order to use this feature, you must have a device that generates or syncs to MIDI Clock messages. This device will usually be a sequencer or drum machine. In this discussion, we will refer to a device that generates MIDI clocks as a clock source. 
+When editing 8ths/cycle, the most important values come first to make them easy to select: 8,4,2,6,12,16,32,64,128,256, then it goes on with 1,2,3...96. 
+While editing 8ths/cycle the Feedback Knob becomes the DataWheel, so you can use it to quickly change the value to what you want. 
+Note that with the DataWheel feature, the top of the knob range ends at 54 instead of 96. This was done because we found it was easier to set the more typical values when the knob resolution was limited a little bit. To reach the values between 54 and 96 you simply use the front panel button to continue incrementing the number in the usual way. 
+A long-press while editing the 8ths/cycle parameter returns you to the initial value of 8. 
+
+Example 4.1: Syncing to an external MIDI clock 
+1. Set 8ths/Cycle=8. This means that each cycle will be eight eighth-notes (one measure) long. 
+2. Set Sync=In. 
+3. Connect the MIDI Out port of a clock source to the Echoplex Digital Pros MIDI In port using a standard MIDI cable. 
+8ths/Cycle 
+Continued 
+
+4. 
+Make sure that your clock source is set to transmit MIDI Clocks (this setting is usually found under a MIDI or Sync menu or function key). 
+
+5. 
+Reset the current loop by holding down the Record button for several seconds. 
+
+6. 
+Load a rhythm pattern or sequence into your clock source, set it up to loop indefinitely, and hit Play. At the beginning of each measure, you will see the sync LED flash on the Echoplex display. 
+
+7. 
