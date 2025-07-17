@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recording Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Recording Test</h1>
+    
+    <button id="testMic">Test Microphone Access</button>
+    <button id="startRecord" disabled>Start Recording</button>
+    <button id="stopRecord" disabled>Stop Recording</button>
+    <button id="playback" disabled>Play Recording</button>
+    
+    <div id="status">Ready to test...</div>
+    
+    <audio id="audioPlayer" controls style="display: none; margin-top: 20px;"></audio>
+
+    <script>
+        let mediaRecorder;
+        let recordedChunks = [];
+        let audioStream;
+        
+        const statusDiv = document.getElementById('status');
+        const testMicBtn = document.getElementById('testMic');
+        const startBtn = document.getElementById('startRecord');
+        const stopBtn = document.getElementById('stopRecord');
+        const playbackBtn = document.getElementById('playback');
+        const audioPlayer = document.getElementById('audioPlayer');
+        
+        function updateStatus(message, isError = false) {
+            statusDiv.innerHTML = `<div class="${isError ? 'error' : 'success'}">${message}</div>`;
+            console.log(message);
+        }
+        
+        testMicBtn.addEventListener('click', async () => {
+            try {
+                updateStatus('Requesting microphone access...');
+                
+                // Request microphone with same settings as echoplex
+                audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        autoGainControl: false,
+                        noiseSuppression: false,
+                        latency: 0.01
+                    }
+                });
+                
+                updateStatus('Microphone access granted! Testing MediaRecorder...');
+                
+                // Test MediaRecorder
+                mediaRecorder = new MediaRecorder(audioStream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    console.log('Data available:', event.data.size);
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstart = () => {
+                    updateStatus('Recording started!');
+                    console.log('MediaRecorder state:', mediaRecorder.state);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    updateStatus('Recording stopped. Processing audio...');
+                    console.log('Recorded chunks:', recordedChunks.length);
+                    
+                    if (recordedChunks.length > 0) {
+                        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                        const audioURL = URL.createObjectURL(blob);
+                        audioPlayer.src = audioURL;
+                        audioPlayer.style.display = 'block';
+                        playbackBtn.disabled = false;
+                        updateStatus('Recording complete! Size: ' + (blob.size / 1024).toFixed(2) + ' KB');
+                    } else {
+                        updateStatus('No audio data recorded!', true);
+                    }
+                };
+                
+                mediaRecorder.onerror = (event) => {
+                    updateStatus('MediaRecorder error: ' + event.error, true);
+                    console.error('MediaRecorder error:', event);
+                };
+                
+                // Enable recording buttons
+                startBtn.disabled = false;
+                testMicBtn.disabled = true;
+                
+                updateStatus('Microphone ready! You can now start recording.');
+                
+            } catch (error) {
+                updateStatus('Error: ' + error.message, true);
+                console.error('Full error:', error);
+            }
+        });
+        
+        startBtn.addEventListener('click', () => {
+            recordedChunks = [];
+            mediaRecorder.start();
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            playbackBtn.disabled = true;
+            audioPlayer.style.display = 'none';
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            mediaRecorder.stop();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        });
+        
+        playbackBtn.addEventListener('click', () => {
+            audioPlayer.play();
+        });
+        
+        // Check browser compatibility
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            updateStatus('Your browser does not support audio recording!', true);
+        } else {
+            updateStatus('Browser supports audio recording. Click "Test Microphone Access" to begin.');
+        }
+    </script>
+</body>
+</html>
