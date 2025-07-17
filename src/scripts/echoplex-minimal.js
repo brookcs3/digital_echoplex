@@ -166,10 +166,10 @@ class EchoplexMinimal {
                     
                     // Make sure LED is visible (override powered-off state temporarily)
                     led.style.display = 'block';
-                    led.classList.add('on');
+                    led.setAttribute('data-hw-state', 'on');
                     
                     setTimeout(() => {
-                        led.classList.remove('on');
+                        led.setAttribute('data-hw-state', 'off');
                         led.style.display = ''; // Remove inline style to let CSS take over
                     }, 400); // Flash for 400ms
                 }, index * 80); // 80ms stagger between LEDs
