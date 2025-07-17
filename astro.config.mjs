@@ -1,29 +1,41 @@
 import { defineConfig } from 'astro/config'
+import { resolve } from 'path'
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://echoplex-js.com',
-  
-  // Development
+  outDir: 'dist',
+  publicDir: 'public',
+  scopedStyleStrategy: 'class',
   devToolbar: {
     enabled: false,
   },
   server: {
     host: true,
   },
-  
-  // Build configuration
   build: {
     format: 'file',
+    assets: 'assets',
     inlineStylesheets: 'never',
   },
-  
-  // Vite configuration for development
   vite: {
+    resolve: {
+      alias: {
+        '@': resolve('./src'),
+      },
+    },
     css: {
       preprocessorOptions: {
         scss: {
           additionalData: `@use 'sass:math'; @use 'sass:map'; `,
+        },
+      },
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: 'scripts/[name].js',
+          chunkFileNames: 'scripts/[name].js',
+          assetFileNames: 'assets/[name][extname]',
         },
       },
     },
