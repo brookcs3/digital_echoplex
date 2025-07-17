@@ -3,12 +3,13 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.17.1"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "copy:scripts": "mkdir -p public/scripts && grep -oP 'src=\"(?:[^\"]*/)*\\K[^/\\\"]+\\.js' src/pages/index.astro | sort -u | xargs -I{} cp src/scripts/{} public/scripts/{}",
+    "build": "npm run copy:scripts && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write .",
