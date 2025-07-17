@@ -30,14 +30,14 @@ export default defineConfig({
         },
       },
     },
-    build: {
-      rollupOptions: {
-        output: {
-          entryFileNames: 'scripts/[name].js',
-          chunkFileNames: 'scripts/[name].js',
-          assetFileNames: 'assets/[name][extname]',
-        },
-      },
-    },
+    // build: {
+    //   rollupOptions: {
+    //     output: {
+    //       entryFileNames: 'scripts/[name].js',
+    //       chunkFileNames: 'scripts/[name].js',
+    //       assetFileNames: 'assets/[name][extname]',
+    //     },
+    //   },
+    // },
   },
 })
