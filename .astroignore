@@ -1,3 +1,6 @@
 # Backup files
 *.backup
 src/pages/index.astro.backup
+
+# Documentation files
+src/docs/
