@@ -8,8 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "copy:scripts": "mkdir -p public/scripts && grep -oP 'src=\"(?:[^\"]*/)*\\K[^/\\\"]+\\.js' src/pages/index.astro | sort -u | xargs -I{} cp src/scripts/{} public/scripts/{}",
-    "build": "npm run copy:scripts && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write .",
