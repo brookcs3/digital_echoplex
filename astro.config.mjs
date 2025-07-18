@@ -18,6 +18,9 @@ export default defineConfig({
     inlineStylesheets: 'never',
   },
   vite: {
+    server: {
+      allowedHosts: ['healthcheck.railway.app'],
+    },
     resolve: {
       alias: {
         '@': resolve('./src'),
