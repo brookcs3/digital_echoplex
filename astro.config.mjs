@@ -16,6 +16,13 @@ export default defineConfig({
     format: 'file',
     assets: 'assets',
     inlineStylesheets: 'never',
+    rollupOptions: {
+      output: {
+        entryFileNames: 'scripts/[name].js',
+        chunkFileNames: 'scripts/[name].js',
+        assetFileNames: 'assets/[name][extname]',
+      },
+    },
   },
   vite: {
     server: {
@@ -29,16 +36,7 @@ export default defineConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@use 'sass:math'; @use 'sass:map'; `,
-        },
-      },
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          entryFileNames: 'scripts/[name].js',
-          chunkFileNames: 'scripts/[name].js',
-          assetFileNames: 'assets/[name][extname]',
+          additionalData: `@use "@/styles/_echoplex" as *;`,
         },
       },
     },
