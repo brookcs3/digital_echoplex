@@ -18,6 +18,8 @@ export default defineConfig({
     format: 'file',
     assets: 'assets',
     inlineStylesheets: 'never',
+    minify: false,
+    sourcemap: true,
   },
   vite: {
     resolve: {
@@ -29,6 +31,14 @@ export default defineConfig({
       preprocessorOptions: {
         scss: {
           additionalData: `@use 'sass:math'; @use 'sass:map'; `,
+        },
+      },
+    },
+    build: {
+      minify: false,
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
         },
       },
     },
