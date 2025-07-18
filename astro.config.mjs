@@ -24,7 +24,7 @@ export default defineConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@use 'sass:math'; @use 'sass:map'; @use "@/styles/import" as *;`
+          additionalData: `@import 'sass:math'; @import 'sass:map'; @import "@/styles/import" as *;`
         }
       }
     },
