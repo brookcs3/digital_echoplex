@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"607897674ea1a4ac","x":-520,"y":-480,"width":580,"height":640,"type":"file","file":"IMPLEMENTATION_RUBRIC.md"},
+		{"id":"b2814fa275f5e5a9","x":-280,"y":-360,"width":800,"height":784,"type":"file","file":"CLAUDE.md"}
+	],
+	"edges":[
+		{"id":"8ae6f9de45e9a359","fromNode":"607897674ea1a4ac","fromSide":"top","toNode":"b2814fa275f5e5a9","toSide":"left"}
+	]
+}

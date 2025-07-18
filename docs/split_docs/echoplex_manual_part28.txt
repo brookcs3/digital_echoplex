@@ -1,0 +1,100 @@
+
+Each of those functions is available separately from DirectMIDI (in any state, not just Mute.) 
+From the front panel the cross-function Mute-Multiply offers some of those functions, depending on the Sync parameter and Sync events coming in to the Echoplex. 
+
+See Also: ReAlign, MuteReAlign, QuantMIDIStartSong, StartPoint, Retrigger, SamplePlay, NextLoop 
+Synchronization MIDI Sync Indicators Play Mode 
+MIDI output indicators help you track key synchronization points. 
+The MIDI Sync Indicators are MIDI notes are transmitted out at various synchronization points related to the current loop. These are shown at the top of the MIDI Command List in the MIDI section. 
+MIDI notes are sent to indicate each Loop StartPoint, Global MIDI StartPoint, Cycle StartPoint, and 8th Note. 
+The Global MIDI StartPoint note is only sent if it is different from the Local StartPoint, which happens if the loop has been De-Aligned from the external clock. 
+The 8th Note Indicator note is sent at points determined by the 8th/Cycle parameter and the loop length. 
+The purpose of these notes is to provide a convenient marker point when recording the Echoplex output into an audio sequencing or hard disk recording program. If you also record the midi output at the same time as the audio output, you can easily see the Loop StartPoints, Cycle StartPoints, and 8th Notes of your loops in the track windows. 
+Another use of these notes is a metronome. You can use them to trigger sounds on a synthesizer or sampler to serve as an audible tempo indicator for your loops. 
+
+See Also: MIDI Command List, Source#, StartPoint, Global/Local MIDI Clock, ReAlign, 8th/Cycle 
+MuteQuantMIDIStartSong Synchronization 
+Mutes the Loop until the next StartPoint, then UnMutes and sends a StartSong at the same time. 
+MuteQuantMIDIStartSong is a variation of QuantMIDIStartSong that first Mutes the loop until the StartSong is sent at the next loop StartPoint. This is a DirectMIDI command only. The MIDI location for MuteQuantMIDIStartSong is Source# + 41. 
+MuteQuantMIDIStartSong is useful for having the loop drop out and then everything start up together and in time. 
+MuteQuantMIDIStartSong is also equivalent to using the Mute-Multiply combination from the front panel when Sync=OuS. A key advantage MuteQuantMIDIStartSong is the function can be executed at any time, independent of the Sync parameter setting. This allows you to always have a way to send a StartSong message in sync with the loop StartPoint, even if the Echoplex is not the clock master. 
+
+See Also: ReAlign, MuteReAlign, QuantMIDIStartSong, Source#, StartPoint 
+Synchronization QuantMIDIStartSong 
+Send a StartSong at the next Loop StartPoint 
+QuantMIDIStartSong is a MIDI command for Send a  MIDI StartSong at next loop StartPoint. This is a DirectMIDI command only. The MIDI location for QuantMIDIStartSong is Source# + 40. 
+When QuantMIDIStartSong is executed, the Echoplex sends a MIDI StartSong message at the next StartPoint of the loop. The LoopTime Display shows St.S" momentarily when QuantMIDIStartSong is executed. 
+This similar to what happens when you press Mute-Multiply from the front panel when Sync=OutUserStart (OuS). 
+This command is very useful for restarting a sequencer or drum machine so it is in time with the loop. The function can be executed at any time, independent of the Sync parameter setting. QuantMIDIStartSong allows you to always have a way to send a StartSong message in sync with the loop StartPoint, even if the Echoplex is not the clock master. 
+Unfortunately we did not find a reasonable way to do a Quantized 
+StartSong from the front panel without muting first. Therefore 
+QuantMIDIStartSong is only available as a MIDI command. 
+
+See Also: ReAlign, MuteReAlign, MuteQuantMIDIStartSong, Source#, StartPoint 
+QuantStartPoint Synchronization 
+Reset the StartPoint to match the Global MIDI StartPoint. 
+If Sync=In and an external clock is present, a long press on StartPoint executes the QuantStartPoint function. QuantStartPoint moves the internal loop StartPoint to the next Global MIDI StartPoint defined by the external clock. (the Beat 1 of the sequencer). The internal sync counters are realigned to the sequencers beat 1. The actual loop audio does not change. 
+The result is the same as if you had built the current loop from the beginning with all operations Quantized to the external clock. QuantStartPoint  is another way to ReAlign the loop to MIDI, although you are really redefining the internal StartPoint according to the external sync instead of retriggering the loop to it. 
+QuantStartPoint is especially interesting if you start with a non-rhythmic loop, then bring the drums in later to define the rhythm and sync for further development of the loop. 
+The QuantStartPoint function is also available as a DirectMIDI command. The MIDI location for QuantStartPoint is Source# + 43. 
+
+See Also: ReAlign, Global/Local MIDI Clock, Source#, StartPoint 
+Synchronization ReAlign Play Mode 
+Puts your loop back in alignment with an external device. 
+THE REALIGN FUNCTION 
+ReAlign allows the loop to be aligned again with an external loop or sequencer that it was in sync with, after it has been brought out of alignment by the use of functions like Reverse, Triggering, HalfSpeed, SamplePlay, etc. 
+ReAlign is very useful in allowing  you to create rhythmic variations by shifting loops to run out of phase with each other, and then perfectly recover to have them back in perfect sync. ReAlign is also very helpful when composing with a sequencer, where you frequently need to stop the sequencer and restart it. Being able to restart the sequencer and the Echoplex in sync becomes necessary, and ReAlign allows you to do just that. ReAlign works when the Echoplex is the clock master or the clock slave. 
+ReAlign makes use of the Global-Local MIDIclock system described elsewhere in this section. The Echoplex uses that mechanism to keep track of the Global StartPoint defined by an external sync source and our Local StartPoint as they are split apart. ReAlign essentially gives you a variety of simple ways to bring them back together again. 
+
+ACCESSING REALIGN FUNCTIONS FROM THE FRONT PANEL WITH MUTE.MULTIPLY 
+Mute-Multiply is the button combination for executing ReAlign from the front panel. When using this combination, the loop is first put into 
+Reference - Synchronization 6-15 
+ReAlign 
+Continued 
+Mute, and then the ReAlign is armed by pressing Multiply. When the next Global StartPoint comes, the ReAlign is executed. (There are also several MIDI commands for ReAlign, detailed in a few pages.) 
+What exactly happens at the point when ReAlign executes depends on the setting of the Sync parameter and whether or not we have clock. The LoopTime Display will show what specifically happens, whether it is ReAligning our loop to an external sync, or sending out a MIDI StartSong to an external sequencer. A ReAlign of the local loop is displayed as AL and sending a StartSong is St.S. The Multiply LED will be red during this waiting time, to indicate the ReAlign is armed. 
+If you want to cancel ReAlign after it is armed, another press of Multiply switches it off and we dont wait for anything anymore. This is helpful if you find yourself stuck there with no sync coming. 
+Here are the different cases that can happen with the Mute-Multiply state and various sync conditions: 
+
+Mute-Multiply with Sync=In: 
+Sync Event  Function  Description  
+BeatSync  TriggerSample  The loop is triggered to play once from the start. Repeated pulses on BeatSync retrigger the loop for stuttering effects.  
+BrotherSync  MuteReAlign/ No reaction  The loop is triggered out of Mute to play from the start and continue playing. This ReAligns the loop while BrotherSyncing to other Echoplexes. If a MIDI clock has been received BrotherSync is ignored.  
+Global MIDI StartPoint  MuteReAlign  If MIDI clock is already being received when Mute-Multiply is pressed, the Echoplex waits for the Global MIDI StartPoint and then retriggers the loop out of Mute.  
+MIDI StartSong  MuteReAlign  If no MIDI clock is present and a MIDI StartSong is received, followed by MIDI clock, the loop triggers immediately from the start and continues playing in sync.  
+
+ReAlign 
+Continued 
+
+Mute-Multiply with Sync=Out: 
+Sync Event  Function  Description  
+BeatSync  N/A  No response to BeatSync.  
+BrotherSync  MuteReAlign  The loop is triggered out of Mute to play from the start and  
+continue playing. This ReAligns the loop while BrotherSyncing  
+to other Echoplexes.  
+Global MIDI  N/A  MIDI clock input is ignored when Sync=Out  
+StartPoint  
+MIDI StartSong  N/A  MIDI StartSong input is ignored when Sync=Out  
+Local StartPoint  N/A  No reaction to Local StartPoint when Sync=Out  
+
+Mute-Multiply with Sync=Out User Start (OUS): 
+Sync Event  Function  Description  
+BeatSync  N/A  No response to BeatSync  
+BrotherSync  N/A  No response to BrotherSync  
+Global MIDI StartPoint  N/A  MIDI clock input is ignored when Sync=OuS  
+MIDI StartSong  N/A  MIDI StartSong input is ignored when Sync=OuS  
+Local StartPoint  N/A  A StartSong is sent at the next Loop StartPoint so the sequencer aligns to the Echoplex. The Loop comes out of Mute at the same time so both start together, in sync.  
+Reference - Synchronization  6-17  
+
+ReAlign 
+Continued 
+
+ACCESSING REALIGN FUNCTIONS WITH MIDI 
+There are several MIDI commands in support of ReAlign, which give us much more flexibility than we have from just the front panel. With MIDI the ReAlign commands can be accessed at any time with a single button press, and dont necessarily require going into Mute first. (See the MIDI commands section for more info on other MIDI commands.) 
+
+QUANTMIDISTARTSONG (SOURCE# + 40) 
+QuantMIDIStartSong waits until the next Loop StartPoint, and then sends a StartSong message out the MIDI port. The Loop continues playing the whole time, and St.S is displayed during the waiting period to indicate what is happening. 
+QuantMIDIStartSong is useful when the Echoplex is the clock master and the external sequencer has been stopped. The sequencer can be restarted right in time with the loop. QuantMIDIStartSong can be executed at any time, independent of the Sync parameter setting. This allows you to always have a way to send a StartSong message in sync with the Loop StartPoint, even if the Echoplex is not the clock master. 
+
+
+MUTEQUANTMIDISTARTSONG (SOURCE# + 41) 

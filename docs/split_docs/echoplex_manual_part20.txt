@@ -1,0 +1,100 @@
+Heres an example that shows how to use Multiply to change a 2-cycle loop to a 3-cycle loop. Follow along in Figure 4.9. 
+
+1. Record a single tap or note into a short loop to provide a pulse. Make it slow enough so that you can carry out the following steps without the need for practice. 
+2. Set Quantize=On. 
+3. 
+Press Multiply right after you hear a pulse. Count "One-Two" together with the pulses, and hit Multiply again immediately after the word "Two." 
+
+4. 
+Now you have a loop that counts from 1 to 2, as shown in the figure. Press Multiply right after the word "One," and again after the 1st repetition of the word "Two," as illustrated. Note that the loop now consists of the words "Two-One-Two." 
+
+
+FIGURE 4.9 
+This diagram accompanies Example 4.14. It illustrates how you can use Multiply to increase the number of cycles in an existing loop. 
+
+
+Loop 
+
+1 cycle 
+Multiply 
+Continued 
+(tap)
+First cycle 
+Loop 
+(tap) 
+(tap) 
+(tap) 
+
+(tap)
+After Step 2 
+"One" 
+"Two" 
+"One" 
+"Two" 
+Button Actions In Step 3 
+M 
+M 
+
+(tap) 
+(tap) 
+(tap) 
+"Two" 
+"One" 
+"Two"
+Results 
+Cycle 1 
+Cycle 2 
+Cycle 3 
+
+New Loop 
+
+Time 
+
+Weve shown these examples with Quantize=On. Try the same ideas with Quantize=Off to see the difference. You may find the Quantize is very useful when you want to keep your loops rhythmically precise. When Quantize=Off on the other hand, you have the freedom to define exactly where things happen as they fit your sense of the music. 
+Now try similar ideas using Unrounded Multiply, as described above in the Alternate Endings section. You do this by using Record as an alternate ending to Multiply. With Unrounded Multiply you can 
+Reference - Functions 5-35 
+Multiply 
+Continued 
+easily create a new loop length that is unrelated to the previous cycle lengths. This is very useful for changing tempos, or editing out a small fragment of a larger loop for the basis of something new. 
+Your taste and the musical situation will determine which of these different techniques is most appropriate at any given time. 
+
+FORCING UNROUNDEDMULTIPLY WHILE ROUNDING 
+UnroundedMultiply can be executed while a Multiply is Rounding by pressing Record during the Rounding period. 
+This means that in addition to doing an UnroundedMultiply by pressing Multiply to start and ending with Record, you can press Multiply to start, then Multiply again to finish Multiplying and start Rounding, and then press Record while it is rounding to force it to stop Unrounded. This is especially interesting when you use alternate functions to end Multiply. Since ending Multiply with an alternate function does a rounded ending, pressing Record after that forces it to go into that function immediately and end the multiply Unrounded. 
+For example, you could press Multiply to multiply your loop out as you add something over it, press Reverse to end the Multiply and start it Rounding, and then press Record to have it immediately start Reversing with the loop length redefined to that point. 
+Or, you could chop out a short reversed snippet of your current longer loop in a new loop. With SwitchQuant on, you press Next-Multiply.Reverse-Record to create a reversed snippet. The Next-Multiply portion begins a copy of the current loop into the new loop (which is really the same as a multiply into the new loop). The Reverse starts it Rounding with the Reverse command armed, and the Record executes it immediately and redefines the new loop at that length. 
+This Rounding action also applies for using Insert. 
+
+Multiply 
+Continued 
+
+THE LONG PRESS 
+Pressing and holding down the Multiply button has the same effect as a pair of press-and-releases, regardless of the state of Quantize. 
+
+RESETTING ALL LOOPS 
+When the number of loops (the value of MoreLoops) is more than one, the Multiply button can be used to reset all the loops at once. First, however, you must reset the current loop. The following example illustrates that. 
+
+
+Example 4.15: Resetting All Loops 
+1. 
+Set the number of loops to be more than 1 (see MoreLoops) 
+
+2. 
+Record something in the first two loops. 
+
+3. 
+Use NextLoop to move to Loop 1. Note that the light under the Multiply button is green. 
+
+4. 
+Press and hold the Record button to reset the current loop. The Multiply light turns orange. 
+
+5. 
+Press and hold the Multiply button to reset all loops. 
+
+
+See Also: Record, Insert, Quantize, Overflow, RoundMode 
+Mute Immediate Action Play Mode 
+Silences the loop output. 
+This mutes (silences) and unmutes the output of the Echoplex Digital Pro. Mute works very simplyit always silences the output immediately. However, there are a number of options for restarting the output. 
+
+THE EFFECT OF MUTEMODE 

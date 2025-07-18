@@ -1,0 +1,100 @@
+</Table>
+
+<P>See the Synchronization chapter for more details. </P>
+</Sect>
+
+<Sect>
+<H3>RecordMode = Safe </H3>
+
+<P>This is a new value for RecordMode, and is just like RecordMode = toggle except that after a Record the feedback is always set to 100%. This will be regardless of the feedback knob or pedal position. When the feedback is changed the Echoplex starts to respond as normal. This setting is useful for people who change feedback but then tend to forget to set it back to 100% before recording a new loop. This can be frustrating if you recorded something perfectly and then a little while later realize it is gone because you left the feedback down. RecordMode=Safe is meant to protect you from that. </P>
+
+<P>The disadvantage is that if you want to start a loop with the feedback down, you can’t do it with Safe. In that case you would probably just continue to use RecordMode = Toggle. </P>
+
+<P>RecordMode = SAF is disabled during DelayMode. </P>
+</Sect>
+
+<Sect>
+<H3>InsertMode </H3>
+
+<P>Changes to the InsertMode parameter: </P>
+
+<Table>
+<TR>
+<TD>Insert Only </TD>
+
+<TD>Ins </TD>
+
+<TD>same as before </TD>
+</TR>
+
+<TR>
+<TD>Sustain </TD>
+
+<TD>SUS </TD>
+
+<TD>new sustain action for Multiply and Insert </TD>
+</TR>
+
+<TR>
+<TD>Rehearse </TD>
+
+<TD>rhr </TD>
+
+<TD>same as before </TD>
+</TR>
+
+<TR>
+<TD>Replace </TD>
+
+<TD>rPL </TD>
+
+<TD>same as before </TD>
+</TR>
+
+<TR>
+<TD>Substitute </TD>
+
+<TD>Sub </TD>
+
+<TD>new function, similar to Replace </TD>
+</TR>
+
+<TR>
+<TD>Half Speed </TD>
+
+<TD>h.SP </TD>
+
+<TD>new function, changes speed of the loop </TD>
+</TR>
+
+<TR>
+<TD>Reverse </TD>
+
+<TD>rEV </TD>
+
+<TD>same as before </TD>
+</TR>
+</Table>
+
+<P>See the New Functions chapter for more information on the new functions in InsertMode. </P>
+</Sect>
+
+<Sect>
+<H3>MoreLoops </H3>
+
+<P>There are 16 loops available now (instead of 9 as in LoopIII). On the Loop display the numbers above 9 are shown with letters, due to the lack of a leading 1. So they go 1, 2, 3…9, A, b, c, d, E, F, G. </P>
+</Sect>
+
+<Sect>
+<H3 id="LinkTarget_531">LoopTrig </H3>
+
+<P>The default value for LoopTrig is now 84 to make room for the expanded MIDI commands. </P>
+</Sect>
+
+<Sect>
+<H3>SwitchQuantize </H3>
+
+<P>Changes to the SwitchQuantize parameter: </P>
+
+<Table>
+<TR>

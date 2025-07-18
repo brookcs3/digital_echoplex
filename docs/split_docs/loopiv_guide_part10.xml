@@ -1,0 +1,100 @@
+
+<LI>
+<Lbl>4. </Lbl>
+
+<LBody>Unplug the power cord from the Echoplex. When changing the EPROMs, be careful not to touch other parts of the circuit, as some areas can hold a charge even after the power is off. When working around electronic devices, always practice the “one hand rule.” That means, use one hand to work at a time. If you do accidentally get a shock, it will only travel across your hand. </LBody>
+</LI>
+
+<LI>
+<Lbl>5. </Lbl>
+
+<LBody>Remove the screws holding the top of the Echoplex. There is one screw on the front at the upper right of the Gibson (or Oberheim) label, two screws on each side, and four screws across the back. Keep track of where each screw came from so you can put it back in the same place later. </LBody>
+</LI>
+
+<LI>
+<Lbl>6. </Lbl>
+
+<LBody>Pull the top off. Put it aside. </LBody>
+</LI>
+
+<LI>
+<Lbl>7. </Lbl>
+
+<LBody>The current EPROMs are the two chips in sockets just behind the memory SIMMs. They will be the same size as your new chips and have labels saying either “LD 3.32 ODD Master” and “LD 3.32 Even Master” or “LoopIIIv5.0 Even” and LoopIIIv5.0 Odd.” If the labels have come off or it is not clear which are the correct chips, the reference designators on the PCB are U34 and U35. </LBody>
+</LI>
+
+<LI>
+<Lbl>8. </Lbl>
+
+<LBody>Carefully remove the EPROMs from the sockets with the flat head screwdriver. Do this by inserting the flat part of the screwdriver between the body of the IC and the socket, and gently rocking back and forth to lift the pins out. Switch sides to make sure it comes out evenly.  Be very careful so that you don’t bend the pins. When it comes loose, lift it out and put it aside. Do the same with the other one. This should not require a lot of force. If the chips do not lift up easily make sure you are working with the correct chips and have the screwdriver tip between the chip and socket. </LBody>
+</LI>
+
+<LI>
+<Lbl>9. </Lbl>
+
+<LBody>Take the new EPROMs out of the protective packaging. Put the old ones in the package to keep them safe. </LBody>
+</LI>
+
+<LI>
+<Lbl>10.</Lbl>
+
+<LBody> The EPROM labeled “Even” goes in the socket labeled “Even” on the PCB, U34. The one labeled “Odd” goes in the odd socket, U35. With the front of the unit towards you, the notch on the top of the chip should be towards the left side of the unit, away from the transformer. The text on the label should be right side up. Carefully press the IC’s into the sockets, making sure all the pins are going in correctly. </LBody>
+</LI>
+
+<LI>
+<Lbl>11. </Lbl>
+
+<LBody>Put the top back on, replace the screws in all locations, plug in the Echoplex. </LBody>
+</LI>
+
+<LI>
+<Lbl>12. </Lbl>
+
+<LBody>Hold the Parameter button down, and turn the power on. You should see “Loop 4” scrolling across the display. At that point you can release the Parameter button. This initializes the parameter memory correctly for LoopIV, and sets all Parameters to default values. </LBody>
+</LI>
+</L>
+
+<P>That’s it! </P>
+</Sect>
+</Sect>
+
+<Sect>
+<H1 id="LinkTarget_509">Chapter 1: New Loop Functions </H1>
+
+<Sect>
+<H3>Half Speed </H3>
+
+<P>Half Speed is a new function that switches the playback speed of the loop to half the normal speed, making it an octave lower and twice as long. Half Speed is a new InsertMode option, making it available from the front panel. Half Speed is also available by MIDI. </P>
+
+<P>When the new value H.SP. is selected in InsertMode, the Insert Button becomes the Half Speed button. Pressing it switches the current loop an octave lower, to half speed. The insert LED turns red and the display says H.SP briefly. Press Insert again and the loop returns to Full Speed. The LED turns green and F.SP is displayed for a moment. </P>
+
+<P>The function is reset to Full Speed with Reset, but it can be selected while still in Reset. This allows you to start a loop in Half Speed with the audio sounding normal, and then switch to full speed. It ends up as double speed, one octave higher! </P>
+
+<P>All other functions work normally in Half Speed. The speed can be switched anytime during playing or Reset, even while in the middle of overdubbing or multiplying! So as you are overdubbing you can switch freely between Half Speed and Full Speed to get interesting octave and speed jumps in the middle of the overdub. </P>
+
+<P>The sound quality is somewhat reduced during Half Speed because the sampling rate for the audio is cut in half. Also note that MIDI piping is slowed down by half speed, so it is possible to see to see slight delays in very dense MIDI streams. See the MIDI chapter below for more details on MIDIpipe. </P>
+</Sect>
+
+<Sect>
+<H3>SUS Commands – Real Time Granular Loops </H3>
+
+<P>Another new value on the InsertMode parameter is called SUS. This is short for Sustain. </P>
+
+<P>SUS changes the way in which the Insert and Multiply buttons work. It turns Insert and Multiply into Unrounded functions with Sustain action on the button. In other words, they start when the button is pressed and end immediately when it is released, just like Record or Overdub = SUS always did. When the function ends it does so as if Record had been pressed as an alternate ending to the Insert. This is what we call an “Unrounded” multiply or insert, because instead of rounding off to the next Cycle point it is ended immediately and the loop time is redefined. </P>
+
+<P>With Quantize = OFF, the effect of SUS with Multiply and Insert allows you to splice together fragments of sound into a loop. One use of this is to create short loops and splice short &quot;granular&quot; sounds together in real time by tapping on the multiply or insert buttons as sounds are played into the input. If you hold the button down, the Multiply or Insert goes on as long as you hold it, but if you just tap the button lightly the functions will only be active for as long as the switch is contacting. This can be as short as a few milliseconds, allowing you to splice together very short fragments. Combine InsertMode=SUS with RecordMode=SUS and OverdubMode=SUS, as well as the new MIDI commands to access other functions as a sustain action. (like ReplaceSUS and SubstituteSUS). SUS techniques give exciting new timbres and glitch effects, all created in real-time. Real-Time Granular! </P>
+
+<P>With other Quantize values the SUS versions of Insert and Multiply start and stop quantized. There will always be an Insert or Multiply of at least one time period as determined by the quantize setting (Loop, Cycle or 8th). Even if you quickly tap the button such that it is actually released before the start of the function, you will still get one time period worth of the function. This is very useful when working with short loops where it is important to maintain a rhythmic length. With SUS you can get much quicker Inserts and Multiplies than you could if you had to press the button twice. Note that this quantized behavior is true with other SUS functions, like Replace and Substitute. </P>
+
+<P>With Quantize = CYC it's easy to create rhythmic sequences of sounds when using SUS commands. </P>
+
+<P>With Quantize = 8th a short press of Multiply will change the loop length to one Cycle divided by the value of 8th/Cycle. </P>
+</Sect>
+
+<Sect>
+<H3 id="LinkTarget_510">Substitute </H3>
+
+<P>The New Substitute Function </P>
+
+<P>Substitute has some similarity to the Replace function that we had from LoopIII. With Replace the original loop playback is cut while the replace is done. So while you are playing something new to Replace what was there, you don’t hear the old loop. Replace is useful when the new material would clash with what was there, but oftentimes the result not very tight since you don’t have any guide to play along to as you are doing the Replace. </P>
+

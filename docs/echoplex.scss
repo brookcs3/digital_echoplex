@@ -9,11 +9,6 @@ $led-off: #333;
 $lcd-background: #000;
 $lcd-text-green: #0f0;
 
-:root {
-    --off: #300;
-    --on: #f00;
-}
-
 // ========== GLOBAL ==========
 * { box-sizing: border-box; }
 
@@ -33,16 +28,10 @@ body {
 
 .main-interface.powered-off {
   opacity: 0.3;
-    pointer-events: none;
-
 }
 
 .main-interface.powered-off .control:not(.echoplex-power-button) {
   pointer-events: none;
-}
-
-.main-interface.powered-off .power-button {
-    pointer-events: auto;
 }
 
 .main-interface.powered-off .timer-display,
@@ -192,8 +181,6 @@ body {
   animation: blink 1s infinite;
 }
 
-
-
 // ========== MAIN CONTAINER WITH BACKGROUND ==========
 #echoplex-container,
 .echoplex-container {
@@ -207,7 +194,6 @@ body {
   border: 2px solid #111 !important;
   user-select: none !important;
 }
-
 
 // ========== POWER BUTTON ==========
 #power-button,
@@ -336,11 +322,7 @@ body {
   &.red, &.recording, &[data-hw-state="recording"] {
     background-color: $led-red !important;
     box-shadow: 0 0 8px $led-red !important;
-  }
-  &[data-hw-state="orange"]
-  {
-   background-color: $led-amber !important;
-    box-shadow: 0 0 8px $led-amber !important;
+    animation: recording-blink 0.5s infinite !important;
   }
   
   &.orange, &.overdubbing, &[data-hw-state="overdubbing"] {
@@ -491,77 +473,6 @@ body {
   align-items: center !important;
 }
 
-
-
-.led-overlay{
-      position:absolute !important;
-      /* tweak these two numbers until it sits perfectly over the photo */
-      left:20% !important;    // x‑offset inside .display-section
-      top:-9% !important;   // y‑offset inside .display-section
-
-      /* overall footprint relative to parent; scales with container */
-      width:60% !important;
-      height:100% !important;
-
-      display:flex !important;
-      align-items:center !important;
-      pointer-events:none !important;
-  }
-
-  /* inner flex row that holds exactly three digits + optional dot */
-  #display{  /* injected by JS */
-      display:flex !important;
-      width:80% !important;  // fill overlay
-      height:80% !important; // fill overlay
-      gap:4% !important;      // space between digits (percentage → scales)
-  }
-
-  /* one digit = a 3×5 box that scales with parent flex‑basis */
-  .digit{
-      position:relative;
-      flex:1 1 0;           // grow evenly
-      aspect-ratio:3/5;     // lock 3:5 shape no matter size
-  }
-
-  /* percentage‑based thickness so everything rescales */
-  $t:11%; // segment thickness as % of digit width
-
-  .segment{
-      position:absolute;
-      background:var(--off);
-      transition:background 90ms;
-      box-shadow:0 0 0.2em var(--off);
-      &.on{ background:var(--on); box-shadow:0 0 0.8em var(--on);}  
-  }
-
-  // horizontal bars
-  .segment.a,.segment.d,.segment.g{ width:76%  !important; height:12%  !important; left:12%  !important; }
-  .segment.a{ top:0  !important; }
-  .segment.g{ top:44%  !important; }
-  .segment.d{ bottom:0  !important; }
-
-  // vertical bars
-  .segment.b,.segment.c,.segment.e,.segment.f{ width:12%  !important ; height:40%  !important; }
-  .segment.b{ top:12%  !important;    right:0  !important ; }
-  .segment.c{ bottom:12%  !important; right:0  !important; }
-  .segment.e{ bottom:12%  !important; left:0  !important; }
-  .segment.f{ top:12%  !important;    left:0  !important; }
-
-  // decimal dot – matches segment thickness and scales too
-  .dot{
-      position:absolute;
-      z-index: 1000 !important;
-      width:6px  !important; height:6px  !important;
-      border-radius:50%;
-      left:-19% !important;  // push it a bit outside digit box
-      bottom:-0.5%  !important;
-      background:var(--off);
-      box-shadow:0 0 0.2em var(--off);
-      transition:background 110ms;
-      &.on{ background:var(--on); box-shadow:0 0 0.8em var(--on);}  
-  }
-  
-  
 .loop-display {
   font-family: 'Orbitron', monospace !important;
   font-size: 3.6vw !important;
@@ -578,23 +489,20 @@ body {
 .auto-undo-led {
   position: absolute;
   bottom: 5px;
-  left: 34px;
-  width: 6.5px;
-  height: 6.5px;
-  background-color: black;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: #333;
   border-radius: 50%;
-  opacity: 0.3;
+  opacity: 1.0;
+  visibility: visible;
+  box-shadow: none;
 }
 
 .auto-undo-led.active {
-  opacity: 0.4;
-  background-color: red;
-  box-shadow: 0 0 6px red;
-
-
+  background-color: orange;
+  box-shadow: 0 0 6px orange;
 }
-
-
 
 .left-display,
 .multiple-display {

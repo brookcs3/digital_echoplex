@@ -1,0 +1,100 @@
+
+See also: InsertMode, Quantize, Multiply, Insert, Undo, Record 
+SamplePlay Immediate Action Play Mode 
+Trigger a loop to play once. Can be used to retrigger loops for stuttering effects. 
+The SamplePlay function triggers a loop from the StartPoint, plays it one time, and then stops by putting the loop into Mute. 
+While SamplePlay is running, the loop can be retriggered repeatedly to give stuttering effects.  
+Pressing Undo during a SamplePlay puts you seamlessly back into PlayMode, so your loop keeps going instead of stopping at the end. This is really useful if you are doing a lot of retriggers for stutter effects, and then finally decide to let the loop keep playing. You just have to press Undo and it seamlessly continues! 
+
+ACCESSING SAMPLEPLAY 
+
+MUTE-INSERT 
+Mute-Insert allows you to do a SamplePlay from the basic front panel or footpedal controls. Using this method is simple. First press Mute.When you want to trigger the loop, press the Insert button. The loop will trigger from the StartPoint and play once, and then return to the Mute state. Repeatedly pressing Insert button will retrigger the loop. 
+
+
+MIDI NOTE TRIGGERS 
+MIDI NoteOn messages can be used to trigger any of the loops you have created by setting the MoreLoops parameter greater than 1. If you have SamplerStyle=One, the loops will be triggered in SamplePlay. When the NoteOn message corresponding to a loop is received, the loop will trigger from its StartPoint, play once, and go to Mute. Repeatedly 
+
+SamplePlay 
+Continued 
+playing the same note will retrigger the loop. The LoopTrig parameter determines which NoteOn messages correspond to a given loop. 
+
+
+MIDI SAMPLEPLAY COMMAND 
+The DirectMIDI command SamplePlay will trigger the current loop and play it once, exactly as if you had pressed Mute-Insert. The MIDI location for SamplePlay is Source# + 36. 
+
+
+BEATSYNC JACK TRIGGER 
+The Echoplex can be set so any trigger received through the BeatSync Jack triggers the loop in SamplePlay. This is useful for triggering loops from a pulse trigger from an external device, an external switch, a drum trigger, or even an audio signal with a sharp attack. See the BeatSync section for more information on the types of triggers that can be used in this flexible input. 
+To set up the Echoplex to do a SamplePlay from a BeatSync trigger, first set Sync=In. Record your loop as normal, and press Mute. Then press Multiply. This will arm the Echoplex to wait for a trigger to do a SamplePlay. When a trigger is received at the BeatSync Jack, the loop will trigger from the beginning to play once. Repeated triggers will retrigger the loop. 
+
+See also: Mute, Retrigger, SamplerStyle, MoreLoops, LoopTrig, Sync, BeatSync 
+StartPoint Immediate Action Parameter Row: Timing 
+Changes the logical starting point of a loop. 
+The logical starting point of a loop is the beginning of the first cycle. You can see when this point comes around by looking at the displaythe green decimal point in the lower-right-corner of the display flashes briefly at the start of each loop. 
+Pressing this button makes the instant of the press the new StartPoint for the loop. 
+There are several reasons that you might want to change the starting point. For one thing, various operations that you perform might set the starting point to a value that doesnt make musical sense to you. In a rhythmic loop with multiple cycles, this would be most evident if the cycle numbers dont appear to change on the beat. 
+
+The position of the beginning of the loop is important for several reasons, among them:  
+n  You can create arhythmic, textural loops where the startpoint isnt immediately obvious. At some point, additions to the loop might give it a rhythmic character. At that point, you may want to redefine the StartPoint so that other functions behave sensibly, in step with the rhythm.  
+n  When you restart the loop from the beginning after muting it, the StartPoint is where it begins.  
+n  Quantized activities occur on multiples of cycles, counted from the logical starting point.  
+n  Its easier to relate to the display if the logical starting point makes musical sense.  
+
+See also: Quantize, Mute, MuteMode 
+Immediate Action Substitute Play Mode 
+Replaces a section of the current loop, beginning in the next repetition. 
+When InsertMode=Sub, the Insert button becomes the Substitute button. Substitute has some similarity to the Replace function. With Replace the original loop playback is cut while the replace is done. So while you are playing something new to replace what was there, you dont hear the old loop. Replace is useful when the new material would clash with what was there, but oftentimes the result is not very tight since you dont have any guide to play along to as you are doing the Replace. 
+With Substitute the original loop playback continues while you are playing the new material. On the next repetition, only the new audio will remain in the loop and the old portion will be removed. This helps keep the groove going while substituting and gives you something to play along to, as well as giving an overlap between the old portion and the new portion for continuity. 
+Substitute is the same as if you were doing an Overdub with the Feedback turned down to zero only during the Overdub. However, it is much easier to just press Substitute! 
+
+USING SUBSTITUTE 
+Substitute can be used in several ways: 
+
+n an Insert button press when InsertMode=Sub. 
+n a LongMultiply (less accurate, see below). 
+n a Record-Insert combination when InsertMode=rhr. 
+n the Substitute MIDI VirtualButton 
+n the SUS Substitute DirectMIDI command 
+Substitute 
+Continued 
+
+THE EFFECT OF QUANTIZE 
+When Quantize=Off, Substitute is an instant function with Sustain action, same as Replace. This means it is active while the Insert button is pressed down and turns off when you release the button. 
+When Quantize=Loop, Cycle, or 8th, pressing Substitute down puts the Echoplex into the waiting state until the next Quantizing point. Once the Substitute function starts, releasing it also goes into a waiting state until the next Quantizing point is reached. If you simply tap the Substitute button, it will be active for exactly one Quantize period. 
+This is very useful for replacing an exact rhythmic element, and letting the Echoplex  keep everything precisely lined up. 
+
+SUBSTITUTE USING LONGMULTIPLY 
+One way to activate Substitute is by doing a Long-Press on the Multiply button. This is convenient if you have the Insert button set for another function, and are not using MIDI. 
+However, there is a problem when using the LongMultiply option for Substitute. During the first 400ms until the switch action is detected as a long press, it is treated like a Multiply. This means the old loop will still be present in the loop for those 400ms, and only after that it mutes for the Substitute. 
+If you have Quantize on you will not have this problem, since the long press can happen completely during the ooo waiting phase. When the Cycle point comes Substitute is started directly. 
+
+Substitute 
+Continued 
+
+SUBSTITUTE FOR REHEARSING 
+Substitute can be used in similar fashion to the Rehearse function. 
+As long as Substitute is active, all playing is repeated once. This can be useful to find the groove to start a loop. Just hold Substitute down as you play, and when youve played something you like let it go! 
+
+ADVANCED USE OF SUBSTITUTE 
+If a Feedback Pedal is connected and you are using some of the advanced InterfaceModes, Substitute has some extended functionality that makes it even more powerful. Loop/Delay=StutterMode and Loop/Delay=ReplaceMode have this capability. 
+While the Feedback Pedal continues to do Feedback during normal playing, the front panel Feedback Knob controls the Feedback just for the Substitute function. So you can have different Feedback settings for each! 
+If you have the Feedback Knob all the way up, The existing audio is completely preserved as you are adding more. So it turns into Overdubbing. With the Feedback Knob turned all the way down, the existing audio completely disappears on the next repetition, so it is the normal Substitute. In between is where it is interesting, because you can choose how much the level of the existing audio should decay each time you do an "overdub" with Substitute . 
+Substitute 
+Continued 
+In ReplaceMode the loop output level is also set to 100% during Substitute instead of being set by the Pedal as it is otherwise. See the section on the Loop/Delay parameter for more details on the InterfaceModes . 
+
+See also: Replace, Insert, Multiply, Rehearse, InsertMode, Loop/Delay 
+Immediate Action SUS Commands Play Mode 
+Changes Multiply and Insert into Real-Time Granular Loop commands. 
+One of the values on the InsertMode parameter is called SUS. This is short for Sustain. 
+InsertMode=Sustain changes the way in which the Insert and Multiply buttons work. SUS turns Insert and Multiply into Unrounded functions with Sustain action on the button. In other words, they start when the button is pressed and end immediately when it is released, just like Record or Overdub do when RecordMode or OverdubMode=SUS. 
+When the function ends it does so as if Record had been pressed as an alternate ending to the Insert. This is what we call an Unrounded Multiply or Insert, because instead of rounding off to the next Cycle point it is ended immediately and the loop time is redefined. 
+
+UNQUANTIZED SUS COMMANDS 
+With Quantize=Off the effect of SUS with Multiply and Insert allows you to splice together fragments of sound into a loop. 
+One use of this is to create very short loops and splice short "grains" of sound together in real time by tapping on the multiply or insert buttons as sounds are played into the input. If you hold the button down, the Multiply or Insert goes on as long as you hold it, but if you just tap the button lightly the functions will only be active for as long as the switch is contacting. This can be as short as a few milliseconds, allowing you to splice together very short fragments. The result is a Granular loop where all the fragments, or Grains, of sound together become a new sound. 
+Combine InsertMode=SUS with RecordMode=SUS and OverdubMode=SUS, as well as the SUS MIDI commands to access other functions as a sustain action. (like SUSReplace and SUSSubstitute). 
+
+SUS Commands 
+Continued 

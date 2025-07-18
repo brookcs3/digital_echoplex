@@ -1,19 +1,21 @@
 ---
-import '../styles/echoplex.scss'; 
+// This is the main page for Digital Echo Plex
 ---
+  <script type="module" src="/src/scripts/echoplex-minimal.js"></script>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Echo Plex</title>
-    <script type="module" src="/src/scripts/echoplex-skeleton.js"></script>
-   
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap">
-
+  <style lang="scss" is:global>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    @import '../styles/echoplex.scss';
+  </style>
 </head>
 <body>
   
-
 
   
   <div id="main-interface" class="main-interface powered-off">
@@ -62,20 +64,22 @@ import '../styles/echoplex.scss';
         <div class="level-light off" id="feedback-level"></div>
         
 
-        <!-- Display Section -->
+     <!-- Display Section -->
         <div class="display-section">
             <div class="left-display" id="left-display">1</div>
-            <div class="loop-display" id="loop-display">
-                .
+            
+            <!-- NEW LED TIMER OVERLAY STRUCTURE -->
+            <div class="led-overlay">
+                <div id="display"></div>
             </div>
+            
+            
             <div class="multiple-display" id="multiple-display">
-            <span class="auto-undo-led" id="autoUndoLED"></span>
-
+                <span class="auto-undo-led" id="autoUndoLED"></span>
                 <span class="tempo-dot-left" id="tempoDotLeft"></span>
                 <span class="tempo-dot-right" id="tempoDotRight"></span>
             </div>
         </div>
-
 
 
         <!-- BUTTONS - SINGLE ROW OF 8 -  1 PARAMETER BUTTON - 7 Action Buttons-->

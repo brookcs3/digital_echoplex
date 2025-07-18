@@ -1,0 +1,100 @@
+
+
+
+QUANTIZED MULTIPLICATION 
+When Quantize=On, a press of the Multiply button will cause multiplication to start at the beginning of the next cycle. As in the previous example, ending the multiplication with a second press of Multiply will cause an exact number of cycles to be mixed with copies of the existing cyclethe loop will end at the end of the current cycle (see Figure 4.6). 
+Unlike before, the setting of RoundMode will not have any effect. When Quantize=On, music played after the second press of the Multiply button is overdubbed until the Multiply ends at the next cycle point. 
+Multiply 
+Continued 
+FIGURE 4.6 
+
+Quantized operation of the Multiply button. Existing Loop 
+New Performance 
+Button Actions 
+Results when RoundMode=rnd 
+Results when RoundMode=Off 
+
+
+OVERFLOW HANDLING 
+Watch the time counter when youre doing a multiply that might extend longer than your units memory capacity. If you exceed this capacity, the multiply operation will be undone and three dashes will appear in the display. The Overflow parameter has no effect during Multiplyit is only relevant when you Record your first cycle. 
+The Echoplex always keeps your current loop in memory when you do another function like Multiply. This way it is always possible to Undo back to the original if you go into a function by mistake. This means that the memory available for Multiply is reduced by the size of your current loop. 
+For example, say you had 10 total seconds of memory available for a loop, and recorded a 1 second loop. When you Multiply this loop you can only go to 9 cycles, since 1 second is used to store the existing loop. It is useful to pay attention to this so you know how far you can go with 
+
+Multiply. 
+
+Multiply 
+Continued 
+
+ALTERNATE ENDINGS 
+The simplest way to end a Multiply operation is to press the Multiply button a second time. Youll get the results illustrated in the examples above. However, you can also end the Multiply by pressing any of the buttons whose front-panel lights are on during the Multiply. Youll get some interesting results, as illustrated in the next few examples. 
+
+RECORD 
+Ending a Multiply operation with the Record button causes the operation to end immediately, terminating the loop at the exact time of the button press. Since the loop cant contain fractional cycles, the entire new loop will be considered a single cycle. This is called an UnroundedMultiply. Figure 4.7 illustrates this behavior. 
+FIGURE 4.7 
+Ending Multiply with Record changes the cycle length. Quantize=Off 
+
+Multiply 
+Continued 
+Unrounded Multiply is an important function. It allows you to change the length of the loop on the fly, either shorter or longer. For example, you can edit out a small portion of a larger loop as a means to quickly transition to something new. Unrounded Multiply also changes the rhythm of the loop, including the output of any synchronization pulses. In this way you can easily manage tempo changes while looping, either generating a new clock tempo for other devices, or fitting your loop to a tempo change otherwise in the music. 
+
+
+OVERDUB 
+Ending a multiplication with Overdub is exactly like ending it with Multiply, except that you immediately toggle Overdub mode after the Multiply rounds off. Its the equivalent of ending the multiplication by pressing Multiply a second time, and then pressing Overdub immediately. If Overdub was on before the multiply, this action will turn it off. If it was off it will now be on. 
+
+
+INSERT 
+Ending a multiplication with Insert is exactly like ending it with Multiply, except that you are immediately put into Insert mode. Its the equivalent of ending the multiplication by pressing Multiply a second time, and then pressing Insert immediately. 
+
+
+MUTE 
+Ending a multiplication with Mute is exactly like ending it with Multiply, except that the audible sound will shut off as soon as the Multiply ends. Once youre in Mute mode, you can restart the sound with the Mute button or with the Alternate Endings listed for the Mute entry later in this chapter. 
+
+Multiply 
+Continued 
+
+
+UNDO 
+If you end a Multiply operation by pressing Undo, the loop will be returned to its state before you pressed Multiply. 
+
+
+REVERSE 
+Ending a multiplication with Reverse is exactly like ending it with Multiply, except that you immediately toggle Overdub mode after the Multiply rounds off. Its the equivalent of ending the multiplication by pressing Multiply a second time, and then pressing Reverse immediately. If the loop was in Reverse before the Multiply, this action will put it back into Forward. 
+
+CHANGING THE NUMBER OF CYCLES IN AN EXISTING LOOP 
+Do you want to change the number of cycles in a loop? In particular, would you like to keep a couple of the cycles and throw away the others? Do you want to add 1 cycle to make your repetition structure appealingly asymetrical? You can do this by initiating a Multiply operation on a loop thats already been multiplied. 
+
+
+
+
+Example 4.13: Dropping Cycles 
+Heres an example that illustrates one way to use Multiply to alter an existing loop. If you connect a microphone to the Echoplexs Audio Input, you can use it to illuminate the effects of this procedure, as youll see. Whether you have a microphone or not, it can be instructive to follow along with this example, referring to Figure 4.8 to see the effects of each step. 
+Multiply 
+Continued 
+
+1. Record a single tap or note into a short loop to provide a pulse. Make it slow enough so that you can carry out the following steps without the need for practice. 
+2. Set Quantize=On. 
+3. 
+Press Multiply right after you hear a pulse. Count "One-Two.Three_Four" together with the pulses, and hit Multiply again, immediately after the word "Four." 
+
+4. 
+Now you have a loop that counts from 1 to 4, as shown in the figure. Press Multiply right after the word "One," and again after the word "Three." Note that the loop now consists of the words "Two" and "Three." 
+
+
+FIGURE 4.8 
+This diagram accompanies Example 4.13. It illustrates how you can use Multiply to change the number of cycles in an existing loop. 
+First cycle After Step 2 Actions In Step 3 
+Results 
+
+New Loop Time 
+Cycle 1  Cycle 2  Cycle 3  Cycle 3  
+(tap)  
+
+(tap) "One"  (tap) "Two"  (tap) "Three"  (tap) "Four"  
+M  M  
+(tap) "Two"  (tap) "Three"  
+Cycle 1 Cycle 2  
+
+
+
+
+Example 4.14: Adding Cycles 

@@ -1,0 +1,100 @@
+See Also: Record, Insert, Quantize, Overflow 
+PreviousLoop Immediate Action Play Mode 
+DirectMIDI only command for switching to the previous loop. 
+An interesting feature that falls out of the DirectMIDI function called SUSNextLoop is the PreviousLoop function. With SUSNextLoop the NoteOn portion sends you forward one loop and  the NoteOff portion sends you back one loop.  If you only use the NoteOff command for SUSNextLoop, it only sends you backwards through the loops, and becomes the PreviousLoop command! 
+If you set one button on a MIDI controller to only send the NoteOn for SUSNextLoop, and another button to only send the NoteOff for SUSNextLoop, you have a convenient way to go forward and backwards through your loops. 
+PreviousLoop is only available through MIDI, and is  located at Source#+20. 
+
+See Also: NextLoop, MoreLoops, MIDI Command List, SUSNextLoop, Receiving MIDI Commands. 
+Immediate Action Record Play Mode 
+Records a new cycle. 
+This is where it all starts. This button lets you record your first layer in a loop or erase (reset) the current loop. You press it once to start recording, and press it a second time to end recording and start looping. A step-by-step example is given in the Quick Start. 
+If you go over the amount of memory available for the current loop while recording, one of two actions can occur depending on the setting of the Overflow parameter. See the description of that parameter for more information. 
+
+ALTERNATE ENDINGS 
+The simplest way to stop recording is to press the Record button a second time. However, you can also end the recording by pressing any of the buttons whose front-panel lights are on during the recording. 
+
+
+UNDO 
+If you end a Record operation by pressing Undo, the loop will be returned to its state before you pressed Record. This is particularly useful if you accidentally press Record and dont want to lose the existing loop. 
+If the Echoplex doesnt have enough memory to hold both the existing loop and the new loop, you wont be able to Undo the Record. See the discussion under the Undo heading in this chapter for a full explanation. 
+
+INSERT 
+The effect of ending a recording with Insert depends on the setting of 
+InsertMode. 
+Record 
+Continued 
+If InsertMode=Insert, then pressing Insert at the end of a recording ends the recording and immediately inserts a second cycle (as it continues recording); in other words, it puts you into Insert mode. The insertion continues until memory runs out or you end it with Insert or an alternate ending for the Insert operation. This is very useful for dividing a longer loop into multiple cycles as you record it. This can allow you to easily set a tempo for an external sequencer when using MIDI clock out, for example. 
+If InsertMode=Replace, then pressing Insert at the end of a recording ends the Record as if youd pressed the Record button. The Replace function immediately begins as explained in the InsertMode section. 
+If InsertMode=Rehearse, then pressing Insert at the end of a recording puts you in Rehearse mode. The cycle that youve just recorded will be played back exactly once, regardless of the Feedback setting. The underlying timing of the cycle will continue and any new audio played is fed into the loop. If you play something that you really like and want to keep for more repetitions, press Insert again immediately after youve played it. One cycles worth of material prior to that point will be kept as the loop, and will repeat according to the Feedback setting. Rehearse is useful for practicing an idea before keeping it as the loop. 
+If InsertMode=Reverse, then pressing Insert at the end of a recording will end the Record and immediately start playing the loop backwards. 
+
+
+MUTE 
+Ending a recording with Mute is exactly like ending it with Record, except that the audible sound will shut off as soon as you press the Mute button. Once youre in Mute mode, you can restart the sound with the mute button or with the Alternate Endings under the "Mute" heading in this chapter. 
+
+
+OVERDUB 
+Ending a recording with the Overdub button ends the recording immediately and toggles Overdub mode. Its the equivalent of ending the Record by pressing Record a second time, and then pressing 
+
+Record 
+Continued 
+Overdub immediately. If Overdub was on before the Record this action will turn it off. If Overdub was off it will now be on. 
+
+
+NEXTLOOP 
+If you have the MoreLoops parameter set greater than one, ending a recording with NextLoop immediately ends the recording and puts you immediately into the next loop. 
+If AutoRecord=On, the Echoplex immediately continues recording in the new loop. You can continue playing without any interruption, and have what you play split into the two loops. This is especially useful for filling the loops with the various parts of a song while playing continuously. You just keep pressing Next as you play! This is a great way to record a verse loop and chorus loop in one pass, as you play them live. If you continue to press NextLoop at the end of each part, you can use this method to record into all of the loops you have set up. 
+Similarly, if LoopCopy=Sound or LoopCopy=Time, you can continuously copy the audio or the time base into new loops as you record them in one pass. 
+When MoreLoops=1, ending Record by pressing NextLoop stops recording and begins playing the loop, just as if the recording had been ended with another press of Record. Note however, that when MoreLoops = 1, NextLoop becomes a retrigger button, so Record-to-NextLoop can be an interesting way to immediately go into stutters of your loop. 
+
+THE LONG PRESS 
+Pressing and holding down the Record button erases the entire current loop. This is also called a Long Press Record. The loop will then be in Reset, and ready for a new recording. 
+Record 
+Continued 
+
+THE EFFECT OF RECORDMODE 
+When RecordMode=Toggle, the Record button works as described above. However, when RecordMode=Sustain, you can only record sounds while you hold down the buttonas soon as you release it, the recording stops. 
+When RecordMode=Sustain, you lose the ability to reset a loop, normally accomplished by a long press of the Record button. This may not be a great loss for you, since a short press of Record while you play nothing will create a short loop with no contents. However, there are two consequences of this approach: 
+
+n A loop that is pseudo-cleared this way will not go into AutoRecord if you enter it with NextLoop. 
+n There is no way to reset all loops in this situation, except to enter a loop (with AutoRecord=Off) that has not been recorded since power-up. The orange light under the Multiply button, signifying that a long press of that button will reset all loops, does not go on unless the current loop is completely empty. 
+USING AN AUDIO THRESHOLD 
+When a non-zero value for the Threshold parameter is set, the Record function waits until a large enough audio signal appears at the Input jack before it actually starts recording. When Threshold=0, this waiting is disabled and Recording begins immediately. 
+
+Record 
+Continued 
+
+SYNCHRONIZED RECORDING 
+When a sync signal is being received by the Echoplex, and Sync=In, the Echoplex will Record loops in sync with the external devices tempo. Sync signals can be in the form of MIDI Clock, BrotherSync from another Echoplex, or pulses at the BeatSync input. 
+During Reset, the Overdub LED turns yellow to indicate that a Sync has arrived. When the second Sync point arrives to define the Cycle length, the LoopTime Display shows the resulting Cycle time. This cycle time is determined by the 8ths/cycle setting and the tempo of the incoming clock. Whenever the Overdub LED is yellow like this, the next Record press will be Synchronized. 
+Loops recorded in sync will be either exactly this Cycle length, or an integer multiple of it. You can decide in real-time how many cycles to Record. You simply let the Echoplex continue Recording and it will keep adding cycles until you stop the Record, at which point it will round off to the next Cycle point and begin playing back the loop. This is very similar to the way Multiply works, so it should be familiar if you have used Multiply. 
+
+
+QUANTIZED SYNC 
+When Quantize=Cycle, 8th, or Loop, the Cycles are tracked and counted properly when recording in sync. When Record is pressed, it will be quantized to the next sync point defined by the incoming sync signal before it starts, and again quantized when Record is pressed to end. This means that if the incoming clock defines a Cycle length of 2 seconds and you let Record continue to 8 seconds, you will see the multiple counter counting from 1 to 4. The Cycle boundaries will be set at 2.0 seconds, and the startpoint will be aligned with the startpoint defined by the incoming sync. 
+Record 
+Continued 
+
+
+UNQUANTIZED SYNC  SYNCRECORD 
+SyncRecord is a variation of Record that is automatically done when a Sync of any type is being received, Sync=In, and Quantize=OFF. 
+Instead of always quantizing Record when a sync is being received, the Echoplex will do a kind of Multiply over nothing for this unquantized case. This means SyncRecord starts immediately when you press Record, counts the Cycles on the green multiple display, and rounds off at the end to fit the loop time defined by the sync. SyncRecord gives you freedom from quantization so you can begin recording anytime you like, while still allowing tight synchronization to an external clock source. 
+With SyncRecord, you only need to have received the first sync event to begin Recording in sync. As you are Recording, the Echoplex will continue watching the sync to determine what the right cycle times are. When you press Record again to end, the Echoplex will automatically round off to the right point so that your loop is exactly the correct length to match the sync. This is useful to let you start recording immediately without waiting for an entire sync period to occur. 
+
+See Also: RecordMode, Overflow, Threshold, Sync, SyncRecord, Quantize, Reset 
+Immediate Action Rehearse Play Mode 
+Rehearse a part before committing it to the loop. 
+When InsertMode=Rehearse, pressing Insert at the end of a recording puts you in Rehearse mode. 
+To use Rehearse, begin by tapping the Record button to start recording a loop. Instead of ending the recording with a second press of the Record button, press the Insert button. You will now be in Rehearse mode. The cycle that youve just recorded will be played back exactly once, regardless of the Feedback setting. The underlying timing of the cycle will continue and any new audio played is fed into the loop and repeated one time. This gives you an opportunity to practice ideas for your loop. 
+When you play something you really like and want to keep for more repetitions, press Insert again immediately after youve played it. This will exit Rehearse mode and put you in the normal Play mode. You dont have to worry about where the Echoplex thinks the StartPoint is located. One cycles worth of material prior to the point where you pressed Insert will be kept as the loop, and will repeat according to the Feedback setting. 
+Make sure you press Insert to exit Rehearse mode after you play the material you wish to keep, and not after it repeats. 
+Rehearse is useful for practicing an idea before keeping it as the loop. 
+
+See also: Record, Insert, InsertMode 
+Replace Immediate Action Play Mode 
+Replaces a section of the current loop. 
+When InsertMode=Replace, the Insert button becomes the Replace button. Each press and release of the Replace button during Play mode will replace a segment of the loop with new material for as long as Replace is held down. The overall loop length is not changed. 
+If Quantize=On and Replace is pressed during a cycle, the function will begin at the end of the current cycle, and will continue to the next cycle point after Replace is released again. 
+When InsertMode=Replace and Insert is used as an alternate ending during a Record, the Record ends as if youd pressed the Record button and the Replace function immediately begins. 
+

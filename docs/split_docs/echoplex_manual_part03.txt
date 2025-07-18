@@ -1,0 +1,100 @@
+
+Now you should be hearing your notes loop over and over again. If you dont like what you recorded, simply repeat the steps above once again. 
+The Record function starts instantaneously when you press the Record button. Youll probably find that you get the best timing results if you press Record simultaneously with the first note or chord of your loop (as opposed to trying to press it an instant before). To end recording, press it exactly at the time when you want the loop to restart (right on the downbeat, if youre recording rhythmically). A few minutes of practice will be all that you need to create great loops with no audio or rhythmic glitches. 
+As you record, youll see the length of the current recording in the display. Keep an eye on this, especially if you dont have much memory installed in your unit (see Appendix A, Memory for more details). Your maximum recording time is displayed when you first power on the Echoplex Digital Pro Plus. If you exceed this time during recording, your loop wont be kept (with the default settings. See Overflow in the Reference chapter for other options). 
+If your loop seems surprisingly loud or soft in relation to what you played, adjust the Mix knob until you find the right balance. 
+If you want to record a new loop, simply repeat steps 1-3 above. If you want to reset (completely clear) the loop, simply press and hold the Record button for half a second. 
+For more information on recording, see Record in the Reference chapter. 
+
+
+
+
+Mute 
+
+
+If you get sick of listening to your loop, you can silence it without erasing it by pressing the Mute button. The light under the Mute button on the front panel will turn red. Press the Mute button a second time to hear your loop again. 
+For more information, see Mute and MuteMode in the Reference chapter. 
+
+
+Overdub 
+Now that you have a loop running, lets start to have some fun by overdubbing some additional sounds. Its incredibly easy. 
+
+1. 
+Press Overdub. The Overdub light turns red. 
+
+2. 
+Play. Each time the loop restarts, youll hear whatever you played during the last pass added to the mix. 
+
+3. 
+When youre done overdubbing, press Overdub again to stop (its a good idea to not leave the Overdub function on when youre not actually playing). 
+
+
+For more information, see Overdub in the Reference chapter. 
+
+
+Undo 
+If you dont like what youve just overdubbed, you can press Undo to erase it. If your loop length is short compared to the amount of memory in your Echoplex, Undo can erase the layers of overdubs one by one. However, this capability is limited by the amount of memory that you have installed. If your loop length is longer than half your memory capacity, for instance, you wont be able to Undo at all. 
+Undo also cancels a function that you may have started by accident. After you press Record without meaning to, for instance, you can recover your loop simply by pressing Undo instead of Record to end the Record operation. 
+For more information, see Undo in the Reference chapter. 
+
+
+
+Multiply 
+Multiply is like Overdub, except that Multiply lets you record longer passages. For instance, you can use Multiply to overlay a 4-bar bass riff over two repetitions of a 2-bar chord pattern. Or, if you have enough memory, you can use Multiply to record a long solo over a repetitive backing track. Its a powerful function that adds a lot to your expressive capabilities using the Echoplex Digital Pro. 
+Heres a quick introduction to Multiply: 
+
+1. 
+Record a simple, short loop. 
+
+2. 
+Press Multiply and play over several repetitions of the loop. 
+
+3. 
+Press Multiply again to end the recording. 
+
+
+Multiply doesnt restart the loop the instant you press it the second timeit always rounds off so that the original loop isnt cut-off in the middle. 
+Notice that the right-hand digit of the display counts the repetitions of your first loop as the entire loop is played back. There are a number of situations where well need to distinguish between these, so well introduce some terminology: 
+
+KEY POINT: The first loop, the atom that you started with, is called a cycle. Well reserve the term loop to refer to the full loop, which can consist of several full cycles (never a fractional number of cycles, like 2-1/2). If youve just recorded a single loop and not used Multiply or Insert, then your loop will be exactly one cycle long. 
+
+
+
+Reverse 
+Reverse is a great deal of fun. In the Echoplex, loops can be Reversed at any time. You can easily and quickly create loops with some parts going forwards and some parts going backwards. Before we can do Reverse however, we will need to edit a Parameter value. This is a good opportunity to learn how to do Parameter editing. 
+The parameter we wish to change is called InsertMode. This parameter determines what function the Insert button will do. We are going to set it to become the Reverse button. 
+
+1. 
+In the Parameter Matrix printed on the front panel of the Echoplex, locate the InsertMode parameter. You should see it in the row labeled Switches, under the Insert button. 
+
+2. 
+Press the Parameter button. You are now in the Parameter Editing Mode. You should see P1 in the Multiple Display, indicating we have selected the first row of Parameters. The Timing LED is also lit to indicate that the Timing Row of parameters is selected. 
+
+3. 
+We want the Switches Row, since that is where the InsertMode parameter is located. Press the Parameter button once more. You should now see P2 in the Multiple Display, and the Switches LED will be lit to indicate we have now selected the Switches Row. 
+
+4. 
+Press the Insert button to select the InsertMode Parameter. The LoopTIme Display will show the current value of this Parameter. 
+
+5. 
+Continue tapping the Insert button to step through the possible values for the InsertMode parameter. We want Reverse, so stop when you see the display show rEV. 
+
+
+5. Press the Parameter button to a few times to cycle back to Play Mode. 
+Weve now programmed the Insert button to be the Reverse button, and learned about Parameter Editing in the process. The InsertMode parameter has some other interesting functions in it as well, like HalfSpeed, Substitute, Replace, and of course, Insert. But we want to play with Reverse first, so lets do that! 
+
+1. 
+Record a loop. 
+
+2. 
+Press the Insert button.Your loop is playing backwards! 
+
+3. 
+Now press Overdub, with your loop still in Reverse.Play something interesting over your backwards part. Your Overdub will now be playing in the loop forwards, while the original part is playing backwards. 
+
+4. 
+Press Insert again. Your original part will be going forwards again, and the Overdub you added is now Reversed. 
+
+
+You can go on like this, adding as many forwards and backwards parts as you like! 
+See the InsertMode and Reverse sections of the Reference Guide for more details on these features. 

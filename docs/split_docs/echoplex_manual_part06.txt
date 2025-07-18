@@ -1,0 +1,100 @@
+The next time you hit Record, the Echoplex will wait for the beginning of the next measure before starting the Record process. You end the Record operation by pressing the Record button a second time. Instead of ending immediately, recording will continue until the next measure boundary, as determined by the incoming MIDI clocks. 
+
+8. 
+Once youve recorded your first cycle this way, the Echoplex continues to monitor the clock source and maintain synchronization. However, once the basic loop is recorded, the Echoplex will not change the timing or playback speed of the loop to respond to changes in your clock rate. Sequences with tempo changes in them, therefore, are not good choices for sync sources for the Echoplex. 
+
+
+Another useful variation on the above theme is to reset the current loop and briefly send MIDI clock to the Echoplex from your clock source. You can easily do this by playing a single empty measure from a sequencer. Once the Echoplex has received MIDI clock while in reset, it will know to expect more. Press Record before restarting your clock source. Then, the Echoplex will wait for the first clock pulse before recording, displaying "ooo" in the display while it does so. This is a good way to get the Echoplex and a sequencer to start simultaneously. Some sequencers make this approach difficult, however, because they send out MIDI clocks even when theyre not actively playing. 
+
+Example 4.2: Syncing a drum machine or sequencer to the Echoplex 
+1. Set 8ths/Cycle=8. This means that each cycle will be eight eighth-notes (one measure) long. 
+8ths/Cycle 
+Continued 
+
+2. Set Sync=Out. 
+3. 
+Connect the MIDI In port of a sequencer or drum machine to the Echoplex Digital Pros MIDI Out port using a standard MIDI cable. 
+
+4. 
+Load a pattern or sequence into your drum machine or sequencer. Set the clock parameter to Internal and play back the material to verify that your MIDI and audio connections are working. Stop the device. 
+
+5. 
+Set your drum machine or sequencer to sync to incoming MIDI Clocks. 
+
+6. 
+Press Play on your drum machine or sequencer. It will wait for incoming clocks before taking off. 
+
+7. 
+Record a loop one measure long  (in 4/4 time) in the Echoplex. As soon as you press Record the second time, MIDI clocks will be transmitted. Your drum machine or sequencer should play back in perfect sync. 
+
+
+If you want to sync to loops that have different lengths, set 8ths/Cycle appropriately. For instance, set 8ths/Cycle=6 to sync to a 3/4 time measure, or set 8ths/Cycle=16 to sync to 2 4-beat measures. 
+
+CHANGING TIME SIGNATURE IN RHYTHM 
+When a loop is playing and the 8ths/Cycle or Sync parameters are edited, the change of value is only activated at the first Loop StartPoint after you come out of the Parameter Editing state. At that point you jump directly to the new selected value. This means the value change occurs only while back in the playing state, and only at a rhythmically sensible point. This helps eliminate any confusion when working with a synchronized sequencer and makes for much smoother transitions into new time signatures. 
+Try changing 8ths/Cycle with Sync = Out and a sequencer slaving to the clock. You control the sequencer's tempo in relation to your loop! 
+
+4-4 Echoplex Digital Pro Plus Users Manual 
+8ths/Cycle 
+Continued 
+
+MIDI CLOCK LIMITS 
+There is a limit to how fast the Echoplex will transmit MIDI clocksthe equivalent of about 400 beats per minute. If you create a loop thats 1/2 a second long with 8ths/Cycle=16, then that 1/2 second will represent 2 measures, or 8 beats. Since there are 120 1/2 seconds in a minute, each with 8 beats, the effective timing would be 960 beats per second, which isnt very common in musical usage, and wont be transmitted by the Echoplex. The moral: short loops and high values of 8ths/Cycle dont mix. 
+In older versions of the Echoplex hardware the 8ths/Cycle parameter was labeled 8ths/Beat. 
+
+See Also: Sync, Quantize, Visual Tempo Guide, LoopDivide, MIDI Ports 
+AutoRecord Default: Off Parameter Row: Loops 
+Starts recording whenever you enter an empty loop. 
+Values: Off, On 
+When this is on, the Echoplex Digital Pro will start recording every time you enter an empty loop. This only applies when the number of loops is more than one. 
+
+
+Example 4.3: AutoRecord 
+1. 
+Set the number of loops to 2 with MoreLoops 
+
+2. 
+Record a short loop in loop 1 
+
+3. 
+Press the NextLoop button 
+
+4. 
+Start playing right awayyoull be recording 
+
+5. 
+Press Record or NextLoop to end recording in Loop 2 
+
+
+See Also: MoreLoops, SwitchQuant, LoopTrig, NextLoop 
+Default: 1 Channel Parameter Row: MIDI 
+Determines the MIDI channel for all MIDI functions. 
+Values: 1-16 
+This sets the MIDI channel for controlling Echoplex operations with an external MIDI controller or sequencer. 
+
+See also: Source #, ControlSource, MIDI Control Chapter 
+ControlSource Default: Notes Parameter Row: MIDI 
+Sets up MIDI control of Echoplex Digital Pro operations. 
+Values: Notes (not), Controllers (Ctr), Off (OFF) 
+This parameter controls how (and if) Echoplex Digital Pro operations are transmitted and received over MIDI. It is useful primarily if you have an interest in controlling the Echoplex Digital Pro from a sequencer or from a programmable footcontroller. If you are controlling one or more "slave" Echoplexes from a single "master," all the values for ControlSource among the various units should be identical (and not Off). 
+Every button on the Echoplex Digital Pro front panel (and the corresponding buttons on the footpedal) can generate either a Note On or a Continuous Controller (with value 64) when it is pressed. When it is released, the corresponding Note Off or Continuous Controller with value 0 is sent. This allows a sequencer to capture and later recreate almost any sequence of Echoplex moves, no matter how complex. The fact that each button push and release pair generates a pair of MIDI messages allows you to duplicate long presses of buttons that either initiate special functions or reset parameters to their default values. 
+When ControlSource=Notes, each button press will send out a pair of notes (exactly which notes is controlled by the Source # parameter). When ControlSource is set to Controllers, each button press will send out a pair of Continuous Controllers. Each of these methods works equally wellthe only reason that you might be compelled to set this to Controllers is if you want to embed a track of Echoplex control commands into a sequence that is playing notes on all 16 MIDI channels. You can usually choose a starting controller number (with Source #) so that the Echoplex commands will be able to share a channel with a stream of notes destined for a sound module without affecting their sound. 
+You generally wont know what state the Echoplex Digital Pro will be in when you play back your control sequence. Because of this, there are many cases where its not enough to simply record your button pushes. Suppose, for instance, that you want to create a short sequence to change the SamplerStyle to One. If you start from the normal playing 
+
+Default: Notes ControlSource Continued 
+state, and also have SamplerStyle set to its default value of Run, it takes 4 pushes of the Parameters button and two pushes of the NextLoop (SamplerStyle) button to accomplish this. So you record exactly those button pushes into a sequence. Fine. Then you play it backWhoops! You didnt start from the same state as when you recorded the sequence, and the sequence starts a Load operation, wiping out your current loop. Ouch! 
+The moral of the story is that, when recording a control sequence, each button that you press should start with a long press to reset it to its default state. 
+
+
+Example 4.6: Creating a Sequence to Set SamplerStyle to One 
+1. 
+Connect the MIDI Out from the Echoplex Digital Pro to the MIDI In of your sequencer. 
+
+2. 
+Hit Record on your sequencer. 
+
+3. 
+Hold down the Parameter button for a second or two. The Echoplex Digital Pro will shift into Play mode if it didnt start out there. 
+
+4. 
+Press Parameter 4 times 

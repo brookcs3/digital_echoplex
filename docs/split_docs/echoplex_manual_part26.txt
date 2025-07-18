@@ -1,0 +1,100 @@
+Undoing Multiple Layers 
+When you leave Overdub on for a long time, recording moves to a new area of memory each time you pass the loops start point. If your loop is short compared to the amount of memory available, then a number of Overdub cycles can pass before overwriting of memory starts to occur. If you end the Overdub before any overwriting occurs, then youll be able to Undo each layer in succession, until you return to your original recording. If overwriting occurs, then youll only be able to Undo back to the last fully-intact recording. 
+
+
+Arming Undo 
+Undo can be executed even when the Undo LEDis not green. It will be executed as soon as the Undo LEDlights up, so you can easily Undo the maximum possible without struggling to press Undo at the right moment. This is an improvement over previous versions of the Echoplex, where you could have a loop with only a short area containing an overdub that was undoable. The Undo LEDturns on and off in such a case to indicate when you are in the Undoable section. In older versions you could only tap Undo during that time for it to work. Now you can tap it any time and it will be done for you. 
+
+
+Preventing Extra Undo Presses 
+Undo checks whether there may be a whole loop length in memory without changes. If there is, Undo acts twice when you press it. This eliminates the potentially frustrating cases where you might press Undo and it appears that nothing happens. You would have to press Undo twice to get rid of a bit you had just listened to. This makes Undo feel a lot more responsive for some users. 
+The Echoplex also monitors whenever a pass of the loop has completed and nothing has been done to change it. When this happens the Echoplex automatically does what we call an AutoUndo. 
+Undo 
+Continued 
+Ordinarily, the Echoplex is always preparing for the possibility that you might make a change at some point in the loop by writing the current loop data into a new section of memory. Then if you do an Overdub at the end of the loop, your previous version is safely stored for future uses of Undo. The new version is already in memory and becomes the new loop that is played. However, if we get to the end of the loop and no changes have been made we dont want to waste new memory with an exact copy of the previous section of memory. We also dont want you to have to press Undo numerous times to find the last section where a change was made. So the Echoplex does an AutoUndo, which effectively puts it back in the previous memory area with the latest version of the loop. 
+AutoUndo is even done if you leave on Overdub but do not actually play anything. The Echoplex saves you from accidentally wasting memory in this way, so that the next time you press Undo you really Undo something from your loop. 
+The AutoUndo LED allows you to see AutoUndo in action. This LED is the decimal point at the lower right of the Loop Display. Every time an AutoUndo occurs, it will blink faintly. This can be a useful way to monitor the Echoplex if you ever feel that Undo is not doing what you expect. 
+All of this occurs behind the scenes, and is certainly not necessary to understand in order to use the Echoplex. It is presented here for those who wish to understand a bit more about how it all works. 
+
+See also: Record, Overdub, Feedback 
+CHAPTER 6 
+
+
+
+Synchronization 
+
+AutoStartPoint Synchronization 
+The Echoplex automatically corrects the StartPoint in certain situations where Sync cannot be maintained. 
+The Echoplex maintains sync to an external clock by retriggering the loop at the Global MIDI StartPoint defined by the clock. An old problem with this method is that true sync cannot be maintained when either FeedBack is reduced or Overdub is on, because an early arriving sync would erase the change made in that pass of the loop or cause glitches to record in the loop. Because of this the Echoplex has to free run during that time to prevent such problems. 
+There is no fix for this really, as it is a fundamental issue of how sync works in the Echoplex. Once Overdub is turned off and/or FeedBack brought back up, true sync returns. In most cases you would not have noticed anything at all unless you left Overdub on or Feedback down for a long time will receiving Sync, and the clock drifted significantly during that time. 
+We developed a trick to help this situation for some cases, and it runs automatically in the background. It is called AutoStartPoint. This runs for the case where you reduce FeedBack a lot ( resulting in a total change of the song for example). 
+In that case you probably do not really care to have your old fading loop stay in sync with the clock anymore, but you will want to stay in sync with whatever new things you overdub. So when FeedBack is reduced enough and the Echoplex detects that the sync has drifted considerably off, we do an automatic StartPoint function. This sets the internal StartPoint of our loop to the time of the Global MIDI StartPoint defined by the external clock, and that point is then used for sync. Then when you bring FeedBack up again the StartPoint of the Loop and the external sequencer will be very close together and syncing resumes easily. 
+
+See also: StartPoint, Global/Local MIDI Clock 
+Synchronization BeatSync Back Panel 
+Accepts and transmits a pulse that can synchronize to external devices or trigger loop playback. Good for producing stuttering effects. 
+The BeatSync jack accepts a 1/4" mono phone plug. 
+When Sync=Out, a pulse that is the equivalent of a switch closure will be sent out this jack at the start of every cycle. This can be used to synchronize older devices that accept pulse triggers. If you connect the BeatSync output to an audio system the pulse will be audible and can serve as a click track for your loop. 
+When Sync=In and no incoming MIDI clocks are present, record operations will be quantized to incoming pulses at the BeatSync jack. The incoming pulses can be generated by another Echoplex, an ordinary footswitch, the pulse trigger output used on many older devices, or a line-level audio signal. 
+If a BeatSync pulse is received during Reset while Sync=In, MIDI Clock is sent out at the corresponding tempo. The purpose of this is to receive a Sync at the BeatSync of the Echoplex and send the Sync on to other devices as MIDI clock. 
+Applications of BeatSync include rhythmically-relating the cycle times of the Echoplex to older devices with pulse trigger outputs, letting a trigger or footswitch control synchronized recording, synchronizing to external audio signals from a metronome or a live musician, and creating stuttering playback effects. 
+If you want to use a pair of Echoplexes to loop recordings from a stereo source, you would be best off using BrotherSync instead of BeatSync. BrotherSync is also the best way for synchronizing two or more Echoplexes used independently by multiple musicians. See the BrotherSync section for more details. 
+BeatSync 
+Continued 
+
+Example 4.4: Synchronizing the Echoplex to a Pulse Trigger 
+1. 
+Connect a 1/4" mono cable between pulse trigger output of the external device and the BeatSync jack of the Echoplex. 
+
+2. 
+Set Sync=In on the Echoplex. Put its current loop into reset. 
+
+3. 
+Start the external device so it is sending a pulse. You should see the Sync LED on the display blink with each pulse. 
+
+4. 
+Somewhere in between the pulses, press Record on the Echoplex. The display will show "ooo," indicating that the Echoplex is waiting for a sync pulse before recording. 
+
+5. 
+When the next pulse arrives, the Echoplex will start recording. 
+
+
+7. Press Record again to stop recording. The display will show "ooo," and recording will continue until the next pulse comes. 
+Example 4.4: Synchronizing the Echoplex to a Footswitch orAudio Signal 
+1. 
+Connect a 1/4" mono cable between a footswitch and the BeatSync jack of the Echoplex. Or, connect an audio source with a sharp attack directly to the BeatSync jack. 
+
+2. 
+Set Sync=In on the Echoplex. Put its current loop into reset. 
+
+3. 
+Tap the switch. (Or play the sound source.) You should see the Sync LED on the display blink with each pulse. 
+
+4. 
+Somewhere in between the taps (or audio pulses), press Record on the Echoplex. The display will show "ooo," indicating that the Echoplex is waiting for a sync pulse before recording. 
+
+5. 
+When you tap again, the Echoplex will start recording. 
+
+
+7. Press Record again to stop recording. The display will show "ooo," and recording will continue until the next tap (or audio pulse) comes. 
+Example 4.x: Synchronizing an External Device to the Echoplexwith Pulse Triggers 
+BeatSync 
+Continued 
+
+1. Many older devices can us a pulse trigger for synchronizing, triggering, or other interesting effects. If you have one, try connecting the BeatSync jack of your Echoplex to its trigger input so the Echoplex can control it. 
+2. Set Sync=Out. 
+3. 
+Record a loop on the Echoplex. 
+
+4. 
+The Echoplex will begin sending pulse triggers out to the other device. A pulse will be sent at each cycle point of your loop. 
+
+
+
+Example 4.5: Foot-Controlled Stuttering (Mute/Multiply) 
+1. Connect a footswitch to the BeatSync jack. 
+2. Set Sync=In. 
+3. 
+Record a loop. 
+

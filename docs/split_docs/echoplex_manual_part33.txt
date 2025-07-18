@@ -1,0 +1,100 @@
+The SUS MIDI commands are detailed in the MIDI Command List. 
+
+
+USING SUS MIDI COMMANDS 
+With the SUS MIDI Commands, the NoteOn message starts the function and the NoteOff ends it. This opens up a whole new range of expressive possibilities with the Echoplex that are quite different from the standard toggling action. For example, it is possible to jump in and out of a function very rapidly with this feature, enabling glitchy effects impossible to do otherwise. 
+The SUS commands can also be controlled with Continuous Controller messages, where a positive value turns the function on, and a 0 value turns it off. 
+
+THE SUSNEXTLOOP SPECIAL CASE 
+SUSNextLoop is an interesting special case of the SUS MIDI Commands described in the MIDI section. SUSNextLoop is only available as a MIDI command, and is located at Source# + 20. 
+
+SUS MIDI Commands 
+Continued 
+With SUSNextLoop, pressing it puts you into the Next Loop and releasing it returns you to the previous loop. In other words, NoteOn puts you into the Next Loop and the NoteOff brings you back. This allows you to bounce in and out of an alternate loop from your main loop. 
+Note that only sending the NoteOff component of SUSNextLoop gives you the command PreviousLoop. 
+
+See also: MIDI Command List, DirectMIDI, MIDI VirtualButtons, SUS Commands, SUSNextLoop, PreviousLoop 
+Immediate Action Transmitting MIDI Commands Play Mode 
+MIDI Commands are transmitted with each button press. 
+When ControlSource is set to Notes, each press of an Echoplex button will send that buttons specific NoteOn message out the MIDI Out Port. The NoteOn message is sent when the button is pressed, and the corresponding NoteOff message is sent when the button is released. 
+Similarly, when ControlSource is set to Controllers, a pair of MIDI Control Change messages will be sent for each button press. Pressing the button in sends the specific MIDI Continuous controller with value 64. Releasing the button sends the controller with value 0. 
+
+See also: ControlSource, Channel, MIDI Command List, DirectMIDI, MIDI VirtualButtons, Receiving MIDI Commands 
+CHAPTER 8 
+
+
+
+Parameter Presets 
+
+Parameter Presets 
+All Modes 
+
+Save and recall your favorite Echoplex parameter setups. 
+Echoplex parameter settings can be stored and recalled as Presets. There are 15 memory spaces to save sets of all local parameters, plus Tempo. The presets are stored in non-volatile memory so they are still there even if you turn off the power. 
+For example, if you like to switch Quantize on and off quickly, you could switch it on through the Parameter Matrix, then save to Preset 1, then switch it off and save to Preset 2. From then on you just have to call those two Presets with a MIDI Program Change from a MIDI controller while you continue to play. This is much easier than editing from the front panel every time! 
+
+SELECTING PRESETS 
+The 15 Presets can be chosen by one of the following methods: 
+n From within the Preset Editor, accessed with the Presets parameter 
+n Using the Mute and Insert buttons while in Reset 
+n Sending MIDI Program Change commands at any time 
+n MIDI SysEx 
+Note that When InsertMode=HalfSpeed, HalfSpeed takes precedence over the Preset control on the Insert button while in Reset. So only the Mute button is available for changing Presets in that case. 
+
+Parameter Presets 
+Continued 
+
+Presets:  
+n  Loop/Delay  
+n  Quantize  
+n  8ths/Cycle  
+n  Sync  
+n  Threshold  
+n  RecordMode  
+n  OverdubMode  
+n  RoundMode  
+n  InsertMode  
+n  MuteMode  
+n  MoreLoops  
+n  AutoRecord  
+n  LoopCopy  
+n  SwitchQuant  
+n  Velocity  
+n  SamplerStyle  
+
+PARAMETERS SAVED IN PRESETS 
+Some Parameters are considered Global and are not stored in Presets. Those will be noted shortly. The following Parameters are saved in 
+In addition, Tempos set by using the TempoSelect feature are saved in the Presets. 
+
+GLOBAL PARAMETERS NOT CHANGED BY PRESETS 
+The MIDI parameters plus a few others are set globally and independent of the Presets. They will always retain the value set no matter which Preset is loaded. The following are Global: 
+
+Parameter Presets 
+Continued 
+n MIDI Channel n ControlSource n Source# n VolumeCont n FeedBkCont n LoopTrig n Device ID for Sysex and Sample Dump n Last Preset 
+
+MORELOOPS IS A SPECIAL CASE 
+Normally, when the MoreLoops parameter is changed a GeneralReset is done automatically. This is necessary because the memory must be reorganized to support the new number of loops, but it unfortunately means current loops are lost. 
+When you change MoreLoops from the front panel we assume you are doing it consciously and are aware that any loops you have currently in memory will get Reset. However, we found it was very easy to change to a Preset while you are playing without realizing that it had a different number of loops setup in the MoreLoops parameter, and consequently destroy the loops you are currently playing. 
+We developed a simple system to protect against this situation. Whenever you change Presets while in a loop with something recorded, any change in the MoreLoops parameter due to the Preset change is ignored. The rest of the changes in that Presets are loaded, and your loops are not be destroyed by the Preset change. 
+If you are in a Reset loop when you make the Preset change, we go ahead and implement the MoreLoops change as well and do the GeneralReset. 
+If you changed the Preset while playing and you really did want the MoreLoops to change and have everything Reset, you will need to Reset the current loop and then reload that Preset. 
+
+Parameter Presets 
+Continued 
+
+UNDERSTANDING THE PLAYING STATE PRESET 
+Preset 0 is the Preset used and edited while playing. These are the Parameters active while you use the Echoplex. 
+When one of the fifteen presets is loaded for use, what really happens is the values in that saved Preset are copied into Preset 0 to be used while playing. When you save a Preset using the Preset Editor, what really happens is the values in the Preset 0 playing state are copied into the Preset location you are saving to. 
+If you make a change in a parameter value while you are playing, it is only changed in Preset 0, and the Preset you loaded is not affected. This is really helpful because it means you can freely reach over and change something as you play, without affecting any Presets. When you decide you like a setup, you can then go into the Preset Editor and save it. Or you can load up another preset you have saved to get back to a known state. 
+Changes made in Preset 0 are preserved when the power is turned off. When you turn the Echoplex back on again, it will be setup the way you left it. 
+We call the playing state Preset 0 because that is the actual location in memory where it lives. This will matter to you if you use SysEx or a preset librarian program to edit the parameter values saved in your presets. If you want to edit the active playing state parameters with SysEx, you simply edit the reset 0 location. See the SysEx chapter for more information on SysEx control. 
+
+Parameter Presets 
+Continued 
+
+SELECTING PRESETS FROM THE FRONT PANEL 
+In Reset, the Mute and Insert buttons can be used to select and load Presets 1 - 15. Mute scrolls up and Insert scrolls down. 
+The Preset number is displayed on the LoopTime Display as the Presets are selected. Once you stop on one Preset for longer than 400ms, it will be loaded. The display briefly shows LOA when the Preset loads. The Mute LED and Insert LED will be Orange to indicate they are available for Preset selection. 
+There are two important things to note about the front panel Preset selection feature. For one, if InsertMode=HalfSpeed you do not have the Insert button available to scroll down through the Presets. This is because we want to be able to start loops in HalfSpeed, so the Insert button is dedicated to selecting HalfSpeed while in Reset. You will be able to tell this is the case because the Insert LED will be green or red (FullSpeed and HalfSpeed, respectively). It is Orange if it is available for changing Presets. You will also be able to tell if you press Insert anyway, because the display will show H.SP or F.SP instead of the Preset number. 
+The second important thing to note is the front panel Preset selection is not available at all until you have saved your first preset! This was done to make the user interface friendlier to new users. We didnt want somebody to accidentally press the button, select a Preset, and lose any other parameter changes they had made before they understood how the Preset feature worked. So until theyve read this section and learned how the Presets work, we save them from that mistake. 
