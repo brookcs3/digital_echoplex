@@ -6,5 +6,6 @@ dist/
 .astro/
 test-results/
 playwright-report/
+.astroignore
 qdrant_storage/
 rag-system/
