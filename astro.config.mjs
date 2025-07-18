@@ -3,7 +3,8 @@ import { resolve } from 'path'
 
 // https://astro.build/config
 export default defineConfig({
-
+  outDir: 'dist',
+  publicDir: 'public',
   scopedStyleStrategy: 'class',
   devToolbar: {
     enabled: false,
@@ -25,7 +26,7 @@ export default defineConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@import 'sass:math'; @import 'sass:map'; `,
+          additionalData: `@use 'sass:math'; @use 'sass:map'; `,
         },
       },
     },
