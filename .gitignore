@@ -4,9 +4,7 @@ dist/
 .idea/
 *.log
 .astro/
-src/docs/
 test-results/
 playwright-report/
-src/pages/index.astro.backup
 qdrant_storage/
 rag-system/
