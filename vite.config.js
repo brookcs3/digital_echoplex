@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
-    allowedHosts: ['healthcheck.railway.app'],
+    allowedHosts: ['healthcheck.railway.app', 'echoplex-js.com'],
     host: true,
   },
 });
