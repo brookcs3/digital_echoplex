@@ -1,0 +1,100 @@
+EchoplexDigital Pro Plus 
+Users Manual 
+
+
+CREDITS 
+
+MANUAL WRITTEN BY KIM FLINT AND WARREN SIROTA LAYOUT & DESIGN BY WS DESIGNS ECHOPLEX DIGITAL PRO PLUS IS A PRODUCT OF GIBSON GUITAR CORPORATION LOOPIV SOFTWARE IS A PRODUCT OF AURISIS RESEARCH, LLC LOOP IS A REGISTERED TRADEMARK OF AURISIS RESEARCH, LLC ECHOPLEX DIGITAL PRO PLUS AND LOOPIV SOFTWARE DESIGNED BY: AURISIS RESEARCH, LLC  MATTHIAS GROB, KIM FLINT, ERIC OBERMHLNER WITH MAJOR CONTRIBUTIONS FROM: ANDY EWEN, CLAUDE VOIT, ANDY BUTLER, MARK LEAS, KEITH MCMILLEN, TIM CANNING, ANDRE LAFOSSE, DAVID TORN, CHRIS MUIR, WILLY STREHLER, LJUBO MAJSTOROVIC, EBERHARD WEBER, DAVID KIRKDORFFER 
+
+SPECIAL THANKS TO THE STAFF OF GIBSON GUITAR CORPORATION, OUR BETA TESTERS, AND ALL WHO HAVE CONTRIBUTED THEIR THOUGHTS AND IDEAS THROUGHOUT THE HISTORY OF THE ECHOPLEX. 
+CONTACT INFORMATION 
+
+FOR MORE INFORMATION, CONTACT 
+IN EUROPE:  
+TRACE  ELLIOT  LIMITED  
+MALDON  
+ESSEX  
+CM9 4GG  
+ENGLAND  
+PHONE:  +44 (0) 1621 851851  
+FAX:  +44 (0) 1621 851932  
+EMAIL:  SERVICE@TRACE-ELLIOT.COM  
+
+
+IN THE USA: GIBSON STRINGS AND ACCESSORIES 1150 BOWES RD. ELGIN, IL 60123 USA PHONE: (847) 741-7315 TOLL FREE: (800) 544-2766 FAX: (847) 741-4644 EMAIL: STRINGS@GIBSON.COM 
+
+HTTP://WWW.GIBSONECHOPLEX.COM 
+WARNINGS 
+
+
+
+
+
+
+EchoplexDigital Pro Plus 
+USERS MANUAL 
+
+Contents 
+Introduction 
+Credits ...........................................................................i-2 Contact Info ...........................................................................i-3 Contents ..........................................................................ii-1 About This Manual................................................................iii-1 
+Typeface Conventions ............................................................................iii-1 Terminology ............................................................................................iii-2 
+
+Section I  User Guide 
+User Guide Introduction ................................................................I-i 
+Chapter 1 Quick Start ...............................................................1-1 
+Instant Gratification and Depth..............................................................1-1 Before Powering Up .................................................................................1-2 Level Adjustment .....................................................................................1-3 Start Looping! ...........................................................................................1-4 
+Chapter 2 Front, Back and Underfoot ........................................2-1 
+The Front Panel ........................................................................................2-1 The EFC-7 Footpedal ...............................................................................2-6 The Back Panel .........................................................................................2-6 Stereo Operation ......................................................................................2-9 
+Chapter 3 MIDI..........................................................................3-1 
+
+Section II  Reference Guide 
+Reference Introduction .................................................................II-i Reference Guide Introduction.................................................................II-i Key to the Diagrams ................................................................................II-ii 
+Chapter 4 Parameters ...............................................................4-1 8ths/Cycle .................................................................................................4-2 AutoRecord ...............................................................................................4-6 Channel.....................................................................................................4-7 ControlSource ..........................................................................................4-8 FeedBkCont ............................................................................................4-10 InsertMode .............................................................................................4-11 Loop/Delay (InterfaceMode) ................................................................4-15 LoopCopy................................................................................................4-29 LoopTrig..................................................................................................4-31 MoreLoops..............................................................................................4-32 MuteMode ..............................................................................................4-33 OverdubMode ........................................................................................4-34 Overflow..................................................................................................4-35 Quantize..................................................................................................4-36 Presets .....................................................................................................4-39 RecordMode ...........................................................................................4-40 Reserved..................................................................................................4-42 RoundMode ............................................................................................4-43 SamplerStyle...........................................................................................4-44 Source #...................................................................................................4-47 SwitchQuant ...........................................................................................4-48 Sync .........................................................................................................4-57 Threshold................................................................................................4-59 Velocity....................................................................................................4-60 VolumeCont............................................................................................4-61 
+Chapter 5 Functions...................................................................5-1 Dump ........................................................................................................5-2 Feedback...................................................................................................5-4 GeneralReset.............................................................................................5-8 HalfSpeed..................................................................................................5-9 Insert .......................................................................................................5-10 Load.........................................................................................................5-18 LoopDivide .............................................................................................5-20 LoopTriggering .......................................................................................5-21 LoopWindowing.....................................................................................5-22 MultiIncrease..........................................................................................5-26 Multiply...................................................................................................5-28 Mute ........................................................................................................5-38 NextLoop ................................................................................................5-41 
+Overdub ..................................................................................................5-43 PreviousLoop..........................................................................................5-46 Record .....................................................................................................5-47 Rehearse..................................................................................................5-53 Replace....................................................................................................5-54 Reset ........................................................................................................5-55 Retrigger..................................................................................................5-56 Reverse ....................................................................................................5-58 SamplePlay .............................................................................................5-62 StartPoint ................................................................................................5-64 Substitute................................................................................................5-65 SUS Commands .....................................................................................5-69 SUSNextLoop .........................................................................................5-71 Undo........................................................................................................5-72 
+Chapter 6 Synchronization ........................................................6-1 AutoStartPoint ..........................................................................................6-2 BeatSync ...................................................................................................6-3 BrotherSync ..............................................................................................6-7 Global/Local MIDI Clock ........................................................................6-9 MIDI Sync Indicators .............................................................................6-11 MuteQuantMIDIStartSong....................................................................6-12 QuantMIDIStartSong.............................................................................6-13 QuantStartPoint .....................................................................................6-14 ReAlign ....................................................................................................6-15 SongPositionPointer and Continue ......................................................6-22 StartSong, StopSong, Continue.............................................................6-23 StopSync .................................................................................................6-28 SyncStartPoint ........................................................................................6-29 SyncRecord .............................................................................................6-30 TempoSelect ...........................................................................................6-32 
+Chapter 7 MIDI Control..............................................................7-1 DirectMIDI................................................................................................7-2 MIDI Command List ................................................................................7-3 MIDI DataWheel ......................................................................................7-7 MIDIpipe...................................................................................................7-8 MIDI VirtualButtons ..............................................................................7-10 Receiving MIDI Commands ..................................................................7-11 SysEx........................................................................................................7-12 SUS MIDI Commands ...........................................................................7-13 Transmitting MIDI Commands ............................................................7-15 
+Chapter 8 Parameter Presets.....................................................8-1 Parameter Presets.....................................................................................8-2 Preset Editor .............................................................................................8-8 
+Chapter 9 User Interface ...........................................................9-1 
+DataWheel ................................................................................................9-2 Feedbk Indicator ......................................................................................9-4 Feedback Pedal Jack.................................................................................9-5 Feedback Knob.........................................................................................9-6 Footpedal Jack ..........................................................................................9-7 Input Indicator .........................................................................................9-8 Input Jack..................................................................................................9-9 Input Knob..............................................................................................9-10 Loop Display...........................................................................................9-11 Loops LED...............................................................................................9-12 LoopTime Display ..................................................................................9-13 MIDI LED................................................................................................9-17 MIDI Ports ..............................................................................................9-18 Mix Knob.................................................................................................9-19 Multiple Display .....................................................................................9-20 Output Jack .............................................................................................9-21 Output Knob...........................................................................................9-22 Overdub Jack ..........................................................................................9-23 Parameter Button ...................................................................................9-24 SmartButtons..........................................................................................9-26 Switches LED ..........................................................................................9-28 Timing LED.............................................................................................9-29 Visual Tempo Guide...............................................................................9-30 
+Chapter 10 MIDI Sample Dump .................................................10-1 Introduction ...........................................................................................10-2 Sample Dump User Guide.....................................................................10-9 Other Device Implementations ..........................................................10-16 Sample Dump Trouble Shooting ........................................................10-20 
+Chapter 11MIDI SysEx..............................................................11-1 
+MIDI SysEx Detailed Reference ............................................................11-2 
+INTRODUCTION 
+
+
+About This Manual 
+TYPEFACE CONVENTIONS 
+User Interface elements like Buttons, Jacks, and Knobs are shown in bold, since references to them are usually about actions that you might take. 
+Function and Operation names are shown in a plain typeface. 
+Buttons generally either represent parameters or initiate actions, which we usually call functions or operations. 
+We use different versions of the same typeface for the button (bold) and the function (regular); e.g. "the Record button starts and ends Record operations." 
+Parameter Names and Values will be shown as italics. 
+EXAMPLES: n "Press the Overdub button." n "You can end the Record operation several ways:" n "When MuteMode=Continuous, the loop runs in the background even 
+when its silent." 
+TERMINOLOGY 
+There are a few key terms that are used frequently in this manual. Heres a summary: 
+PLAY MODE 
+This is the condition of the Echoplex Digital Pro Plus when youre not editing parameters or performing an operation like recording, overdubbing, inserting, etc. None of the Row Indicator LEDs are lit in this condition, and the current loop simply plays back over and over. 
+
+PARAMETER EDIT MODE 
+This is the condition of the Echoplex Digital Pro Plus when you are editing parameters. You reach this state by pressing the Parameter button, and you will see one of the Row Indicator LEDs lit to indicate which row is being edited. 
+
+OTHER MODES 
+These are the states that the Echoplex Digital Pro Plus is in after youve pressed a button to initiate an action, but before youve ended the action. The mode is the name of the button that youve pressed; e.g. Record mode, Mute mode, Insert mode, etc. 
+
+LOOP, LOOP LENGTH, CURRENT LOOP, CYCLE 
+A loop is the entire program that plays when the Echoplex is in Play mode. The length of the loop is the number that is in the LoopTime Display while in Play mode (the length of the recorded material), which will be less than the total length available for recording. 
+If the MoreLoops parameter is greater than one (see MoreLoops in the Reference section), then the Echoplex will hold several different loops. In this case, one loop will be active at any given time, and well call this the current loop. The leftmost digit in the display is the number of the current loop. 
+When you use Multiply or Insert, a new loop is built from a number of blocks of material with identical lengths. Well call each of these component blocks a cycle, and continue to refer to the entire groups of cycles as a loop. 
+
+RESETTING LOOPS, EMPTY LOOPS 
+When you Reset a loop by holding down the Record button for half a second you completely empty it. The time display will show just a decimal point. This creates an empty loop. We often refer to this as being in reset, or the Reset state. 
+If you have set up multiple loops using the MoreLoops parameter, you can reset them all at once. This is called a GeneralReset and is done with a long press of the Multiply button while in a loop that is already reset. 
+
+SHORT PRESS 
+Most functions are accessed with a quick tap of the appropriate button. This is usually referred to as a Short Press. 
+
+LONG PRESS 
+In many situations, a Long Press of a button will have a different effect than simply pressing the button and releasing it immediately (resetting a loop through a long press of the Record button is the most obvious example). Although there are situations where you may want to press a button for quite a long while, any press longer than half a second will count as a long press. 
+

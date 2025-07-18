@@ -1,0 +1,100 @@
+
+
+SwitchQuant 
+Continued 
+
+You can also switch to a loop other than the next one with MIDI messages, whether SwitchQuant is On or Off. See LoopTrig for more information. 
+
+
+Multiply/LoopCopy 
+Pressing Multiply during the quantize period will put you into SoundCopy mode when you move to the next loop. This is an alternate method of doing copies to the LoopCopy parameter. This SwitchQuant method of copying gives you more direct control over copying instead of the automated method using the LoopCopy parameter. 
+LoopCopy is essentially the same as multiplying your current loop into the new one, so it all happens seamlessly in real-time. The audio from the first loop will be copied to the new loop, and the Echoplex will continue to add multiple cycles for as long as you let it run. You end the copy by pressing the Multiply button again. The timing of this next press of Multiply will determine how many cycles from the first loop are kept. While the copy is happening, any new material that you play will be added over the top of the new loop, just as with Multiply. This is a great way to create a variation of your first loop into a new loop, and then switch back and forth between them later. 
+Caution: LoopCopy erases the existing contents of the next loop! 
+
+
+Example 4.17: Copying the Current Loop Prior to Switching 
+When SwitchQuant is on, you can take advantage of the quantize period to copy the current loop into the next one by pressing the Multiply button. This can be handy when you want to create a single backing track for several distinct loops, which youll later embellish differently with overdubbing and other actions. To see this in action, take the following steps: 
+
+1. Set MoreLoops to 2 or more 
+2. Turn SwitchQuant On 
+3. Record something a few seconds long into Loop 1, then end recording. 
+SwitchQuant 
+Continued 
+
+4. 
+Near the beginning of the loop, press NextLoop, then press Multiply. 
+
+5. 
+When your current loop ends, you will be switched immediately into Loop 2, and you will be in Multiply mode. You wont hear the transition as it will sound like your current loop continues to play. 
+
+6. 
+Keep playing, as you layer more sounds on top of the sounds being copied from Loop 1. When you press Multiply again, the Copying will end and the new loop with the added overdubs will begin repeating. 
+
+
+Multiples of Loop 1 will be copied as long as Multiply is active. If Loop 1 contains multiple cycles, then you may not get all of them if you end the Multiply function prematurely. Another example can clarify this. 
+
+Example 4.18: Copying a Portion of the Current Loop to the Next Loop 
+1. Set MoreLoops to 2 or more. 
+2. Set SwitchQuant=Loop. 
+3. 
+Record a few seconds of chordal background in Loop 1. 
+
+4. 
+Use Multiply to record a short solo that lasts for 4 cycles or so, then end the Multiply function. 
+
+5. 
+Press NextLoop, then press Multiply. 
+
+6. 
+When you enter the next loop (after all 4 cycles of the current loop have completed), watch the Multiply counter in the right side of the display, and press the Multiply button again when this counter reaches 2. 
+
+7. 
+Listen to the truncated solo as it loops. 
+
+
+One final observation: you can achieve other effects by ending this Multiply function with any of the Alternate Endings listed under Multiply in the Functions section. 
+SwitchQuant 
+Continued 
+
+
+
+
+
+Insert 
+Pressing Insert during the quantize period will execute a TimeCopy in the new loop. This copies the timing (but not the audio contents) of the current loop cycle into the next loop, in real-time. This is essentially the same as putting you into Insert mode in the new loop, using the base cycle time of the starting loop. You will see the cycle count incrementing according to the cycle length of the starting loop, and any material you play will be added to the new loop. When you are ready to end, press Insert again and the Echoplex will round off to the next cycle point. 
+This technique gives you a seamless method to quickly create a new loop based on the timing of an existing loop, so they maintain the same rhythm. This is similar to using the more automated method with LoopCopy=time, except you can more directly control it and the copy will proceed whether the destination loop is in reset or not. 
+Caution: TimeCopy erases the existing contents of the next loop. 
+
+Mute 
+Pressing Mute during the quantize period will cause the Echoplex to toggle Mute mode when it switches to the new loop. 
+
+
+Overdub 
+Pressing Overdub during the quantize period has two possible results, depending on whether the next loop is reset or not. 
+If the destination loop is reset, pressing Overdub will execute a SimpleCopy. This function creates exactly one copy of the current loop in the new loop, without doing any multiplying. It ends by itself when it reaches the end of the loop, so you do not have to do anything. Overdub is on automatically upon entering the new loop, so new material can be immediately added while the copy occurs. 
+
+SwitchQuant 
+Continued 
+
+If the destination loop has material in it already, pressing Overdub during the quantize period will turn Overdub on when you switch to the new loop. 
+
+
+Record 
+Pressing Record during the quantize period will cause the Echoplex to begin recording immediately as soon as it enters the next loop. This is like having AutoRecord=on, except that AutoRecord will only start recording when you move into an empty loop, and it always happens in such a case automatically. In this case, pressing Record during the quantize period lets you choose when to record in a new loop, and it will work whether there is a loop recorded there already or not. 
+Caution: This erases the existing contents of the next loop. 
+
+SWITCHQUANT AS A QUANTIZE ALTERNATE FOR THE CURRENT LOOP 
+ConfirmCycle and ConfirmLoop also give you an alternate method to quantize actions in the current loop, similar to the way you might use the standard Quantize parameter. After you press NextLoop to enter the quantize period, continue pressing it until the current loop is displayed as the destination. Now, any function you press will begin according to the Confirm setting, regardless of the Quantize parameter setting. This can be an easy way to have both quantized and unquantized actions readily available to you without needing to change parameter settings while you play. You can even start Overdub quantized this way! 
+
+
+Example 4.x: Quantizing Overdub in the Current Loop 
+1. Set MoreLoops to 2 or more. 
+SwitchQuant 
+Continued 
+
+2. Set SwitchQuant=CLP and Quantize=OFF 
+3. 
+Record a loop  in loop number 1 
+
+4. 
+Press NextLoop until next loop number 1 is displayed 

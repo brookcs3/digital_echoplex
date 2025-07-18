@@ -1,0 +1,100 @@
+
+<TR>
+<TH>multiplying </TH>
+
+<TD>Knob/100% </TD>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TH>inserting </TH>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>
+<TH>replacing: </TH>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>
+<TH>mute </TH>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>
+<TH>SamplePlay </TH>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+
+<TD>Pedal </TD>
+</TR>
+</Table>
+
+<P>InputMode (Loop/Delay = In, Pedal Only) </P>
+
+<P>InputMode behaves just like LoopMode except that a connected Feedback pedal controls the input volume in the states where the input is open. Feedback is only controlled by the front panel Feedback knob. This InterfaceMode does not exist without a Pedal connected. </P>
+
+<Table>
+<TR>
+<TD>State </TD>
+
+<TD>Feedback </TD>
+
+<TD>Loop Input </TD>
+
+<TD>Loop Output </TD>
+</TR>
+
+<TR>
+<TD>playing </TD>
+
+<TD>Knob </TD>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>overdubbing </TD>
+
+<TD>Knob </TD>
+
+<TD>Pedal </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>substituting </TD>
+
+<TD>0 </TD>
+
+<TD>Pedal </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>recording </TD>
+

@@ -1,0 +1,100 @@
+<P>MIDI dump: transfer with open loop connection </P>
+
+<P>Aurisis Research * PO Box 40200 * Berkeley, CA 94704-4200 * http://www.aurisis.com * info@aurisis.com </P>
+
+<P>If you have two MIDI cables you should connect the two units in both directions. </P>
+<Figure>
+
+<ImageData src="images/LoopIVGuide_img_3.jpg"/>
+</Figure>
+
+<P>MIDI-In MIDI-Out MIDI-In MIDI-Out </P>
+
+<Sect>
+<H5>Unit A (sender) Unit B (receiver) </H5>
+
+<P>MIDI dump: closed loop connection This allows unit B to acknowledge each package as it arrives. This is faster and safer than the open loop method. </P>
+</Sect>
+</Sect>
+
+<Sect>
+<H5>Unit A (sender) Unit B (receiver) </H5>
+
+<P>Dump Header </P>
+
+<P><Figure>
+
+<ImageData src="images/LoopIVGuide_img_4.jpg"/>
+</Figure>
+ACK </P>
+
+<P>Data #1 </P>
+
+<P>ACK </P>
+
+<P>Data #2 </P>
+
+<P>ACK </P>
+
+<P>... </P>
+
+<P>... </P>
+
+<P>Data #8265 </P>
+
+<P>ACK </P>
+
+<P>MIDI Dump: transfer with closed loop This gives the receiving unit B an opportunity to check each incoming packet and ask for a retransmit if necessary. </P>
+</Sect>
+
+<Sect>
+<H5>Unit A (sender) Unit B (receiver) </H5>
+
+<P>Dump Header </P>
+
+<P><Figure>
+
+<ImageData src="images/LoopIVGuide_img_5.jpg"/>
+</Figure>
+ACK </P>
+
+<P>Data #1 </P>
+
+<P>ACK </P>
+
+<P>Data #2 </P>
+
+<P>NAK ! </P>
+
+<P>Data #2 </P>
+
+<P>ACK </P>
+
+<P>... </P>
+
+<P>... </P>
+
+<P>Data #8265 </P>
+
+<P>ACK </P>
+
+<P>MIDI Dump: closed loop allows packet checking </P>
+
+<P>Aurisis Research * PO Box 40200 * Berkeley, CA 94704-4200 * http://www.aurisis.com * info@aurisis.com </P>
+
+<P>Dump Header </P>
+
+<P>ACK </P>
+
+<P>Who starts sending? </P>
+
+<P>The previous section showed the case where the sample dump was initiated from the sending unit A. This is not always possible or easy. Some samplers don’t even have a sample dump button or menu command. They completely rely on the other unit to initiate the transfer. This means the receiving unit has to send a sample dump request first. The sending unit then reacts by sending the desired dump. </P>
+
+<Sect>
+<H5>Unit A (sender) Unit B (receiver) </H5>
+<Figure>
+
+<ImageData src="images/LoopIVGuide_img_6.jpg"/>
+</Figure>
+
+<P>Request </P>

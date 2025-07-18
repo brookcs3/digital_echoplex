@@ -1,9 +1,7 @@
-import { defineConfig } from 'astro/config';
-import { resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { defineConfig } from 'astro/config'
+import { resolve } from 'path'
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-
+// https://astro.build/config
 export default defineConfig({
   outDir: 'dist',
   publicDir: 'public',
@@ -18,13 +16,11 @@ export default defineConfig({
     format: 'file',
     assets: 'assets',
     inlineStylesheets: 'never',
-    minify: false,
-    sourcemap: true,
   },
   vite: {
     resolve: {
       alias: {
-        '@': resolve(__dirname, './src'),
+        '@': resolve('./src'),
       },
     },
     css: {
@@ -35,18 +31,13 @@ export default defineConfig({
       },
     },
     build: {
-      minify: false,
       rollupOptions: {
         output: {
-          manualChunks: undefined,
+          entryFileNames: 'scripts/[name].js',
+          chunkFileNames: 'scripts/[name].js',
+          assetFileNames: 'assets/[name][extname]',
         },
       },
     },
-    server: {
-      fs: {
-        // Allow serving files from one level up to the project root
-        allow: ['..'],
-      },
-    },
   },
-});
+})

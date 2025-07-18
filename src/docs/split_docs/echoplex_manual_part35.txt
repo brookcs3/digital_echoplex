@@ -1,0 +1,100 @@
+
+Displays the level of the input. 
+When this light is dark, it is measuring very little (or no) signal. When it is green, the signal is healthy. Orange indicators are fine too, with the signal at a good level but nearing the maximum headroom. Levels that cause the indicator lights to glow red will be engaging the limiter, which may affect sound quality. The limiter is there to prevent a surprising loud input from causing ugly digital distortion, but it still affects the sound by squashing the dynamics. You should avoid inputs loud enough to turn the Input Indicator red. 
+Set the Input Level Knob so that the loudest levels cause the Input Indicator Light to turn orange, but never red. 
+
+See also: Quick Start, Input Knob, Input Jack 
+Input Jack 
+Back Panel 
+
+Plug in your instrument, mixer send, or microphone. 
+This back-panel jack accepts 1/4 phone plugs carrying the audio signal to be recorded or delayed. It is a high-impedance input designed to accept a wide range of audio levels, including high-impedance microphone outputs, signals from electric guitars and basses (with either passive or active electronics), and line-level signals from electronic instruments and mixers. 
+Input Knob 
+Front Panel 
+
+Controls the master input volume level. 
+Set this so that the loudest levels cause the Input Indicator Light to turn orange, but never red. 
+
+See also: Input Indicator Light 
+Loop Display 
+Front Panel 
+
+Indicates the current Loop. 
+The Loop Display shows the current Loop selected. This is mainly meaningful when more than one loop has been set up using the MoreLoops parameter. 
+The Echoplex can have its memory divided into as many as 16 different loops. In order to save front panel space and use a single digit for the Loop Display, some of the loops are labeled with letters instead of numbers. If you set up 16 loops, you will see they are labeled 1 - 9, followed by A, b, C, d, E, F, G. 
+
+See also: NextLoop, MoreLoops 
+Loops LED 
+Front Panel 
+
+Indicates the Loops Row of the Parameter Matrix is selected. 
+The Loops LED is illuminated when the Loops Row of the Parameter Matrix has been selected for editing with the Parameter Button. The Multiple Display will also show P4 when this row is selected in the Parameter Editing Mode. 
+The Loops Row consists of the Parameters related to multiple loops. These are MoreLoops, AutoRecord, LoopCopy, SwitchQuant, LoopTrig, Velocity, and SamplerStyle. 
+The Loops LED is not used in Play Mode. 
+
+See also: Parameter Button, Multiple Display, Parameter Matrix 
+LoopTime Display 
+Front Panel 
+
+Displays length of the current loop. Alternately shows other information depending on context. 
+STANDARD LOOPTIME DISPLAY 
+When you are in a Record, Multiply, or Insert operation, the LoopTime Display will keep track of how much time youve recorded so far. You will see it counting the time as the operation progresses. Once something has been recorded into a loop, the time display will show the length of the current loop. 
+When you have reset a loop, the LoopTime Display will be blank until you record some material in the loop. 
+
+ALTERNATE DISPLAYS 
+SYNC TIME DISPLAY 
+After the second Sync pulse is received, or a sync is established by MIDI Clock, the resulting Cycle Time is displayed on the LoopTime Display. This only appears while in Reset. 
+
+
+FEEDBACK DISPLAY 
+Changes to FeedBack are displayed briefly on the LoopTime Display while it is being changed. The value appears as a red number (0 - 127) in place of the LoopTime. The display shows the change whether it is made by the front panel Feedback Knob, a footpedal in the Feedback Jack, or through MIDI continuous controller. 
+
+LoopTime Display 
+Continued 
+This is very helpful in controlling Feedback, since it is often difficult to tell exactly what you have set when using a foot pedal. In the case of Feedback you dont know the result until the next repetition of the loop, which can be frustrating if you didnt really set it where you wanted. The visual display makes this much easier to manage. 
+
+
+VOLUME CONTINUOUS CONTROLLER DISPLAY 
+When the MIDI continuous controller for Loop Output Volume is sent to the Echoplex, the value appears on the LoopTime Display in the same way as with Feedback. 
+
+
+COMMAND DISPLAY 
+Several functions that do not have their own obvious LED indicator are displayed briefly with some letters on the red LoopTime Display. These are: 
+
+Display  Command  
+rE  Reverse  
+Fd  Forward  
+H.SP  HalfSpeed  
+F.SP  FullSpeed  
+S.Un  Short Undo  
+L.Un  Long Undo  
+AL  ReAlign  
+St.S  QuantMIDIStartSong  
+S.Pt  StartPoint sent  
+cS.P  QuantStartPoint  
+Pr.E  Preset Editor  
+P n  Preset Change received  
+LOA  Load Preset  
+SAF  Save Preset  
+RES  Revert Preset to default  
+
+These become especially useful with the DirectMIDI commands that can directly access many of these functions. 
+
+9-14 Echoplex Digital Pro Plus Users Manual 
+LoopTime Display 
+Continued 
+
+
+MEMORY SIZE DISPLAY 
+The size of the memory is only shown for a short time after startup and after GeneralReset. To see it again, just do a Short-Press Multiply in Reset and it will appear briefly on the LoopTime Display. 
+
+
+PARAMETER EDITING DISPLAY 
+When you are editing parameters, the value of the current parameter is displayed in the LoopTime Display. 
+
+
+QUANTIZING DISPLAY -OOO 
+When Quantize=Cycle, Loop, or 8th, most command actions are Quantized, meaning the wait until a designated point before they execute. During the Quantize Period while it is waiting to execute, the LoopTime Display will change to ooo to indicate we are waiting. 
+Similarly, if we are waiting for a Sync event to start Recording, the LoopTime Display will show ooo. 
+If Threshold is set to something other than 0, Record will wait until an audio signal reaches the threshold before it will start recording. During this wait time the LoopTime Display will also show ooo. 
+

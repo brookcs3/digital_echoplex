@@ -1,0 +1,542 @@
+// ECHOPLEX DIGITAL PRO PLUS - COMPLETE STYLES
+// Everything in ONE file - simple and clean!
+
+// ========== VARIABLES ==========
+$led-green: #0f0;
+$led-red: #f00;
+$led-amber: #ff0;
+$led-off: #333;
+$lcd-background: #000;
+$lcd-text-green: #0f0;
+
+// ========== GLOBAL ==========
+* { box-sizing: border-box; }
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #222;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+// ========== MAIN INTERFACE ==========
+.main-interface {
+  transition: opacity 0.5s;
+}
+
+.main-interface.powered-off {
+  opacity: 0.3;
+}
+
+.main-interface.powered-off .control:not(.echoplex-power-button) {
+  pointer-events: none;
+}
+
+.main-interface.powered-off .timer-display,
+.main-interface.powered-off .loop-display,
+.main-interface.powered-off .multiple-display,
+.main-interface.powered-off .status-led,
+.main-interface.powered-off .tempo-dot,
+.main-interface.powered-off .level-light {
+  display: none !important;
+}
+
+// ========== WAVEFORM DISPLAY ==========
+.waveform-display {
+  width: 100%;
+  height: 150px;
+  background-color: #000;
+  border: 1px solid #0f0;
+  margin-bottom: 20px;
+}
+
+
+
+// ========== CONTROL SECTIONS ==========
+.control-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #444;
+  background-color: #333;
+}
+
+.control-section h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #0f0;
+}
+
+.control-button {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #666;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 80px;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.control-button.active {
+  background-color: #0f0;
+  color: #000;
+}
+
+// ========== PRESET SECTION ==========
+.preset-section {
+  margin-top: 20px;
+}
+
+.preset-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.preset-description {
+  font-style: italic;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+// ========== DIALOG ==========
+.dialog {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #333;
+  border: 2px solid #0f0;
+  padding: 20px;
+  z-index: 100;
+  width: 300px;
+}
+
+.dialog h3 {
+  margin-top: 0;
+  color: #0f0;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dialog input, .dialog textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #666;
+}
+
+// ========== TIMER DISPLAY ==========
+.timer-display {
+  background-color: #000;
+  color: #0f0;
+  font-family: monospace;
+  font-size: 24px;
+  padding: 10px;
+  border: 1px solid #0f0;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.timer-display .label {
+  font-size: 14px;
+  color: #0a0;
+}
+
+.timer-display .time {
+  font-weight: bold;
+}
+
+.timer-display .warning {
+  color: #f00;
+}
+
+// ========== ANIMATIONS ==========
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes blink {
+  0% { color: #0f0; }
+  50% { color: #f00; }
+  100% { color: #0f0; }
+}
+
+.recording-active #recording-time {
+  animation: blink 1s infinite;
+}
+
+// ========== MAIN CONTAINER WITH BACKGROUND ==========
+#echoplex-container,
+.echoplex-container {
+  position: relative !important;
+  width: 95% !important;
+  max-width: 1400px !important;
+  aspect-ratio: 1400 / 162 !important;
+  margin: 20px auto !important;
+  background: url('https://echoplex-js.com/images/axa.png') no-repeat center !important;
+  background-size: cover !important;
+  border: 2px solid #111 !important;
+  user-select: none !important;
+}
+
+// ========== POWER BUTTON ==========
+#power-button,
+.power-button {
+  position: absolute !important;
+  right: 0.7% !important;
+  top: 40% !important;
+  width: 3.14% !important;
+  height: 17.14% !important;
+  background: linear-gradient(to bottom, #800, #400) !important;
+  border: 2px solid #600 !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5) !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+  transition: all 0.3s !important;
+  
+  
+  &.powered-on, &.on {
+    background: linear-gradient(to bottom, $led-red, #800) !important;
+    box-shadow: 0 0 15px $led-red !important;
+  }
+  
+  &.powering {
+    animation: pulse 1s infinite;
+  }
+}
+
+// ========== CONTROL BUTTONS ==========
+.control.button {
+  position: absolute !important;
+  cursor: pointer !important;
+}
+
+// Button positions
+.control.button[data-function="parameters"] {
+  left: 54.45% !important;
+  top: 9.9% !important;
+  width: 2.6% !important;
+  height: 21.0% !important;
+}
+
+.control.button[data-function="record"] {
+  left: 60.9% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+.control.button[data-function="overdub"] {
+  left: 65.5% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+.control.button[data-function="multiply"] {
+  left: 70% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+.control.button[data-function="insert"] {
+  left: 74.5% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+.control.button[data-function="mute"] {
+  left: 79.2% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+.control.button[data-function="undo"] {
+  left: 83.6% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+.control.button[data-function="nextloop"] {
+  left: 88.3% !important;
+  top: 10.3% !important;
+  width: 2.6% !important;
+  height: 21% !important;
+}
+
+// Button visual
+.button-image {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(to bottom, #f8f8f8, #d0d0d0) !important;
+  border: 1px solid #888 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  pointer-events: none !important;
+}
+
+.control.button:active .button-image {
+  transform: scale(0.95) !important;
+}
+
+// Status LEDs inside buttons
+.status-led[data-function] {
+  position: absolute !important;
+  left: 36% !important;
+  top: 175% !important;
+}
+
+.status-led {
+  border-radius: 50% !important;
+  width: 8px !important;
+  height: 8px !important;
+  
+  &.green, &[data-hw-state="ready"] {
+    background-color: $led-green !important;
+    box-shadow: 0 0 6px $led-green !important;
+  }
+  
+  &.red, &.recording, &[data-hw-state="recording"] {
+    background-color: $led-red !important;
+    box-shadow: 0 0 8px $led-red !important;
+    animation: recording-blink 0.5s infinite !important;
+  }
+  
+  &.orange, &.overdubbing, &[data-hw-state="overdubbing"] {
+    background-color: $led-amber !important;
+    box-shadow: 0 0 8px $led-amber !important;
+  }
+  
+  &.on, &[data-hw-state="on"] {
+    background-color: $led-green !important;
+    box-shadow: 0 0 6px $led-green !important;
+  }
+  
+  &.off, &[data-hw-state="off"] {
+    background-color: $led-off !important;
+    box-shadow: none !important;
+  }
+}
+
+// ========== CONTROL KNOBS ==========
+.control.knob,
+.knob {
+  position: absolute !important;
+  border-radius: 50% !important;
+  cursor: grab !important;
+}
+
+// Knob positions
+.control.knob[data-param="input"],
+.knob[data-param="input"] {
+  left: 1.3% !important;
+  top: 56% !important;
+  width: 2.8% !important;
+  height: 22.5% !important;
+}
+
+.control.knob[data-param="output"],
+.knob[data-param="output"] {
+  left: 7.5% !important;
+  top: 56% !important;
+  width: 2.8% !important;
+  height: 22.5% !important;
+}
+
+.control.knob[data-param="mix"],
+.knob[data-param="mix"] {
+  left: 21.2% !important;
+  top: 56% !important;
+  width: 2.8% !important;
+  height: 22.5% !important;
+}
+
+.control.knob[data-param="feedback"],
+.knob[data-param="feedback"] {
+  left: 26.95% !important;
+  top: 56% !important;
+  width: 2.8% !important;
+  height: 22.5% !important;
+}
+
+// Knob visual parts
+.knob-image {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: radial-gradient(circle at 30% 30%, #666, #222) !important;
+  border-radius: 50% !important;
+  box-shadow: 
+    0 5px 15px rgba(0,0,0,0.8),
+    inset 0 -2px 5px rgba(0,0,0,0.5),
+    inset 0 2px 2px rgba(255,255,255,0.2) !important;
+  pointer-events: none !important;
+}
+
+.knob-indicator {
+  position: absolute !important;
+  width: 3px !important;
+  height: 40% !important;
+  background: #fff !important;
+  left: 50% !important;
+  top: 10% !important;
+  transform: translateX(-50%) !important;
+  box-shadow: 0 0 3px rgba(255,255,255,0.5) !important;
+  pointer-events: none !important;
+}
+
+// ========== LEVEL LEDS ==========
+.level-light {
+  position: absolute !important;
+  border-radius: 50% !important;
+  background-color: $led-off !important;
+  
+  &#input-level {
+    left: 13.15% !important;
+    top: 73% !important;
+    width: 0.7% !important;
+    height: 6% !important;
+  }
+  
+  &#feedback-level {
+    left: 17.05% !important;
+    top: 73% !important;
+    width: 0.7% !important;
+    height: 6% !important;
+  }
+  
+  &.green { background-color: $led-green !important; box-shadow: 0 0 8px $led-green !important; }
+  &.yellow { background-color: $led-amber !important; box-shadow: 0 0 8px $led-amber !important; }
+  &.red { background-color: $led-red !important; box-shadow: 0 0 8px $led-red !important; }
+}
+
+// ========== ROW INDICATOR LEDS ==========
+.row-indicator {
+  position: absolute !important;
+  width: 0.7% !important;
+  height: 6% !important;
+  border-radius: 50% !important;
+  background-color: $led-off !important;
+  
+  &#loops-led { left: 56.3% !important; top: 52% !important; }
+  &#midi-led { left: 57.45% !important; top: 62.4% !important; }
+  &#switches-led { left: 58.6% !important; top: 72% !important; }
+  &#timing-led { left: 59.75% !important; top: 82% !important; }
+  
+  &.active { 
+    background-color: $led-green !important; 
+    box-shadow: 0 0 4px $led-green !important; 
+  }
+  
+  &.orange { 
+    background-color: $led-amber !important; 
+    box-shadow: 0 0 4px $led-amber !important; 
+  }
+}
+
+// ========== DISPLAY SECTION ==========
+.display-section {
+  position: absolute !important;
+  left: 32.9% !important;
+  top: 33% !important;
+  width: 19.3% !important;
+  height: 47% !important;
+  background: #111 !important;
+  border: 2px solid #333 !important;
+  border-radius: 5px !important;
+  padding: 1% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.loop-display {
+  font-family: 'Orbitron', monospace !important;
+  font-size: 3.6vw !important;
+  color: $led-red !important;
+  text-shadow: 0 0 10px $led-red !important;
+  background: $lcd-background !important;
+  padding: 0.5% 1% !important;
+  border-radius: 3px !important;
+  text-align: center !important;
+  position: relative !important;
+}
+
+// ========== LOOP DISPLAY LEDS ==========
+.auto-undo-led {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  border-radius: 50%;
+  opacity: 1.0;
+  visibility: visible;
+  box-shadow: none;
+}
+
+.auto-undo-led.active {
+  background-color: orange;
+  box-shadow: 0 0 6px orange;
+}
+
+.left-display,
+.multiple-display {
+  font-family: 'Orbitron', monospace !important;
+  font-size: 1.2vw !important;
+  color: $lcd-text-green !important;
+  text-shadow: 0 0 8px $lcd-text-green !important;
+  background: $lcd-background !important;
+  padding: 0.5% 1% !important;
+  border-radius: 3px !important;
+  min-width: 15% !important;
+  text-align: center !important;
+}
+
+// ========== ANIMATIONS ==========
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes recording-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+// ========== MISC ==========
+.hidden {
+  display: none !important;
+}
+
+.parameter-matrix {
+  position: absolute !important;
+  left: 53% !important;
+  bottom: 13% !important;
+  width: 39% !important;
+  height: 22% !important;
+}

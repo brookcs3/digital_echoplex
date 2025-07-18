@@ -1,0 +1,100 @@
+<TH>replacing </TH>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>
+<TH>mute </TH>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+
+<TD>0 </TD>
+</TR>
+</Table>
+
+<P>Aurisis Research * PO Box 40200 * Berkeley, CA 94704-4200 * http://www.aurisis.com * info@aurisis.com </P>
+
+<P id="LinkTarget_518">StutterMode (Loop/Delay = Stu) </P>
+
+<P>StutterMode is just like LoopMode, but Insert works as a &quot;Single Cycle Multiply&quot;. When you have done a multiply and have several Cycles in a loop, pressing Insert will insert repetitions of the next Cycle. As the inserts are made you can overdub a longer phrase over the repetitions of the Cycle, with the results inserted into the loop when you press Insert again. If you press Undo instead, the loop will return to its original form. Using Insert-Undo like this lets you alter the flow of a loop by having one of the Cycles Stutter in a way similar to a skipping CD, and then return to the original. This can make very interesting results when working with very short Cycles, and that is why it is called StutterMode. </P>
+
+<P>Stutters can be done into a new loop as a copy function. With multiple loops set up in MoreLoops, and SwitchQuantize on, pressing Next-Insert will do the stutter into a new loop. You can overdub on this as it stutters, and keep it with another press of Insert. Pressing Undo sends you back to where you were in the previous loop. Copying a stutter is a good way to preserve the original loop while making stuttered variation out of a fragment from it. </P>
+
+<P>If you perform a very large number of repetitions of Insert and Undo button-presses to trigger and cancel the SingleCycleMultiply, you may eventually notice bits of the loop being erased by the Undo presses as well. This is a result of the way the Echoplex processes its memory. If you're planning to do heavy Insert + Undo button combinations with SingleCycleMultiply, you should be aware of this, and consider copying your loop via NextLoop before doing intensive stutter work, so you can return to the original loop fully intact if you wish. </P>
+
+<P>Another trick you can do to avoid the loss of the overdubs is to first fill a bit of memory reserve by letting the loop repeat a few times without AutoUndo. (without the left green AutoUndo dot LED blinking.) You can do this by reducing Feedback a little bit, say to 120 – 125. That is small enough that the fading will not be obvious over a couple of repetitions, but you will force the Echoplex to copy the loop a few times into new memory. Obviously by doing this you lose some of the older stuff in memory, which you will note if you later want to go backwards with Undo. The reasons why this works are very complicated, but suffice to say that you will not find bits of your loop disappearing when doing heavy stuttering effects! </P>
+
+<P>Also note that Substitute gains more advanced control in StutterMode. If you have a Pedal inserted for Feedback control, the pedal controls the Feedback during normal use and the knob setting is not used. However, during Substitute the knob becomes active for Feedback control. This lets you have two different Feedback settings between normal playing and Substituting. If you do not have a pedal inserted, Substitute operates the way it normally does in LoopMode and has feedback set to 0 while active. See the Substitute section to learn more about this function. </P>
+
+<Table>
+<TR>
+<TD>State </TD>
+
+<TD>Feedback (Pedal/NoPedal) </TD>
+
+<TD>Loop Input </TD>
+
+<TD>Loop Output </TD>
+</TR>
+
+<TR>
+<TD>playing </TD>
+
+<TD>Pedal/Knob </TD>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>overdubbing </TD>
+
+<TD>Pedal/Knob </TD>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>substituting </TD>
+
+<TD>Knob/0 </TD>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>recording </TD>
+
+<TD>NA </TD>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>
+<TD>multiplying </TD>
+
+<TD>Pedal/Knob </TD>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TD>inserting </TD>
+
+<TD>Pedal/Knob </TD>
+

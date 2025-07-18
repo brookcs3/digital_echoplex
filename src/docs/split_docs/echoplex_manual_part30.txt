@@ -1,0 +1,100 @@
+
+SYNC = OUTUSERSTARTSONG (OUS) 
+StartSong is sent at: 
+QuantMIDIStartSong (only at next loop StartPoint) MuteQuantMIDIStartSong (only at next loop StartPoint) Mute-Multiply ReAlign 
+StopSong is sent at: 
+Reset GeneralReset Start Record 
+
+
+IF SYNC= IN 
+StartSong is sent at: 
+Undo in Reset QuantMIDIStartSong (only at next loop start) MuteQuantMIDIStartSong (only at next loop start) 
+StopSong is sent at: 
+never 
+
+StartSong, StopSong, Continue 
+Continued 
+
+COMMANDING A START SONG WHEN SYNC=IN 
+StartSong can be sent in Reset with a press of Undo. This can be useful if you have another source of sync upstream of the Echoplex, but have stopped something downstream from it. Pressing Undo on the Echoplex is a convenient way to send a StartSong message to the downstream device and start it up. This also restarts the internal clock counters used to keep track of the beat 1 of the external sequencer. So if you get off from the sequencer somehow, or if you want to have a different point in the sequence considered as Beat one, tapping Undo lets you redefine the downbeat. 
+
+See also: Sync, TempoSelect, ReAlign, SongPositionPointer and Continue, StartPoint, 8th/Cycle, MIDIpipe, SyncRecord, Multiply, Insert, ReTrigger, MuteMode 
+StopSync Synchronization Play Mode 
+Temporarily ignore Sync. 
+Sometimes you may wish to temporarily ignore a Sync signal being received by the Echoplex so that you can Record free from it. 
+If a Sync has been received, pressing Overdub in Reset switches off reception of incoming Sync events. This is called StopSync. The Overdub LED turns red to indicate that sync reception is disabled. Once StopSync is done you can freely Record a loop of any length. 
+Another Overdub press in Reset makes the Echoplex receptive to Sync again. This is called ContinueSync. The Overdub LED is turned off until the next sync comes. 
+This means if you have a loop in sync and do a Reset, you continue in sync with the incoming clock. But with an Overdub press in Reset you can then Record a new Cycle length, unrelated to the external clock. This is mainly useful for working with other devices that send clock all the time. 
+StopSync also disables Tempo, so if you have used TempoSelect to set a Tempo you can temporarily escape from it and then return to it later. 
+
+See also: Sync, TempoSelect 
+Synchronization SyncStartPoint Play Mode 
+Define a new Global StartPoint and send a StartSong. 
+Pressing Undo in Reset when Sync=In defines a new Global StartPoint for Sync just like switching on a MIDI clock or sending a MIDI StartSong to the Echoplex does. This is called SyncStartPoint. The Global MIDI clock counter is also restarted at this point. Reset does not do this. 
+When SyncStartPoint is pressed, we also send out a MIDI StartSong message. This allows you to have a clock source upstream of the Echoplex, and be able to stop a downstream device and restart it in alignment with the Echoplexs new Global StartPoint. 
+If the Echoplex is in a state where we are waiting for a sync, pressing Undo stops it from waiting so recording can be done normally. 
+SyncStartPoint is also useful when working with units that send clock all the time. 
+
+See also: Sync, StartPoint, Global/Local MIDI Clock 
+SyncRecord Synchronization Action Play Mode 
+Allows spontaneous Recording in sync with external devices. 
+When a sync signal is being received by the Echoplex, and Sync=In, the Echoplex will Record loops in sync with the external devices tempo. Sync signals can be in the form of MIDI Clock, BrotherSync from another Echoplex, or pulses at the BeatSync input. 
+During Reset, the Overdub LED turns yellow to indicate that a Sync has arrived. When the second Sync point arrives to define the Cycle length, the LoopTime Display shows the resulting Cycle time. This cycle time is determined by the 8ths/cycle setting and the tempo of the incoming clock. Whenever the Overdub LED is yellow like this, the next Record press will be Synchronized. 
+Loops recorded in sync will be either exactly this Cycle length, or an integer multiple of it. You can decide in real-time how many cycles to Record. You simply let the Echoplex continue Recording and it will keep adding cycles until you stop the Record, at which point it will round off to the next Cycle point and begin playing back the loop. This is very similar to the way Multiply works, so it should be familiar if you have used Multiply. 
+
+SYNCRECORD  SYNCHRONIZED RECORDING WITHOUT QUANTIZING 
+SyncRecord is a variation of Record that is automatically done when a Sync of any type is being received, Sync=In, and Quantize=OFF. 
+Instead of always quantizing Record when a sync is being received, the Echoplex will do a kind of Multiply over nothing for the unquantized case. This means SyncRecord starts immediately when you press Record, counts the Cycles on the green multiple display, and rounds off at the end to fit the loop time defined by the sync. SyncRecord gives you freedom from quantization so you can begin recording anytime you 
+
+SyncRecord 
+Continued 
+like, while still allowing tight synchronization to an external clock source. 
+With SyncRecord, you only need to have received the first sync event to begin Recording in sync. As you are Recording, the Echoplex will continue watching the sync to determine what the right cycle times are. When you press Record again to end, the Echoplex will automatically round off to the right point so that your loop is exactly the correct length to match the sync. This is useful to let you start recording immediately without waiting for an entire sync period to occur. 
+
+SYNC WITH QUANTIZING 
+When Quantize=Cycle, 8th, or Loop, the Cycles are tracked and counted properly when recording in sync. When Record is pressed, it will be quantized to the next sync point defined by the incoming sync signal before it starts, and again quantized when Record is pressed to end. This means that if the incoming clock defines a Cycle length of 2 seconds and you let Record continue to 8 seconds, you will see the multiple counter counting from 1 to 4. The Cycle boundaries will be set at 2.0 seconds, and the startpoint will be aligned with the startpoint defined by the incoming sync. 
+
+See also: Record, Sync, Quantize, 8ths/cycle 
+TempoSelect Synchronization Action Play Mode 
+Set Tempos and Loop Lengths in Advance, in Beats per Minute (BPM) 
+TempoSelect is a way to set up the tempo of a loop in Beats Per Minute (BPM) before you record it. Once you set the BPM, the basic loop length is determined by the 8ths/Cycle parameter. You can also think of this as setting the loop time ahead of recording the loop. 
+The tempo is set with the FeedBack Knob or by MIDI. While still in reset and before a loop is recorded, you enter the TempoSelect state with a press of the Undo button. From there you can set the Tempo. 
+After setting the tempo the loop can be recorded. When you press Record, the Echoplex actually does a SyncRecord to the clock tempo that has been set. (See the SyncRecord section or the Sync chapter for more details on SyncRecord). This allows you to start the Record at any time. When you press Record again to finish, it will continue to the precise loop time determined by your tempo and the 8ths/Cycle parameter, and end the Record automatically. 
+Once the tempo is set in the TempoSelect state, MIDI clock is sent out. This allows you to start a sequencer or drum machine in time with your loop length before you even record the loop! Or similarly, it allows you to start a sequencer at the exact time you start recording a loop, instead of when you finish Recording it. TempoSelect gives you a lot more flexibility for working with sequencers and other synchable devices over direct recording of loops.  
+
+HOW TO USE TEMPO SELECT 
+TempoSelect requires that the Sync Parameter be set to Out or OuS. When you have Sync=Out or OuS, the Undo LED will be green in reset to indicate the TempoSelect function is available. 
+
+TempoSelect 
+Continued 
+To select the Tempo, first press the Undo button in Reset. This will put you into the TempoSelect State. From there you will see the display change and you will have several different commands available from the front panel.  
+
+THE TEMPO SELECT DISPLAY 
+When you enter the TempoSelect State, the Undo LED will turn red and the BPM will appear on the LoopTime display. The tempo LEDs will begin flashing to the beat. 
+You will also see that the Record LED is green and the Overdub, Insert, and Mute LEDs will be Orange to indicate they have special functions.  
+
+TEMPO SELECT COMMANDS 
+n Record  Record a loop in tempo. It will automatically do a SyncRecord to the selected tempo. 
+n Overdub  Press to disregard the Tempo without erasing it. If you press it again later or reenter the TempoSelect function, the tempo returns.       
+n Feedback Knob  sets the Tempo. 
+n Insert and Mute  use to fine tune the tempo. 
+n Short press of Undo  locks the tempo and triggers a StartSong message. 
+n Long press of Undo  exits from the TempoSelect state and switches the feature off. Any time a tempo has been set, a Long Undo during reset will clear it. 
+TempoSelect 
+Continued 
+
+SETTING THE TEMPO 
+Select the tempo with the FeedBack Knob. You can select a tempo between 26 and 278 BPM. Tempo can also be set by MIDI using the DataWheel continuous controller. (controller #6) 
+While the knob is being turned, the Tempo is displayed in BPM on the LoopTime display. Once youve stopped turning it for a moment, the resulting loop time is displayed in place of the BPM. The loop time depends on Tempo and the 8th/Cycle parameter. We assume that a beat is a quarter note, so at Tempo 120 BPM and 8th/Cycle=8, the Cycle time results in 2.0 seconds. If 8th/Cycle=16, you get 4.0 seconds, and so on. 
+
+FINE TUNING THE TEMPO 
+With the Feedback Knob the tempo is adjusted coarsely, in 2 BPM increments. The Insert and Mute buttons can be used to fine tune the tempo from there. Insert reduces the LoopTime (increase BPM) and Mute increases the LoopTime (reduces BPM). Each press changes the loop time by approximately 3 milliseconds. Fine tuning changes are not shown in BPM, it only changes while the LoopTime is displayed. Unfortunately, the LoopTime usually shows the time in 100ms resolution! So you might not be able to see anything change on the display as you fine tune the tempo, until you have changed it by 100ms. But you can hear it. 
+Since the MIDI clock is being sent out during this time, any device following the clock will be slowly changing in tempo as it follows the fine tuning. 
+A long press of Undo clears the Tempo and exits from Tempo Select. 
+
+TempoSelect 
+Continued 
+
+DIFFERENCES BETWEEN SYNC=OUT AND SYNC=OUS 
+TempoSelect behaves slightly differently depending on whether the Sync parameter is set to Out or OuS. With Sync=Out, MIDI StartSong messages are sent when you start Recording or when you Set the tempo with Undo. When Sync=OuS, MIDI StartSong is only sent at user command with the press of Undo in the TempoSelect state, but not sent when you start or stop Recording. If you have recorded a loop without StartSong, you need to do one of the new Quantized StartSong functions to send a MIDI StartSong message. This can give you more freedom in controlling when the sequencer starts. 
+See the Synchronization chapter for more details on the differences between Sync=Out and Sync=OuS. Details on the Quantized StartSong functions can be found in the Synchronization chapter and in the MIDI chapter. 

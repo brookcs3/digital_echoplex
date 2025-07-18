@@ -1,0 +1,100 @@
+In any case, there is no point in loading Presets if you havent saved any, so we dont clutter the interface with it.  
+
+Parameter Presets 
+Continued 
+
+SELECTING PRESETS WITH MIDI PROGRAM CHANGE 
+Selecting presets with MIDI is very straight forward. MIDI Program Change messages 1  15 select presets 1  15. Remember, MoreLoops value changes are not made unless we are already in Reset. 
+If you have edited parameters on the fly and want to return to what you had, MIDI Program Change 16 reloads the original saved preset. 
+
+See also: Parameter Button, Channel, MIDI Command List, MoreLoops 
+Preset Editor 
+
+Parameter Editing Mode 
+Edit, select, save, load, and restore presets. 
+ACCESSING THE PRESET EDITOR 
+The Preset Editor is accessed by the Preset parameter location. This is in the Switches Row of the Parameter Matrix, under the NextLoop Button. When you press it you are in the Preset Editor. There, all the other buttons get a new function. 
+
+PRESET EDITOR COMMANDS 
+Once you are in the Preset Editor, the front panel buttons take on the following roles: Mute counts up Preset# 
+Insert counts down Preset# 
+Multiply Sets selected Preset and Preset 0 to factory default 
+Overdub long press saves the playing state settings (Preset 0) to the Preset displayed 
+Record loads the Preset displayed to the playing state setting (Preset 0) for use. 
+
+Preset Editor 
+Continued 
+
+PRESET EDITOR DISPLAY 
+The Display shows the Preset number as Pr #. No dot after Pr indicates that this Preset is the last one that has been loaded into the Playing state Preset 0. If there is a dot after Pr, it is not the one loaded. When the display shows PrE it means that the Preset 0 parameter settings have been modified since the preset was loaded to them. With the display indicators it should be easy to tell in the editor which preset you are currently using, and if there are new changes made that you may want to save. 
+
+TIME REQUIRED FOR SAVING PRESETS 
+Please note that the saving of a Preset to the non-volatile memory in the Echoplex takes about 400ms. if the unit is power cycled before that, it may come back on with different parameter values than expected. Make certain you wait a second after saving for the Parameters to be fully saved before turning off the power. 
+
+See also: Parameter Button, Parameter Presets 
+CHAPTER 9 
+
+
+User Interface 
+DataWheel 
+Front Panel 
+
+The Feedback Knob becomes the DataWheel during Parameter Editing mode. 
+The Parameters that have many values can be edited with the Feedback Knob on the front panel while that parameter is being viewed. The Feedback Knob becomes the DataWheel. 
+
+USING THE DATAWHEEL 
+Select the parameter as usual and then turn the Feedback Knob to edit the value instead of pushing the button repeatedly. Parameters with less than 127 values have them spread over the range of the knob. 
+Note this only works from the actual Feedback Knob on the front panel. A pedal connected to the Feedback Pedal Jack does not have this function. 
+DataWheel works with: 
+n 8th/Cycle n MIDI channel n Source # n LoopTrig # n VolumeCont n FeedBkCont n MoreLoops 
+
+DataWheel 
+Continued 
+
+AVOIDING CONFLICTS WITH FEEDBACK 
+Since the DataWheel is the Feedback Knob in Play Mode, the Echoplex makes some effort to avoid conflicts between Feedback settings and DataWheel settings. 
+The value for Feedback is stored and maintained when you enter the Parameter Editing Mode. Using the Feedback Knob as the DataWheel for editing a Parameter value does not change the actual Feedback setting. When you leave Parameters, Feedback is still set the same as you left it. 
+However, you should still be careful because the Feedback Knob will now be in a different position. The next time you change the Feedback with the Feedback Knob the value will jump to the knob position. Usually it is best to remember setting it back where you want before returning to Play Mode. The Echoplex helps you with this if you forget, by providing a short time gap after you start moving the Feedback Knob before the knob is read. So if you turn the knob quickly you can return to the value you want without getting a strange Feedback setting. 
+
+See also: Feedback Knob, Feedback, Parameter Button 
+Feedbk Indicator 
+Front Panel 
+
+Displays the volume of the material in the loop. 
+When this light is dark, it is measuring very little (or no) signal. When it is green, the signal is healthy. Orange indicators are fine too, with the signal at a good level. Levels that cause the indicator lights to glow red will cause distortion. 
+
+Feedback Pedal Jack 
+Back Panel 
+
+Plug a volume pedal into this jack to control feedback levels with your foot. 
+This jack lets you use a passive volume pedal (one with no power supply or battery) to control the Feedback parameter. Use a standard guitar cord to connect a volume controls "Amplifier" output to this jack in order to use the pedal as a Feedback controller. 
+This jack has been calibrated to work well with most passive volume pedals. If your pedal has a significantly-different resistance, it may not be able to span the full range of Feedback levels. 
+The Feedback value can be controlled by MIDI, by the Feedback Knob on the front panel, or by a volume pedal connected to the Feedback Jack. 
+See the explanation of the Feedback Knob in this chapter for the most detailed explanation of Feedback. 
+
+THE EFFECT OF LOOP/DELAY 
+The Loop/Delay parameter determines if the pedal in the Feedback Jack is routed to Feedback, Loop Input Volume, or Loop Output Volume. There are eight different options for different styles of looping. Below are three common ones, please see the Loop/Delay section in the Parameters Chapter for more info. 
+
+n When Loop/Delay=Loop, the pedal controls the Feedback. 
+n When Loop/Delay=Delay, the pedal controls the Loop Input Volume. 
+n When Loop/Delay=Out, the pedal controls the Loop Output Volume. 
+See also: Feedback Knob, Loop/Delay 
+Feedback Knob 
+Front Panel 
+
+Sets the feedback level. 
+The Feedback level is the amount of signal that is fed from one pass through the loop (or delay) to the next. For most looping operations, Feedback is set to 100%, meaning that the loop will go on forever. While youre overdubbing or multiplying, the Feedback level is scaled back to about 95% to prevent overloading the Echoplex with the combination of the old signal and the new. 
+Because Feedback occurs at the end of a loop, you wont generally hear the effects of changing the Feedback level immediately. If you set the Feedback to 0, for instance, the current loop will play out to its end before you hear the volume drop to 0. 
+Setting the Feedback to an intermediate level is a good way to create a smooth fadeout. 
+See also: Feedback 
+
+Footpedal Jack 
+Back Panel 
+
+A place to plug in a cord to connect to the EFC-7 footpedal. 
+Use a standard guitar cord, with 1/4" mono phone plugs on each end, to connect this jack to the optional EFC-7 footpedal. 
+You can also attach an ordinary momentary footswitch to this jack, and it will function just like the Record button. 
+See Chapter 2 for information on the footpedal. 
+
+Input Indicator 
+Front Panel 

@@ -1,0 +1,100 @@
+<P id="LinkTarget_517">Modifying the LoopWindow </P>
+
+<P>You can define new LoopWindow sizes at any time by doing more Re-Multiplies or Unrounded Multiplies, and then move the new LoopWindow over the loop. </P>
+
+<P>Once you have a LoopWindow defined, you can do any other loop function on it that you like. For example, you can overdub new material onto it. Pressing Undo after that will first remove the overdubs, and then begin jumping backwards through memory of the larger loop. </P>
+</Sect>
+
+<Sect>
+<H3>Retrigger while Playing </H3>
+
+<P>When MoreLoops = 1, the otherwise unused NextLoop button turns yellow and does a Retrigger function. When you press it, the current loop will retrigger from the start, and then continue looping. This is similar to doing Mute-Undo to retrigger a loop, but without silence from having to mute first! This is only available when you have one loop set up in MoreLoops, since the NextLoop button obviously changes loops otherwise. There are also new MIDI commands available for Retriggering loops, so if you need to Retrigger when you have multiple loops set up you should consider those. Details are in the MIDI chapter. </P>
+</Sect>
+
+<Sect>
+<H3>InterfaceModes – New Loop/Delay Parameter Values </H3>
+
+<P>The Loop/Delay parameter determines how feedback, loop input volume, and loop output volume are controlled during various states. The parameter affects how you interact and control the loop, and different settings will be more or less useful to different players and different styles of looping. We call these InterfaceModes. Basically, InterfaceModes reroute the control signals from the feedback knob on the front panel and the feedback pedal input on the back, and determine when they are active and which parameters they control. In some cases these settings end up affecting Insert in interesting ways as well. </P>
+
+<P>There were only three settings before – Loop, Delay, and Out. Loop has always been the default setting and most people use it. DelayMode is there to give a familiar style of operation to people accustomed to using delays. OutMode was only available if a pedal was inserted in the Feedback Pedal jack, and is really just like LoopMode but with Loop Output level controlled by the pedal while feedback was controlled by the knob. </P>
+
+<P>Now we have added several new options to allow new ways to interact with the loop, for a total of eight. Four of the InterfaceModes are available at any time, and four require a pedal to be inserted in the Feedback Pedal jack. Those four are not visible in the parameter selection unless the pedal is connected. </P>
+
+<P>These InterfaceModes are really expert functions, for experienced users to find subtle new ways to interact with loops. For newer or less experienced users, we recommend that you stay with LoopMode until you feel ready to experiment with the other InterfaceModes. </P>
+
+<P>LoopMode  (Loop/Delay = LOP) </P>
+
+<P>LoopMode is the default setting for the Loop/Delay parameter, and is the most common way of using the Loop. This is the InterfaceMode we recommend people to start with, and most people stay with it. In LoopMode feedback control is always active, whether overdubbing or not. Feedback is controlled by the front panel knob if there is no pedal inserted, or by the pedal if it is there. Input or Output levels are fixed all the way on or off depending on the function, so these are being set for you according to what you are doing. </P>
+
+<Table>
+<TR>
+<TH>State </TH>
+
+<TH>Feedback (Pedal/NoPedal) </TH>
+
+<TH>Loop Input </TH>
+
+<TH>Loop Output </TH>
+</TR>
+
+<TR>
+<TH>playing </TH>
+
+<TH>Pedal/Knob </TH>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TH>overdubbing </TH>
+
+<TH>Pedal/Knob </TH>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TH>substituting </TH>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TH>Recording </TH>
+
+<TD>NA </TD>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>
+<TH>multiplying </TH>
+
+<TD>Pedal/Knob </TD>
+
+<TD>100% </TD>
+
+<TD>100% </TD>
+</TR>
+
+<TR>
+<TH>inserting </TH>
+
+<TD>0 </TD>
+
+<TD>100% </TD>
+
+<TD>0 </TD>
+</TR>
+
+<TR>

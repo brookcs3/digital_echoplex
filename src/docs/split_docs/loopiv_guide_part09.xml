@@ -1,0 +1,100 @@
+<Lbl>• </Lbl>
+
+<LBody>SwitchQuantize = Loop, ConfirmLoop, ConfirmCycle </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SamplerStyle = Start </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Quantize = Loop, 8th </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Loop/Delay = Stutter, Expert, Input, Output, Replace, Flip </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>RecordMode = Safe </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>8th / Cycle up to 256 </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Sync = Out and OutManualStartSong </LBody>
+</LI>
+</L>
+</Sect>
+
+<Sect>
+<H3>New Display Features </H3>
+
+<L>
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Visual continuous control values for Feedback and Volume </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Tempo LEDs </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Sync LEDs </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Command Display </LBody>
+</LI>
+</L>
+
+<P>Aurisis Research * PO Box 40200 * Berkeley, CA 94704-4200 * http://www.aurisis.com * info@aurisis.com </P>
+</Sect>
+</Sect>
+
+<Sect>
+<H1>Installation </H1>
+
+<Sect>
+<H3>Installing LoopIV v1.1 EPROMs </H3>
+
+<L>
+<LI>
+<Lbl>1. </Lbl>
+
+<LBody>Before you start, please remember to be careful as you work. Changing the EPROMs is easy, but if you damage your Echoplex it is your problem. Aurisis Research is not responsible or liable for any damage you cause. If you do not feel comfortable following these instructions, find somebody who can help you. </LBody>
+</LI>
+
+<LI>
+<Lbl>2. </Lbl>
+
+<LBody>You’ll need a Phillips screwdriver, a small flat head screwdriver, the LoopIV software EPROMs, and a good surface to work on. </LBody>
+</LI>
+
+<LI>
+<Lbl>3. </Lbl>
+
+<LBody>To avoid damaging anything with static electricity, touch a grounded metal object to discharge yourself. If you have to stop part way through the following steps, make sure to ground yourself again when you resume work. Make certain the Echoplex is also properly discharged before you begin. The best way to do this is by connecting the power cord to a properly grounded wall outlet, and then disconnecting it. </LBody>
+</LI>

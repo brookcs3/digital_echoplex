@@ -1,0 +1,100 @@
+<bookmark title="Loop/Delay Parameter Settings">
+<destination structID="LinkTarget_529"/>
+</bookmark>
+<bookmark title="Quantize Parameter Settings">
+<destination structID="LinkTarget_529"/>
+</bookmark>
+<bookmark title="8ths/Cycle Parameter">
+<destination structID="LinkTarget_529"/>
+</bookmark>
+<bookmark title="Sync">
+<destination structID="LinkTarget_530"/>
+</bookmark>
+<bookmark title="RecordMode = Safe">
+<destination structID="LinkTarget_530"/>
+</bookmark>
+<bookmark title="InsertMode">
+<destination structID="LinkTarget_530"/>
+</bookmark>
+<bookmark title="MoreLoops">
+<destination structID="LinkTarget_530"/>
+</bookmark>
+<bookmark title="LoopTrig">
+<destination structID="LinkTarget_531"/>
+</bookmark>
+<bookmark title="SwitchQuantize">
+<destination structID="LinkTarget_531"/>
+</bookmark>
+<bookmark title="SamplerStyle">
+<destination structID="LinkTarget_531"/>
+</bookmark>
+</bookmark>
+<bookmark title="Ch 5: Synchronization">
+<destination structID="LinkTarget_532"/>
+<bookmark title="SyncRecord">
+<destination structID="LinkTarget_532"/>
+</bookmark>
+<bookmark title="Global/Local MIDI clock">
+<destination structID="LinkTarget_532"/>
+</bookmark>
+<bookmark title="ReAlign">
+<destination structID="LinkTarget_533"/>
+</bookmark>
+<bookmark title="StopSync">
+<destination structID="LinkTarget_534"/>
+</bookmark>
+<bookmark title="SyncStartPoint">
+<destination structID="LinkTarget_534"/>
+</bookmark>
+<bookmark title="Tempo Select">
+<destination structID="LinkTarget_535"/>
+</bookmark>
+<bookmark title="StartSont, StopSong, and Continue">
+<destination structID="LinkTarget_535"/>
+</bookmark>
+<bookmark title="Commanding a StartSong when Sync=In">
+<destination structID="LinkTarget_536"/>
+</bookmark>
+<bookmark title="QuantMIDIStartSong">
+<destination structID="LinkTarget_536"/>
+</bookmark>
+<bookmark title="MuteQuantMIDIStartSong">
+<destination structID="LinkTarget_536"/>
+</bookmark>
+<bookmark title="SongPositionPointer and ContinueSong">
+<destination structID="LinkTarget_537"/>
+</bookmark>
+<bookmark title="QuantStartPoint">
+<destination structID="LinkTarget_537"/>
+</bookmark>
+<bookmark title="AutoStartPoint">
+<destination structID="LinkTarget_537"/>
+</bookmark>
+<bookmark title="8th/Cycle">
+<destination structID="LinkTarget_537"/>
+</bookmark>
+<bookmark title="Improved Sync Routings">
+<destination structID="LinkTarget_538"/>
+</bookmark>
+</bookmark>
+<bookmark title="Ch 6: MIDI Control">
+<destination structID="LinkTarget_539"/>
+<bookmark title="DirectMIDI and VirtualButtons">
+<destination structID="LinkTarget_539"/>
+</bookmark>
+<bookmark title="Expanded MIDI Commands List">
+<destination structID="LinkTarget_539"/>
+</bookmark>
+<bookmark title="SUS MIDI Commands">
+<destination structID="LinkTarget_540"/>
+</bookmark>
+<bookmark title="SUSNextLoop">
+<destination structID="LinkTarget_541"/>
+</bookmark>
+<bookmark title="PreviousLoop">
+<destination structID="LinkTarget_541"/>
+</bookmark>
+<bookmark title="MIDI pipe">
+<destination structID="LinkTarget_541"/>
+</bookmark>
+<bookmark title="MIDI Data Wheel">

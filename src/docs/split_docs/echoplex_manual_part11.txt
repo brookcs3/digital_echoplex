@@ -1,0 +1,100 @@
+QUANTIZE = CYCLE 
+When Quantize=Cycle, the Echoplex waits until the current Cycle completes before executing the function. This is more meaningful if you have used Multiply or Insert to add cycles to the loop, otherwise the Cycle and the overall Loop are the same. 
+
+
+QUANTIZE = SUB-CYCLE (8TH) 
+When Quantize=8th, functions are Quantized to the next Sub-Cycle as determined by the 8ths/Cycle parameter. This is very useful for giving a close to instant feel for operating the Echoplex, while maintaining precise overall rhythm. With the default value of 8ths/Cycle=8, the Sub-Cycles are equal to 8th notes. However, 8ths/Cycle can be set to divide the loop anyway you want. 
+This setting for Quantize is essential for the concept of LoopDividing, described in the Functions section of this chapter. 
+
+SYNC AND QUANTIZED RECORDING 
+When an external clock is available for Sync, the Echoplex can force the loop length to match so that the loops will be in perfect sync with the clock. However, we dont have to start recording at the downbeat defined by this clock if we dont want to. This is the feature called SyncRecord. When Quantize=Off, the SyncRecord function lets you press Record anytime to start recording, but Quantizes the ending of the Record so that the loop length exactly matches the length defined by the clock and 8ths/Cycle. 
+If you set Quantize = Loop, Cycle, or Sub-Cycle, the Echoplex will Quantize the start of the Record to the downbeat of the external clock. When you press Record, you will see the ooo display. When the external StartPoint is reached, Record will begin. 
+Reference - Parameters 4-37 
+Quantize 
+Continued 
+
+ESCAPING QUANTIZATION 
+If you use Quantize, you may find that sometimes you want to execute a function Unquantized. You could do this by changing the Quantize parameter to Off, executing your function, and then turning it back on again, but that is hardly convenient or economical. 
+Instead, the Echoplex allows you an easy way to break free of the Quantization when you choose to. Anytime you have pressed a function and gone into the Quantizing Mode with ooo on the display, all you have to do is press the same function again and it will execute immediately. If you like, you can think of this as double-clicking the function. 
+
+See also: Multiply, Insert, Mute, Reverse, Substitute, HalfSpeed, SyncRecord, 8ths/Cycle, LoopDivide, LoopTime Display. 
+Presets Editor Presets Parameter Row: Switches 
+Enters the Preset Editor. 
+Pressing the Presets in the Parameter Matrix puts you into the Preset Editor. More information is available in the Presets section. 
+
+See also: Parameter Presets, Preset Editor 
+RecordMode Default: Toggle Parameter Row: Switches 
+Affects the behavior of the Record button. 
+Values: Toggle (tOG), Sustain (SUS), Safe (SAF) 
+
+
+RECORDMODE = TOGGLE 
+When RecordMode=Toggle, the Record button works as described in the Record section. Press Record once to begin recording, and press it again to stop. 
+
+
+RECORDMODE = SUSTAIN 
+However, when RecordMode=Sustain, you can only record sounds while you hold down the Record buttonas soon as you release it, the recording stops. 
+When RecordMode=Sustain, you lose the ability to Reset a loop from the Echoplex front panel or EFC-7 Pedal, normally accomplished by a long press of the Record button. This may not be a great loss for you, since a short press of Record while you play nothing will create a short loop with no contents. However, there are two consequences of this approach: 
+
+n A loop that is pseudo-cleared this way will not go into AutoRecord if you enter it with NextLoop. 
+n There is no way to do a GeneralReset of all loops in this situation, except to enter a loop (with AutoRecord=Off) that has not been recorded since power-up. The orange light under the Multiply button, signifying that a long press of that button will execute GeneralReset and clear all loops, does not go on unless the current loop is completely empty. 
+If you are using MIDI, both Reset and GeneralReset are available independently as DirectMIDI commands. So with MIDI, reset is not a problem. 
+
+RecordMode 
+Continued 
+Also note that if you are using MIDI there is a DirectMIDI command for independent sustain action Record. This command is called SUSRecord and is located at Source# + 14. 
+
+
+RECORDMODE = SAFE 
+RecordMode=Safe is just like RecordMode=Toggle except that after a Record the Feedback is always set to 100%. This will be true regardless of the Feedback Knob or Feedback Pedal position. When the feedback is changed the Echoplex starts to respond as normal. 
+This setting is useful for people who change Feedback but then tend to forget to set it back to 100% before recording a new loop. This can be frustrating if you recorded something perfectly and then a little while later realize it is gone because you left the Feedback down. RecordMode=Safe is meant to protect you from that. 
+The disadvantage is that if you want to start a loop with the Feedback down, you cant do it with RecordMode=Safe. In that case you would probably just continue to use RecordMode=Toggle. 
+RecordMode=Safe is disabled when Loop/Delay=DelayMode. 
+
+Reserved Now Presets Parameter Row: Switches 
+This is now called Presets on current Echoplexes, and it accesses the Preset Editor. If you have an older Echoplex with a Reserved parameter, see the Preset section. 
+Default: Off RoundMode Parameter Row: Switches 
+Determines whether certain material will be recorded. 
+Values: Off (OFF), Round (rnd) 
+During Multiply and Insert operations, which always are active for an exact number of cycles (unless ended with the Record button), this parameter determines whether new material played after the second press of the button but before the end of the current cycle will be recorded. Diagrams under the Multiply and Insert headings elsewhere in this chapter demonstrate the effects of this parameter explicitly. 
+
+See also: Overdub, Multiply, Insert 
+SamplerStyle Default: Run Parameter Row: Loops 
+Determines how multiple loops are triggered with MIDI or the NextLoop button. 
+Values: Run, One, Attack 
+This is primarily useful when you are using multiple loops. 
+As you can read in the discussion of LoopTrig, an incoming MIDI Note On can trigger any loop. If Velocity=On, the velocities of the incoming notes will control the volume at which the loop is played. There are four different types of responses to one of these triggers, corresponding to the values of this SamplerStyle parameter, as follows: 
+
+RUN (run) 
+The loop will start and play continuously, just as if you had pressed NextLoop to trigger it. The loop always begins where it was last left. 
+
+
+START (StA) 
+The loop will trigger from the StartPoint and play forever. This is true whether the loop is entered with NextLoop or triggered by MIDI. 
+
+
+ONCE (OnE) 
+When triggered with MIDI, the loop will trigger from the beginning to play just once, and then go into Mute mode. 
+When triggered with the NextLoop button the Echoplex plays the next loop once and then returns to the previous loop automatically. This is very helpful as a way to improvise the form of your music. You could have the A section looping in Loop 1, and at some point decide you want the B or C section to drop in for one repetition before returning to the main loop. With SamplerStyle=One you can do this with one press on NextLoop and let the Echoplex take care of everything for you. 
+
+SamplerStyle 
+Continued 
+
+
+ATTACK (Att) 
+When SamplerStyle=Attack, a MIDI note will cause the loop will trigger from the beginning play as long as the triggering note is held down; i.e., until a NoteOff or a different triggering note is received. 
+This type of action with SamplerStyle=Attack only makes sense when loops are triggered by MIDI. This gives a keyboard like play as long as you press function, but it doesnt make sense with NextLoop. So instead, when the NextLoop button is pressed (or MIDI-NextLoopButton), it operates the same as SamplerStyle=run. The loop starts in the same place where you last left it. 
+
+ALTERNATE FUNCTIONS WITH NEXTLOOP AND SAMPLERSTYLE=ONE 
+When you have SamplerStyle=One and you are using NextLoop to change loops, there are a few differences in functionality while the new loop is playing once: 
+
+n Undo: If you decide you want to stay in the new loop instead of bouncing back, you just have to press Undo while it is playing the single repetition. Instead of bouncing back to the first loop when it reaches the end, it will keep repeating the new one. 
+n Mute: If you press Mute during the second loop, it will Mute and stay in that loop. 
+n Insert: If you press Insert while the second loop is playing, it will retrigger. You can retrigger it as much as you like, and when you let it go to the end it will return to the first loop. 
+n Multiply: Multiply is not available while the second loop is playing. 
+n Overdub: If you turn on Overdub while the second loop is playing, it will be assumed that you want to make some change to the new loop and it will not switch back to the first one. If you have the SwitchQuant parameter on and press Overdub while you are still waiting for the first 
+Reference - Parameters 4-45 
+SamplerStyle 
+Continued 
+n 
+n 

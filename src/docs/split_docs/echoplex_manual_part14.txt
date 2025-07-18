@@ -1,0 +1,100 @@
+
+5. 
+In the middle of your current loop, press Overdub. 
+
+6. 
+The Echoplex will show ooo to indicate it is quantizing the Overdub. 
+
+7. 
+When the loop restarts, Overdub will come on. 
+
+
+See also: NextLoop, Quantize, LoopCopy, AutoRecord 
+Default: Out Sync Parameter Row: Timing 
+Synchronizes the Echoplex Digital Pro with another Echoplex Digital Pro, a MIDI sequencer, a pulse trigger device, or a sound source. 
+Values: Off (OFF), Out, OutUserStart (OuS), In 
+
+OFF (OFF) 
+No synchronization signals are received or sent. 
+
+
+OUT (OUT) 
+MIDI: MIDI clocks are sent out the MIDI Out port when a loop is recorded or a Tempo is preset. MIDI StartSong and StopSong messages are sent automatically when you record your loops. If 8ths/Cycle is large and your loop is short, the effective tempo may be over 400 or so beats per minute, in which case the clocks will be turned off. See 8ths/Cycle for a full discussion. 
+BeatSync: A pulse is sent out the BeatSync Jack a the start of every cycle. These pulses can be used to trigger or affect another device that accepts pulse inputs. It can also be listened to as a basic metronome. 
+BrotherSync: All Echoplexes using BrotherSync should set Sync=Out. 
+
+OUT USER START (OUS) 
+MIDI: MIDI clocks are sent out the MIDI Out port when a loop is recorded or a Tempo is preset. MIDI StartSong messages are not sent automatically when you record your loops. StartSong and StopSong commands must be sent manually by executing the various functions available for sending them. 
+Sync 
+Continued 
+BeatSync: A pulse is sent out the BeatSync jack a the start of every cycle. These pulses can be used to trigger or affect another device that accepts pulse inputs. It can also be listened to as a basic metronome. 
+BrotherSync: All Echoplexes using BrotherSync should set Sync=Out. 
+
+
+
+IN (IN) 
+MIDI: MIDI clocks are received at the MIDI In port. MIDI clock received is piped from the MIDI In Port to MIDI Out by the MIDIpipe function. MIDIclock is not sent based on recording a loop. 
+BeatSync: The Echoplex will receive impulses from a footswitch, a other pulse trigger source, or an audio source. It "slaves" its cycle time to that of the "master". This is described in detail in the BeatSync entry. 
+If a BeatSync pulse is received during Reset while Sync=In, MIDI Clock is sent out at the corresponding tempo. The purpose of this is to receive a Sync at the BeatSync of the Echoplex and send the Sync on to other devices as MIDI clock. 
+BrotherSync: Sync=In should not be used for BrotherSync unless there is an external sync source for all the units to follow. In general, all Echoplexes using BrotherSync should set Sync=Out. 
+If you are also using MIDI Clock from another device, note that if a MIDI clock is received at the MIDI In Port, BrotherSync input is ignored 
+
+See also: 8ths/Cycle, MIDI, The Synchronization Section, BrotherSync, BeatSync, ControlSource 
+Default: 0 Threshold Parameter Row: Timing 
+Tells the Echoplex to wait until you play before starting to record. 
+Values: 0-8 
+When a non-zero value for the Threshold parameter is set, the Record function waits until a large enough audio signal appears at the Input jack before it actually starts recording. When Threshold=0, this waiting is disabled and Recording begins immediately. 
+Each successive number represents a 6dB increase in the volume necessary to trigger recording, so 1 is very sensitive, while 8 requires Pete Townshend-like moves. 
+The next example illustrates the use of Threshold. 
+
+
+
+Example 4.19: Using Threshold 
+1. 
+Set Threshold to a medium value, like 3. 
+
+2. 
+Return to Play mode. 
+
+3. 
+Press Record. The display will read "ooo" (this symbol means the Echoplex is waiting for something). 
+
+4. 
+Begin playing. Recording will start with your first note. 
+
+5. 
+Press Record to stop recording. 
+
+
+See also: Record 
+
+Velocity Default: Off Parameter Row: Loops 
+Determines the effect of MIDI velocity on loops triggered by MIDI Note messages. 
+Values: Off (OFF), On (On) 
+If Velocity=Off, loops that are triggered by MIDI NoteOn messages will be played back at their full volume. 
+If Velocity=On, loops that are triggered by MIDI NoteOn messages will be played back with their volume scaled according to the velocity portion of the NoteOn messages: velocity 127 will play back a loop at full volume, while velocity 1 will play it back so quietly that it may be inaudible. 
+
+See also: LoopTrig, LoopTriggering, SamplerStyle 
+Default: 7 VolumeCont Parameter Row: MIDI 
+Determines which Continuous Controller will control the output level. 
+Values: 1-99 
+Incoming MIDI Continuous Controller messages can be used to control the Loop output level of the Echoplex Digital Pro. Only messages that are on the MIDI channel specified by the Channel parameter will be recognized. This only affects the volume of the loop output, not the direct signal. 
+
+See also: Channel, FeedbkCont 
+CHAPTER 5 
+
+
+
+Functions 
+
+Dump Immediate Action Parameter Row: MIDI 
+Sends the contents of the current loop, in MIDI Sample Dump format. 
+The dump travels out the MIDI Out port. Its a good way to save your best loops to a sampler or sequencer. Later, you can use the Load function to load the loop back into the Echoplex Digital Pro. Dump and Load are digital data transfers that will not degrade the audio quality of your loops at all. 
+There are subtle differences about the way MIDI sample dump operations work with different instruments and sequencers. You always need a MIDI cable connecting the dumping instrument and the receiving (loading) instrument. A cable in the other direction, which allows both instruments to send "handshaking messages" that communicate instrument status and confirmations, are sometimes required by samplers and sometimes not. Even in those cases when a second cable is optional, adding one can speed up the dump and load processes. 
+
+Example 4.7: Dumping the Current Loop to a Sequencer 
+1. 
+Record a loop. 
+
+2. 
+Connect a MIDI cable from the MIDI Out port on the Echoplex Digital Pro to the MIDI In port on your sequencer. 

@@ -1,0 +1,100 @@
+<P>Another use of these notes is a metronome. You can use them to trigger sounds on a synthesizer or sampler to serve as an audible tempo indicator for your loops. </P>
+</Sect>
+</Sect>
+
+<Sect>
+<H1 id="LinkTarget_543">Chapter 7: Parameter Presets and Editing </H1>
+
+<Sect>
+<H3>Presets </H3>
+
+<P>Parameter settings can now be stored and recalled as Presets. There are 15 memory spaces to save sets of all local parameters and Tempo. So for example, if you like to switch Quantize on and off quickly, you could switch it on through the parameter matrix, then save to Preset 1, then switch it off and save to Preset 2. Then keep calling those two Presets with a MIDI Program Change from a MIDI controller while playing. Much easier than editing from the front panel every time! </P>
+
+<P>Selecting Presets </P>
+
+<P>The 15 Presets can be chosen by one of the following methods: </P>
+
+<L>
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>From within the Preset Editor, accessed with the Reserved parameter </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>with the Mute and Insert buttons while in Reset </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>with MIDI Program Change commands at any time. </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Sysex </LBody>
+</LI>
+</L>
+
+<P>When InsertMode=HalfSpeed, that takes precedence over the Preset control on the Insert button. So only the Mute button is available for changing presets in that case. </P>
+
+<P>Parameters saved in Presets </P>
+
+<L>
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Loop/Delay </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Quantize • 8ths/Cycle </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Sync </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Threshold </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>RecordMode </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>OverdubMode </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>RoundMode </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>InsertMode </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MuteMode </LBody>
+</LI>

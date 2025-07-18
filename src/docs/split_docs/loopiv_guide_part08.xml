@@ -1,0 +1,100 @@
+<LBody>Improved Multiply and Insert cross-functions </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>8th/Cycle and sync changes occur in rhythm </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Improved SampleDump </LBody>
+</LI>
+</L>
+</Sect>
+
+<Sect>
+<H3>New Synchronization Features </H3>
+
+<L>
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SyncRecord </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Sync ReAlign </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Local/Global MIDI clock StartPoints </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Tempo </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SongPositionPointer and ContinueSong </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>StopSync </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>SyncStartPoint </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>QuantMIDIStartSong </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MuteQuantMIDIStartSong </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>QuantStartPoint </LBody>
+</LI>
+
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>Improved Sync routings • 8th/Cycle up to 256 </LBody>
+</LI>
+</L>
+</Sect>
+
+<Sect>
+<H3>New Parameter Values </H3>
+
+<L>
+<LI>
+<Lbl>• </Lbl>
+
+<LBody>MoreLoops = 16 </LBody>
+</LI>
+
+<LI>
