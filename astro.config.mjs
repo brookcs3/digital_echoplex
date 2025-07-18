@@ -24,7 +24,7 @@ export default defineConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@import 'sass:math'; @import 'sass:map'; @import "@/styles/import" as *;`
+          additionalData: `@import 'sass:math'; @import 'sass:map'; @import "../styles/echoplex.scss" as *;`
         }
       }
     },
