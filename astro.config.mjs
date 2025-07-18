@@ -19,7 +19,7 @@ export default defineConfig({
   },
   vite: {
     server: {
-      allowedHosts: ['healthcheck.railway.app'],
+      allowedHosts: ['healthcheck.railway.app', 'echoplex-js.com'],
     },
     resolve: {
       alias: {
