@@ -1,43 +1,39 @@
-import { defineConfig } from 'astro/config'
-import { resolve } from 'path'
+import { defineConfig } from 'astro/config';
+import { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // https://astro.build/config
 export default defineConfig({
-  outDir: 'dist',
-  publicDir: 'public',
+  site: 'https://echoplex-js.com',
+
   scopedStyleStrategy: 'class',
-  devToolbar: {
-    enabled: false,
-  },
+
   server: {
     host: true,
   },
-  build: {
-    format: 'file',
-    assets: 'assets',
-    inlineStylesheets: 'never',
-  },
+
   vite: {
     resolve: {
       alias: {
-        '@': resolve('./src'),
-      },
+        '@/': `${path.resolve(__dirname, 'src')}/`
+      }
     },
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@use 'sass:math'; @use 'sass:map'; `,
-        },
-      },
+          additionalData: `@use 'sass:math'; @use 'sass:map'; @use "@/styles/import" as *;`
+        }
+      }
     },
     build: {
-      rollupOptions: {
-        output: {
-          entryFileNames: 'scripts/[name].js',
-          chunkFileNames: 'scripts/[name].js',
-          assetFileNames: 'assets/[name][extname]',
-        },
-      },
-    },
+      assetsInlineLimit: 0
+    }
   },
-})
+
+  devToolbar: {
+    enabled: false
+  }
+});
